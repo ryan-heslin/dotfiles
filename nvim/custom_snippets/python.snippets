@@ -1,0 +1,30 @@
+# From README
+snippet "(\w+).par" "Parenthesis (postfix)" r
+(`!p snip.rv = match.group(1)`$1)$0
+endsnippet
+
+snippet wf "with open block"
+    with ${1:open}("${2}" as ${3:f}):
+	`!p t[3]`.${4:read}(${5:})
+endsnippet
+
+snippet ap "Argparse line"
+parser.add_argument("${1:flag}", "${2:option}", nargs = ${3:1}, type = ${4:str}, help = """${6:help}"""${7:})${0}
+endsnippet
+
+snippet #! "Python shebang"
+#!/usr/bin/env python3
+endsnippet
+
+snippet AoC "Advent of Code" b
+#! /usr/bin/env python3
+
+with open('inputs/`!p fn.split('.')[0]`.txt') as f:
+	raw_input = f.read${1:}($2)
+
+#answer1 =
+#print(f"Answer 1 = {answer1}")
+
+#answer2 =
+#print(f"Answer 2 = {answer2}")
+endsnippet

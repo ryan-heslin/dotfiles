@@ -1,0 +1,63 @@
+global !p
+delimiters = {
+"(" : ")",
+"[" : "]",
+"{" : "}",
+"<" : ">",
+"$" : "$",
+"\\langle": "\\rangle"
+}
+
+def clamp_line(snip, val, min_val = 0):
+    return max(min(int(vim.eval("line('$')")) - 1, val), 0)
+def move_cursor(snip, pattern = "[^;]*;(-?\d+)"):
+    matched = re.match(pattern, snip.buffer[snip.line])
+    shift = int(matched.group(1))
+    shift = clamp_line(snip, shift + snip.line)
+    snip.buffer[snip.line] = re.sub(";" + matched.group(1),  "", snip.buffer[snip.line])
+    snip.cursor.set(shift, 0)
+
+"""Produces a call to a function, with empty tabstops in all but
+the argument corresponding to the position of an object."""
+def modify_call(snip):
+    pattern = re.compile("^.*?mc(\d+)x(\d+)$")
+    obj = re.match("^[^\s]+", snip.buffer[snip.line]).group(0)
+    nargs, position = (int(x) for x in re.match(pattern, snip.buffer[snip.line]).group(1, 2))
+    nargs = nargs + (position == 0)
+    snip.buffer[snip.line] = re.sub("mc(\d+)x(\d+)$", "", snip.buffer[snip.line])
+    if position is None or position > nargs:
+        return
+    if nargs == 0:
+        args = ""
+    else:
+        args = ["$" + str(i) for i in range(2, nargs + 1)]
+        #0 indicates no position - just prepare function call
+        if position != 0:
+            args.insert(position - 1, obj)
+        args = ", ".join(args)
+    snip.expand_anon("$1(" + args + ")")
+endglobal
+
+snippet "(\w+\s+)\.([<$(\[{]).?" "Enclosing postfix: single word" rA
+`!p snip.rv = match.group(2)+ match.group(1).rstrip()  + delimiters[match.group(2)]`
+endsnippet
+
+snippet "((?:\w+\s+)+)\.\.([<$(\[{]).?" "Enclosing postfix: multiword" rA
+`!p snip.rv = match.group(2)+ match.group(1).rstrip() + delimiters[match.group(2)]`
+endsnippet
+
+pre_expand "move_cursor(snip)"
+snippet ";-?\d+" "test" wr
+`!p snip.rv = ""`
+endsnippet
+
+snippet note "Basic template for Zotero note" wl
+${1:pagestart}${2:${3:-}}
+
+${4:note}
+endsnippet
+
+pre_expand "modify_call(snip)"
+snippet "mc(\d+)x(\d+)\s*" "'Modify call' - create call to modify object" r
+`!p snip.rv = ""`
+endsnippet

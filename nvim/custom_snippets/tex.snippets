@@ -1,0 +1,134 @@
+global !p
+#from custom_snippets_common import *
+
+delimiters = {
+"(" : ")",
+"[" : "]",
+"{" : "}",
+"<" : ">",
+"$" : "$",
+"\\langle": "\\rangle",
+"_" : "_"
+}
+
+def repeat_string(snip, string, env, offset = 1):
+    number = int(snip.buffer[snip.line].strip()) + 1
+    snip.buffer[snip.line] = ""
+    anon_snip_body = "\n".join([string + " $" + str(i) for i in range(1, number)])
+    anon_snip_body = enclose(anon_snip_body, env)
+    snip.expand_anon(anon_snip_body)
+
+def enclose(string, env, end = "$0", newline = True):
+	return "\\begin{" + env +"}" + ("\n" *newline) + string + ("\n" * newline) +"\\end{" + env + "}" + end
+
+# Assume if an odd number of "$" before position, we are in an inline math chunk
+def in_inline_math(snip):
+    return snip.buffer[snip.line][0:snip.column].count("$") % 2 != 0
+
+"""Create an n x m matrix. Now memoized!"""
+def create_table(snip, env = "bmatrix", memo = {}):
+    nrow, ncol = (int (x) for x in re.match("^.*?[a-z](\d+)x(\d+)", snip.buffer[snip.line]).group(1, 2))
+    inline = in_inline_math(snip)
+    table =  ("\\\\\\\\" + ("\n" * (not inline))).join([" & ".join([f"${j}" for j in range((i-1) * ncol + 1, i * ncol + 1, 1)]) for i in range(1, nrow + 1, 1) ])
+# Sub out trigger
+    snip.buffer[snip.line] = re.sub("\$?\s*[a-z]\d+x\d+", "", snip.buffer[snip.line])
+    if "\\begin" not in snip.buffer[snip.line]:
+        try:
+            out = memo[str(nrow) + "x" + str(ncol)]
+        except KeyError:
+            out = enclose(table, env, end = "" + ("$0" * (not inline)), newline = (not inline)) + ("\$" * inline)
+            memo[str(nrow) + "x" +str(ncol)] = out
+        snip.expand_anon(out)
+
+def embiggen(snip, pat, modifier = "\\Bigg"):
+	#tag = re.match(pat, snip.buffer[snip.line]).groups(1)
+	snip.buffer[snip.line] = re.sub(pat, "", snip.buffer[snip.line])
+	try:
+		close = delimiters[tag]
+	except KeyError:
+		vim.command("echo 'No match for tag '" + tag +"'")
+		return
+	snip.expand_anon(modifier + tag +  "${1}" +  modifier + close + "${0}")
+endglobal
+
+post_jump "embiggen(snip,  pat = 'tag([(\[{<]).?')"
+snippet "tag([(\[{<]).?" "Create matching braces with \Bigg" wr
+endsnippet
+
+snippet frac
+\frac {${1:num}}{${2:denom}}
+endsnippet
+
+# From https://castel.dev/post/lecture-notes-1/
+snippet il "$ delimiter" wA
+$${1}$`!p if t[2] and t[2][0] not in [",", ".", "?", "-"]:
+	snip.rv = ""
+else:
+	snip.rv = ""
+`${2}
+endsnippet
+
+snippet enum
+\begin{enumerate}
+	\item ${VISUAL}${0:}
+\end{enumerate}
+endsnippet
+
+snippet sumn
+\sum_{${1:i}=${2:1}}^{${3:n}}{${4:expr}}${0}
+endsnippet
+
+post_jump  "repeat_string(snip, '\\item', 'enumerate')"
+snippet "enum(\d+)" "Enum of specified length" wr
+	`!p snip.rv = match.group(1)`
+endsnippet
+
+#post_expand "snip.cursor.preserve(); snip.buffer[snip.line] = re.sub('\d+x\d+', '', snip.buffer[snip.line])"
+pre_expand "create_table(snip, 'bmatrix')"
+snippet "m(\d+)x(\d+)" "Create table of given dimensions" ir
+`!p snip.rv = ""`
+endsnippet
+
+snippet env "Expand environment" A
+\begin{${1:tabular}
+    ${VISUAL:}
+\end{${1:tabular}}
+endsnippet
+
+snippet \ "Math mode" b
+\[
+	${VISUAL}${1}
+\]
+${0}
+
+endsnippet
+
+snippet & "Aligned"
+\[
+	\begin{aligned}
+	& ${1}
+	\end{aligned}
+\]
+$0
+endsnippet
+
+snippet pa "Partial derivative"
+\frac{\partial ${1:f}}{\partial ${2:x}} ${3:=} ${0}
+endsnippet
+
+snippet hyp "Null and alternative hypotheses"
+\[
+	\begin{aligned}
+	& H_0: ${1:null}\\\\
+	& H_a: ${2:alternative}
+	\end{aligned}
+\]
+endsnippet
+
+snippet _ "Surround in italics" w
+_$1_ $0
+endsnippet
+
+snippet lim "Limit"
+\lim_{${1:x \to ${2:c^{${3:}}}}${4:f(${5:x})}}
+endsnippet

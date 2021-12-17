@@ -1,0 +1,15 @@
+global !p
+endglobal
+extends python
+
+snippet snip "Why not?"
+snippet ${1} "${2}" ${3} ${4}
+${VISUAL}${0:}
+`!p snip.rv = "endsnippet"`
+endsnippet
+
+snippet pg "python global block"
+global !p
+${VISUAL}${0:}
+endglobal
+endsnippet

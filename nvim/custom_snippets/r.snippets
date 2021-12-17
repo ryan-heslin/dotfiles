@@ -1,0 +1,84 @@
+global !p
+from regex import sub as rsub
+#Find function definition line above cursor
+def get_definition(snip):
+		#if (fun := re.match("^[:alnum:]+\s+<-\s+function\(([\w]*\)",  snip.buffer[snip.line]))
+		#^[a-zA-Z0-9._]\+
+	if (line := int(vim.eval("search('\\sfunction(', 'bcW')"))) != 0:
+		#fun = re.match("^[\w.]+", snip.buffer[line]).groups(0)
+		return line - 1
+	return None
+# https://stackoverflow.com/questions/26385984/recursive-pattern-in-regex
+
+def extract_args(start):
+    line = snip.buffer[start]
+# Handle signatures that flow ove multiple lines: not as annoying as feared!
+    if not re.match("\)\s*\{\s*$", line):
+        #orig = [snip.line, snip.column]
+        #snip.cursor.set(start, 0)
+        stop = int(vim.eval("searchpairpos('function(', '', ')\\s*{')")[0])
+        line = " ".join([line] + [snip.buffer[i] for i in range(start + 1, stop)])
+        #snip.cursor.set(*orig)
+    line = re.sub("^[\w.]*\s*(?:<-)?\s*function\s*\(", "", line)
+    line = rsub('[\w.]*\((((?>[^()]+)|(?R))*)\)', "", line)
+    args = re.findall("(?:^|,)\s*([\w\.]+)", line)
+    return args
+
+# Produce roxygen documentation
+def render_roxygen(args, line):
+	mark = "#'"
+# Only generate argument tabstops if function actually has them
+	args_text = [mark + " @param " + arg + " $" + str(num +3) for num, arg in enumerate(args)] if (offset := len(args))  else []
+	text = ([mark + " ${1}", mark, mark + " @description $2"] +
+		args_text + [ mark + " @details $" + str(offset + 3)] + [mark, mark + " @return $" + str(offset + 4),
+		mark +  " ${" + str(offset + 5) + ":@export}", mark, mark + " @examples", mark]
+		)
+	vim.current.window.cursor = [max(line, 1), 0]
+	snip.expand_anon("\n" + "\n".join(text) + "\n")
+
+#Helper to compose these tasks
+def document(snip):
+# Get rid of trigger
+    snip.buffer[snip.line] = re.sub("(?:\s*|^)rox", "", snip.buffer[snip.line])
+    line = get_definition(snip)
+    # Bail out if no match
+    if line is None:
+        snip.cursor.set(snip.line, snip.column)
+        return None
+    args = extract_args(line)
+    render_roxygen(args, line)
+endglobal
+
+#pre_expand "snip.buffer[snip.line] = re.sub('rox$', '', snip.buffer[snip.line])"
+post_expand "document(snip)"
+snippet rox "Roxygen documentation"
+`!p snip.rv = ""`
+endsnippet
+
+snippet ggpl "Basic ggplot"
+ggplot(${1}${2:,} aes(${3:${4:x = ${5},} ${6:y = ${7}}})) +
+  geom_${8|point,density,bar,col,histogram|}(${9:}) ${0}
+endsnippet
+
+snippet q
+Your age: ${1|<18,18~60,>60|}
+Your height: ${2|<120cm,120cm~180cm,>180cm|}
+endsnippet
+
+
+snippet AoC "Advent of Code template" b
+#!/usr/bin/r
+raw_input <- read${1|.table,.csv,Lines,.delim,|}(${2:})
+$0
+
+
+
+
+#answer1 <- #TODO
+
+#print(paste("Answer 1:", answer1))
+
+#answer2 <- #TODO
+
+#print(paste("Answer 2:", answer2))
+endsnippet

@@ -1,0 +1,26 @@
+extends tex
+
+global !p
+def count_cloze(snip):
+    snip.expand_anon(int(len([*re.finditer('\{\{c\d+:', ' '.join(snip.buffer[snip.line]))])))
+endglobal
+
+priority 100
+snippet \ "Math block"
+\[ $1 \] $0
+endsnippet
+
+priority 100
+
+snippet il "Inline math" A
+\($1\)
+endsnippet
+
+snippet "c(\d+)" "Cloze with given number" r
+{{c`!p snip.rv = match.group(1)`::${1:cloze}}}${2.,, }
+endsnippet
+
+pre_expand "count_cloze(snip)"
+snippet cl "Autonumber cloze"
+{{c`!p`::${1:cloze}}}{$2:.,, }}}
+endsnippet
