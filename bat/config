@@ -1,0 +1,4 @@
+--theme="TwoDark"
+--style="full"
+--italic-text=always
+-m Rmd:"R Markdown"

@@ -11,10 +11,10 @@ Here are my configuration files for various tools I use. A quick rundown:
 few auxiliary files for setting mappings and filetype options, a steadily growing collection
 of Lua utility functions, and some other goodies.
 
-* The `setup_dotfiles.sh` script establishes symlinks to my dotfiles in the appropriate places.
+* The `setup_dotfiles.sh` script establishes symlinks to my dotfiles in the appropriate places, at least for an Ubuntu 20.04 machine.
 
 While some of my `bash` functions date back to early 2021, I wrote most of the included files in fall
-of that year. This is one repository I hope never to call finished!
+of that year and had lots of fun doing it. This is one repository I hope never to call finished!
 
 Many pieces of files in this repository were copied or repurposed from StackOverflow posts and
 the like. I did my best to credit the source whenever I did so.
