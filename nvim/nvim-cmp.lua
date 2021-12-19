@@ -59,6 +59,7 @@ local cmp = require('cmp')
         vim.fn["UltiSnips#Anon"](args.body)
       end,
     },
+     -- TODO update using latest features from Ultisnips cmp completion source repo map
     mapping = {
       ['<C-d>'] = cmp.mapping.scroll_docs(-4),
       ['<C-f>'] = cmp.mapping.scroll_docs(4),

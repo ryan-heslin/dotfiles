@@ -1,4 +1,5 @@
 cmp_config = require('cmp')
+local cmp_buffer = require('cmp_buffer')
    sources = {
     { name = 'nvim_lsp',
         max_item_count = 10,
@@ -10,9 +11,6 @@ cmp_config = require('cmp')
     keyword_length = 2},
       {name = "latex_symbols"},
       {name = "nvim_lua"},
-        { name = 'spell',
-        max_item_count = 10,
-        keyword_length = 4},
     { name = 'ultisnips' }
   }
   --require('telescope').load_extension("fzf")
@@ -71,6 +69,9 @@ cmp_config = require('cmp')
     })
 },
     sorting= {
+        comparators ={
+           function(...) return cmp_buffer:compare_locality(...) end
+        },
         priority_weight = 3},
     snippet = {
       expand = function(args)
@@ -135,4 +136,30 @@ cmp_config = require('cmp')
         }),
       },
     sources = sources
+  })
+
+  --Extra completion sources
+
+  cmp_config.setup.cmdline(':', {
+    sources = {
+      { name = 'cmdline' }
+    }
+  })
+
+    cmp_config.setup.cmdline('?', {
+    sources = {
+      { name = 'buffer' }
+    }
+  })
+
+  cmp_config.setup.cmdline('@', {
+  sources = {
+    { name = 'buffer' }
+  }
+})
+
+  cmp_config.setup.cmdline('/', {
+    sources = {
+      { name = 'buffer' }
+    }
   })

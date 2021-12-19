@@ -1,4 +1,7 @@
-local apairs = require('nvim-autopairs').setup{}
+
+ --  Largely boilerplate from official repo
+local apairs = require('nvim-autopairs')
+apairs.setup{}
 --fast_wrap = {}map_c_w = true
 local cmp_autopairs = require('nvim-autopairs.completion.cmp')
 cmp_config.event:on( 'confirm_done', cmp_autopairs.on_confirm_done({  map_char = { tex = '' } }))

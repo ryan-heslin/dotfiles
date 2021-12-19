@@ -17,18 +17,22 @@
    nnoremap \pp yiW:SlimeSend1 print(<C-r><C-w>)<CR>
    xmap \o :SlimeRegionSend<CR>
    nnoremap \b :SlimeParagraphSend<CR>
-   nmap \l <Plug> SlimeLineSend
-   nmap \m <Plug>SlimeMotionSend
-   nnoremap \pdb Oimport<space>pdb;<space>set<space>trace<Esc>j
-   nnoremap \ddb :%s/import\spdb;set\strace//g
+   nmap \l <Plug> SlimeLineSend<CR>
+   nmap \m <Plug>SlimeMotionSend<CR>
+
+   " Set or remove breakpoints
+   nnoremap \pdb Obreakpoint()<Esc>j
+   nnoremap \ddb :%s/^\s*breakpoint()\s*$//
    nnoremap <leader>pd ^yWoIprint(f'<C-o>P = {<C-o>P}')<Esc>
+
+" Special Python highlighting
 augroup pycolors
   autocmd!
   autocmd ColorScheme * highlight pythonImportedObject ctermfg=127 guifg=127
    \ | highlight pythonImportedFuncDef ctermfg=127 guifg=127
    \ | highlight pythonImportedClassDef ctermfg=127 guifg=127
  \ | syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
- \ | syntax match Self "\(\W\|^\)\@<=self\(\.\)\@="
+ \ | syntax match self "\(\W\|^\)\@<=self\(\.\)\@="
  \ | syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
  \ | highlight def link pythonFunction Function
  \ | highlight self ctermfg=239 guifg=239

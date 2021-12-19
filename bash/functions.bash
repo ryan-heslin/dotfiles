@@ -389,23 +389,83 @@ complete  -F _sess_complete nvimsess
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
 get_AoC(){
 
-    #Use environment variable if it exists, otherwise parameter
-    if [ -n "${AOC_COOKIE+set}" ]; then
-        local cookie="$AOC_COOKIE"
-    else
-        local cookie="${@: -1}"
+    # Adapted from
+    local verbose=false
+    local AoC_dir="$HOME/misc/AoC"
+    while [ "$#" -gt 0 ]; do
+        key="$1"
+        case $key in
+            -d|--day)
+                local day="$2"
+                #Confirm day is valid
+                if ! (  [ "$day" -ge 1 ] && [ "$day" -le 25 ] );  then
+                    echo "$day is not a valid Advent of Code day. Valid: 1-25"
+                    return 1
+                fi
+                shift
+                shift
+                ;;
+            -y|--year )
+                local year="$2"
+                #Confirm year is valid
+                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $(date +"%-Y") ] );  then
+                    echo "$year is not a valid Advent of Code year. Valid: 2015-$(date +"%-Y")"
+                    return 1
+                fi
+                shift
+                shift
+                ;;
+            -c|--cookie)
+                local cookie="$2"
+                shift
+                shift
+                ;;
+            -v|--verbose)
+                local verbose=true
+                shift
+                ;;
+            -f|--aoc_dir)
+                local aoc_dir="$2"
+                shift
+                shift
+                ;;
+            *)
+                echo "Unknown option $key"
+                return 1
+                ;;
+        esac
+    done
+
+
+    #Use environment variable if it exists, otherwise throw error
+    if [ -z "${cookie+x}" ]; then
+        if [ -n "${AOC_COOKIE+set}" ]; then
+            local cookie="$AOC_COOKIE"
+        else
+            echo 'No cookie parameter provided and no cookie environment variable set'
+            return 1
+        fi
     fi
 
-    if [ "$#" -eq 0 ]; then
+    if [ -z "${day+x}" ]; then
         local day=$(date +"%-e")
-        local year=$(date +"%-Y")
-    else
-        local day=$1
-        local year=$2
     fi
-    local file="$HOME/misc/AoC/$year/inputs/day$day.txt"
-    echo $year
-    echo $day
+    if [ -z "${year+x}" ]; then
+        local year=$(date +"%-Y")
+    fi
 
-    [ -f "$file" ] || curl -sS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    local file="$AoC_dir/$year/inputs"
+    # Make AoC directory if it doesn't already exist
+    if ! [ -d  "$file" ]; then
+        mkdir -p "$file"
+        echo "Making new directory $file"
+    fi
+
+    local file="$file/day$day.txt"
+
+    if [ "$verbose" = true ]; then
+         echo "Getting input for Day $day of $year"
+    fi
+
+    curl -sS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }

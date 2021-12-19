@@ -152,13 +152,14 @@ augroup Colors
     \ | highlight LspReferenceRead guifg=LightGreen guibg=Yellow
     \ | highlight LspReferenceWrite guifg=Yellow guibg=Yellow
     \ | highlight ColorColumn  guibg=wheat guifg=wheat
-    \ | highlight cmpItemAbbr guifg=wheat
+    \ | highlight CmpItemAbbr guifg=wheat
     \ | highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
     \ | highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
     \ | highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
     \ | highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
     \ | highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
     \ | highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
+    \ | highlight CmpItemMenu guibg=#507b96
     \ | let g:rainbow_active = 1
     \ | let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
     \ | let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
@@ -377,10 +378,10 @@ endfunction
 " Delete buffer without closing widow
 command! BD :bprevious | split | bnext | bdelete
 ":command! BW :bn|:bd#
-" Taken from a StackOverflow post, autocommands to trigger session loading and
-" saving
 
 autocmd User TelescopePreviewerLoaded setlocal wrap
+autocmd FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
+
 if(argc() == 0)
 	au VimEnter * nested :call functions#LoadSession()
 endif
