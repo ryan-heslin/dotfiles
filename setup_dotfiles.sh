@@ -10,7 +10,8 @@ link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME" ["$DOTFILES_PATH/bash/.bash
 ["$DOTFILES_PATH/bash/.functions.bash"]="$HOME" ["$DOTFILES_PATH/bash/config.bash"]="$HOME"
 ["$DOTFILES_PATH/bash/.alias.bash"]="$HOME"
 ["$DOTFILES_PATH/R/.Rprofile"]="$HOME" ["$DOTFILES_PATH/R/.Renviron"]="$HOME"
-["$DOTFILES_PATH/misc/.tmux.conf"]="$HOME" ["$DOTFILES_PATH/bat/"]="$HOME/.config/"
+["$DOTFILES_PATH/misc/.tmux.conf"]="$HOME" ["$DOTFILES_PATH/misc/.vintrc.yaml"]="$HOME"
+["$DOTFILES_PATH/bat/"]="$HOME/.config/"
 ["$DOTFILES_PATH/nvim"]="$HOME/.config/")
 
 link () {

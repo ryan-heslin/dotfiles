@@ -28,10 +28,10 @@ def extract_args(start):
 def render_roxygen(args, line):
 	mark = "#'"
 # Only generate argument tabstops if function actually has them
-	args_text = [mark + " @param " + arg + " $" + str(num +3) for num, arg in enumerate(args)] if (offset := len(args))  else []
-	text = ([mark + " ${1}", mark, mark + " @description $2"] +
-		args_text + [ mark + " @details $" + str(offset + 3)] + [mark, mark + " @return $" + str(offset + 4),
-		mark +  " ${" + str(offset + 5) + ":@export}", mark, mark + " @examples", mark]
+	args_text = [mark + " @param " + arg + " $" + str(num +4) for num, arg in enumerate(args)] if (offset := len(args))  else []
+	text = ([mark + " ${1:${2:@inheritParams }}", mark, mark + " @description ${3:}"] +
+		args_text + [ mark + " @details $" + str(offset + 4)] + [mark, mark + " @return $" + str(offset + 5),
+		mark +  " ${" + str(offset + 6) + ":@export}", mark, mark + " @examples", mark]
 		)
 	vim.current.window.cursor = [max(line, 1), 0]
 	snip.expand_anon("\n" + "\n".join(text) + "\n")
@@ -65,10 +65,16 @@ Your age: ${1|<18,18~60,>60|}
 Your height: ${2|<120cm,120cm~180cm,>180cm|}
 endsnippet
 
+context "snip.buffer[snip.line][0:2] == '#'"
+
+priority 100
+snippet lin "Rmarkdown link"
+\code{\link{$1}}$0
+endsnippet
 
 snippet AoC "Advent of Code template" b
 #!/usr/bin/r
-raw_input <- read${1|.table,.csv,Lines,.delim,|}(${2:})
+raw_input <- read${1|.table,.csv,Lines,.delim,|}(${2:"inputs/`!p snip.rv = fn.split(".")[0]`.txt"})
 $0
 
 

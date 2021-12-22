@@ -158,6 +158,7 @@ end
     --            let repl = py3eval('ZotCite.GetNotes("' . zotkey . '")')
     --            Does not recognize valid key - why?
 -- end
+--
 -- Toggle option limited to one of two values.
 toggle_opt = function(opt, val1, val2)
     if vim.o[opt] == val1 then
@@ -232,4 +233,23 @@ no_jump = function()
     pos = vim.fn.getpos('.')
     repeat_cmd(cmd)
     vim.fn.setpos('.', pos)
+end
+
+refresh = function(file)
+    -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
+    file = file or vim.fn.expand('%:p')
+    extension = vim.o.filetype
+    if extension == 'R' or extension == 'r' then
+        cmd = 'Rsend source("' ..file .. '")'
+    elseif extension == 'python' then
+        cmd = 'IPythonCellRun'
+    elseif extension == 'bash' or extension == 'sh' then
+        cmd = '!. ' .. file
+    elseif extension == 'lua' or extension == 'vim' then
+        cmd = 'source ' .. file
+    else
+        print('Don\'t know how to handle extension ' .. extension)
+        return
+    end
+    vim.cmd(cmd)
 end

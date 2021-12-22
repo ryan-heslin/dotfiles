@@ -9,7 +9,12 @@ get(){
 }
 
 cplock() {
-flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "${1:-/home/rheslin}" "gdrive:/backup"
+
+    dirs=(dotfiles gradebook misc R sh_utils .venvs Zotero)
+
+    for dir in "${dirs[@]}"; do
+        flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> $HOME/backup.log
+    done
 }
 
 # cd to first directory of search result
@@ -91,7 +96,6 @@ apply() {
 		"$cmd" "$arg"
 	done
 }
-
 
 mvall() {
 

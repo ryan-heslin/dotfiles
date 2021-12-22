@@ -36,8 +36,8 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'chrisbra/csv.vim'
     Plug 'vim-pandoc/vim-pandoc'
     Plug 'vim-pandoc/vim-pandoc-syntax'
-    Plug 'vim-airline/vim-airline'
-    Plug 'vim-airline/vim-airline-themes'
+    Plug 'nvim-lualine/lualine.nvim'
+    Plug 'kyazdani42/nvim-web-devicons'
     Plug 'dense-analysis/ale'
     Plug 'rafi/awesome-vim-colorschemes'
     Plug 'nvim-lua/plenary.nvim'
@@ -45,6 +45,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
     Plug 'tpope/vim-dadbod'
     Plug 'frazrepo/vim-rainbow'
+    Plug 'jose-elias-alvarez/null-ls.nvim'
 call plug#end()
 
 " LSP setup - largely copied from various repoes
@@ -54,9 +55,12 @@ lua <<EOF
   --local lspkind = require("lspkind")
   require('config/lsp')
   --Local variable represents module, but also created global for configuration ugh
-require('config/nvim_cmp')
-  local mappings = require("mappings")
-  local config = require('config/autopairs')
+  require('config/nvim_cmp')
+  require('config/lualine')
+  require('config/autopairs')
+  require('config/formatting')
+  require('abbrev')
+  require('mappings')
 
   vim.cmd [[
   autocmd FileType rmd lua cmp_config.setup.buffer {
@@ -143,23 +147,24 @@ let python_highlight_all = 1
 augroup Colors
     autocmd!
     autocmd ColorScheme * highlight NormalFloat guibg=#1f2335
-    \ | highlight FloatBorder guifg=white guibg=#1f2335
-    \ | highlight Pmenu guibg=#1f2335
-    \ | highlight PmenuSel guibg=#cca300
-    \ | highlight PmenuSBar guibg=white
-    \ | highlight PmenuThumb guibg=#cca300
-    \ | highlight rGlobEnvFun ctermfg=117 guifg=#87d7ff cterm=italic gui=italic
-    \ | highlight LspReferenceRead guifg=LightGreen guibg=Yellow
-    \ | highlight LspReferenceWrite guifg=Yellow guibg=Yellow
-    \ | highlight ColorColumn  guibg=wheat guifg=wheat
-    \ | highlight CmpItemAbbr guifg=wheat
+    \ | highlight! FloatBorder guifg=white guibg=#1f2335
+    \ | highlight! Pmenu guibg=#1f2335
+    \ | highlight! PmenuSel guibg=#cca300
+    \ | highlight! PmenuSBar guibg=white
+    \ | highlight! PmenuThumb guibg=#cca300
+    \ | highlight! rGlobEnvFun ctermfg=117 guifg=#87d7ff cterm=italic gui=italic
+    \ | highlight! LspReferenceRead guifg=LightGreen guibg=Yellow
+    \ | highlight! LspReferenceWrite guifg=Yellow guibg=Yellow
+    \ | highlight! LspSignatureActiveParameters guifg=Green
+    \ | highlight! ColorColumn  guibg=wheat guifg=wheat
+    \ | highlight! CmpItemAbbr guifg=wheat
     \ | highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
     \ | highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
     \ | highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
     \ | highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
     \ | highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
     \ | highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
-    \ | highlight CmpItemMenu guibg=#507b96
+    \ | highlight! CmpItemMenu guibg=#507b96
     \ | let g:rainbow_active = 1
     \ | let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
     \ | let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
@@ -296,7 +301,8 @@ let g:slime_dont_ask_default = 0
  \   'python': ['isort', 'black']
  \}
  let g:ale_linters = {
-   \ 'bash': ['shell'],
+   \ 'sh': ['shell'],
+    \ 'bash':  ['language_server'],
    \ 'python': ['pylint'],
    \ 'r': ['lintr'],
    \  'rmd': ['lintr', 'tex'],
@@ -340,9 +346,8 @@ augroup R
 
 augroup shell
   autocmd!
-  autocmd FileType shell nnoremap <leader>sh ggO#!/usr/bin/bash<Esc><C-o>
+  autocmd FileType shell nnoremap <leader>sh :1normal #!/usr/bin/bash<CR>
 augroup end
-" https://medium.com/@hanspinckaers/setting-up-vim-as-an-ide-for-python-773722142d1d
 " Remove all trailing whitespace by pressing C-S
 "nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
@@ -350,7 +355,6 @@ autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
 " General macros
 
 autocmd User TelescopePreviewerLoaded setlocal wrap
-"
 
 command!  -range Embrace <line1>,<line2>s/\v(_|\^)\s*([^{}_\^ \$]+)/\1{\2}/g
 command! -nargs=1 -range=% Sed <line1>,<line2>s/<args>//g
@@ -373,14 +377,16 @@ function! CompleteBufname(ArgLead, CmdLine, CursorPos)
         let joiner = '\n'
     endfor
     return complete
+
 endfunction
 "New regex  "s/\v([a-zA-Z]+)(\d+)/\1 \2/g
 " Delete buffer without closing widow
 command! BD :bprevious | split | bnext | bdelete
-":command! BW :bn|:bd#
 
-autocmd User TelescopePreviewerLoaded setlocal wrap
-autocmd FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
+autocmd! User TelescopePreviewerLoaded setlocal wrap
+autocmd! BufWritePost if get(b:, b:source_on_save) == 1  | lua refresh(vim.fn.expand('%:p')) | endif
+autocmd! FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
+
 
 if(argc() == 0)
 	au VimEnter * nested :call functions#LoadSession()

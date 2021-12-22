@@ -39,3 +39,6 @@ bimodal
 beta_0
 where
 intercorrelation
+source
+convolving
+pseudoinverse

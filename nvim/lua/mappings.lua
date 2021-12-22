@@ -104,6 +104,9 @@ vim.api.nvim_set_keymap('n', '<Leader>p', '"+p', {noremap = true, silent = true}
 -- Paste-replace
 vim.api.nvim_set_keymap('n', '<Leader>p', '"_d$p', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>P', '"_d$P', {noremap = true, silent = true})
+-- Add line above/below ending with trailing character - good for lists of function args, etc.
+vim.api.nvim_set_keymap('n', '<Leader>ao', '$yl[pI', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>aO', '$yl]pI', {noremap = true, silent = true})
 
 vim.api.nvim_set_keymap('n', '<Leader>cd', ':cd %:p:h<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<Leader>lcd', ':lcd %:p:h<CR>', {noremap = true})

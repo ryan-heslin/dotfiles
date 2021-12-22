@@ -1,3 +1,4 @@
+-- Largely boilerplate from official repo
 local cmp = require('cmp')
     local check_back_space = function()
       local col = vim.fn.col(".") - 1
@@ -15,6 +16,15 @@ local cmp = require('cmp')
     local press = function(key)
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), "n", true)
   end
+
+local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
+function M.expand_or_jump_forwards(fallback)
+  M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
+end
+
+function M.jump_backwards(fallback)
+  M.compose({ "jump_backwards", "select_prev_item" })(fallback)
+end
   cmp.setup({
     completion = {
         completeopt = 'menu,menuone,preview,noselect',
@@ -51,7 +61,7 @@ local cmp = require('cmp')
             ultisnips = "{snip}"
         }
     })
-},
+}, fun
     sorting= {
         priority_weight = 3},
     snippet = {
@@ -67,9 +77,9 @@ local cmp = require('cmp')
       ['<CR>'] = cmp.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp.mapping(function(fallback)
           if cmp.visible() then
-            if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-              return press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-            end
+            --if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
+              --return press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
+            --end
             cmp.select_next_item()
           elseif has_any_words_before() then
             press("<Space>")
@@ -79,23 +89,25 @@ local cmp = require('cmp')
         end, {
           "i",
           "s",
+          'c'
         }),
         ["<Tab>"] = cmp.mapping(function(fallback)
-          if vim.fn.complete_info()["selected"] == -1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-            press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-          elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-            press("<ESC>:call UltiSnips#JumpForwards()<CR>")
-          elseif cmp.visible() then
-            cmp.select_next_item()
-          elseif has_any_words_before() then
-            press("<Tab>")
-          else
-            fallback()
-          end
-        end, {
-          "i",
-          "s",
-        }),
+          --if vim.fn.complete_info()["selected"] == -1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
+            --press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
+          --elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
+            --press("<ESC>:call UltiSnips#JumpForwards()<CR>")
+          --elseif cmp.visible() then
+            --cmp.select_next_item()
+          --elseif has_any_words_before() then
+            --press("<Tab>")
+          --else
+            --fallback()
+          --end
+          cmp.ultisnips.mappings.expand_or_jump_forwards(fallback)
+      end,
+      {'i',
+  's',
+  'c'}),
         ["<C-z>"] = cmp.mapping(function(fallback)  --nested snippets
         if vim.fn["UltiSnips#CanJumpForwards"]() == 1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
             press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
@@ -105,16 +117,18 @@ local cmp = require('cmp')
     end, {"i",
     "s"}),
         ["<S-Tab>"] = cmp.mapping(function(fallback)
-          if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
-            press("<ESC>:call UltiSnips#JumpBackwards()<CR>")
-          elseif cmp.visible() then
-            cmp.select_prev_item()
-          else
-            fallback()
-          end
+          --if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
+            --press("<ESC>:call UltiSnips#JumpBackwards()<CR>")
+          --elseif cmp.visible() then
+            --cmp.select_prev_item()
+          --else
+            --fallback()
+          --end
+          cmp.ultisnips.mappings.jump.backwards(fallback)
         end, {
-          "i",
-          "s",
+          'i',
+          's',
+          'c'
         }),
       },
     sources = sources
