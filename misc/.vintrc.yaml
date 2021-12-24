@@ -11,10 +11,10 @@ cmdargs:
 
 policies:
   ProhibitAutocmdWithNoGroup
-	enabled = true
+    enabled = true
   ProhibitUnecessaryDoubleQuote
-	enabled = true
+    enabled = true
   ProhibitUnusedVariable
-	enabled = true
+    enabled = true
   ProhibitUsingUndeclaredVariable
-	enabled = true
+    enabled = true

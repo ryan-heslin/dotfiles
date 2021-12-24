@@ -7,7 +7,7 @@ local text_extensions = {'rmd', 'tex', 'txt', 'markdown'}
 local sources = {
 
     --null_ls.builtins.diagnostics.jsonlint.with({
-    --prefer_local = '/usr/in/jsonlint'}),
+    --prefer_local = '/usr/bin/jsonlint'}),
     null_ls.builtins.diagnostics.luacheck,
     null_ls.builtins.diagnostics.markdownlint,
     null_ls.builtins.diagnostics.proselint.with({

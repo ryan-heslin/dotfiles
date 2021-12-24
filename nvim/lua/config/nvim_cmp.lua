@@ -81,6 +81,8 @@ local cmp_buffer = require('cmp_buffer')
     mapping = {
       ['<C-d>'] = cmp_config.mapping.scroll_docs(-4),
       ['<C-f>'] = cmp_config.mapping.scroll_docs(4),
+      ['<C-n>'] = cmp_config.mapping.select_next_item(),
+      ['<C-h>'] = cmp_config.mapping.select_prev_item(),
       ['<C-e>'] = cmp_config.mapping.close(),
       ['<CR>'] = cmp_config.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp_config.mapping(function(fallback)

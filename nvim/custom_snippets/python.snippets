@@ -19,7 +19,7 @@ endsnippet
 snippet AoC "Advent of Code" b
 #! /usr/bin/env python3
 
-with open('inputs/`!p fn.split('.')[0]`.txt') as f:
+with open('inputs/`!p snip.rv = fn.split('.')[0]`.txt') as f:
 	raw_input = f.read${1:}($2)
 
 #answer1 =

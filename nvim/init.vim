@@ -54,6 +54,7 @@ lua <<EOF
   local custom_utils=require("custom_utils")
   --local lspkind = require("lspkind")
   require('config/lsp')
+
   --Local variable represents module, but also created global for configuration ugh
   require('config/nvim_cmp')
   require('config/lualine')

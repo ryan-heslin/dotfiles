@@ -8,8 +8,24 @@ delimiters = {
 "\\langle": "\\rangle"
 }
 
+
+def flow_comment(snip, down = True):
+    snip.buffer[snip.line] = re.sub("\s*f[cC]\s*$", "", snip.buffer[snip.line])
+    comment = re.match("^([^ ]+\s{0,1})", snip.buffer[snip.line])
+    if not comment:
+        return
+    comment = comment.group(1)
+    if not down:
+        if snip.line == 0:
+#TODO handle special case
+            return
+        snip.buffer[snip.line -1] += " "
+        vim.command("normal k$l")
+    snip.expand_anon("\n" + comment)
+
 def clamp_line(snip, val, min_val = 0):
     return max(min(int(vim.eval("line('$')")) - 1, val), 0)
+
 def move_cursor(snip, pattern = "[^;]*;(-?\d+)"):
     matched = re.match(pattern, snip.buffer[snip.line])
     shift = int(matched.group(1))
@@ -59,5 +75,18 @@ endsnippet
 
 pre_expand "modify_call(snip)"
 snippet "mc(\d+)x(\d+)\s*" "'Modify call' - create call to modify object" r
+`!p snip.rv = ""`
+endsnippet
+
+pre_expand "flow_comment(snip, down = True)"
+post_expand "snip.rv = ''"
+snippet fc "Flow comment one line down" A
+`!p snip.rv = ""`
+endsnippet
+
+
+pre_expand "flow_comment(snip, down = False)"
+post_expand "snip.rv = ''"
+snippet fC "Flow comment one line up" A
 `!p snip.rv = ""`
 endsnippet

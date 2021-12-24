@@ -2,9 +2,20 @@ vim.g.mapleader = ","
 
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 vim.api.nvim_set_keymap('n', '<Leader>!!', [[<C-U>:lua term_exec("\x1b\x5b\x41")<CR>]], { noremap = true, silent = true })
+-- Send line under cursor to terminal
+vim.api.nvim_set_keymap('n', '<Leader>sl', [[:lua term_exec(vim.fn.getline('.'))<CR>]], { noremap = true, silent = true })
+-- Interact with terminal buffer
+vim.api.nvim_set_keymap('n', '<Leader>te', [[:lua term_edit()<CR>]], { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>tr', [[:lua term_edit('savehistory("/tmp/history.txt")', 'r')<CR>]], { noremap = true, silent = true })
+ -- Visual selection to terminal
+vim.api.nvim_set_keymap('v', '<Leader>tv', [[:lua term_exec(vim.fn.getreg('*'))<CR>]], { noremap = true, silent = true })
+
+
+vim.api.nvim_set_keymap('n', '<Leader>sl', [[:lua term_exec(vim.fn.getline('.'))<CR>]], { noremap = true, silent = true })
 -- Scroll terminal up-down
 vim.api.nvim_set_keymap('n', '<C-PageDown>', ':lua win_exec("3j", vim.g.last_terminal_win_id)<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-PageUp>', ':lua win_exec("3k", vim.g.last_terminal_win_id)<CR>', { noremap = true, silent = true })
+
 --all these to scroll window by position up/down
 vim.api.nvim_set_keymap('n', '<Leader>kk', ':lua win_exec("3k", "k")<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>kj', ':lua win_exec("3j", "k")<CR>', { noremap = true, silent = true })

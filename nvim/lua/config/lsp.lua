@@ -1,5 +1,5 @@
 lspkind = require('lspkind')
-on_attach = function(_, bufnr)
+ on_attach = function(_, bufnr)
   --if  vim.b.zotcite_omnifunc then
        --vim.api.nvim_buf_set_option(bufnr, 'omnifunc', [[zotcite#CompleteBib]])
   --else
@@ -37,7 +37,40 @@ on_attach = function(_, bufnr)
     end
 end
 
-local servers = {'r_language_server', 'pyright', 'bashls'}
+
+
+
+local lua_dir = vim.fn.expand("$HOME") .. '/.local/bin/lua-language-server'
+local path = vim.fn.split(package.path, ';')
+table.insert(path, "lua/?.lua")
+table.insert(path, "lua/?/init.lua")
+
+local servers = {r_language_server = {},
+pyright={},
+bashls={ filetypes = {'sh', 'bash'}},
+sumneko_lua = { Lua = {
+         cmd = {lua_dir .. '/bin', '-E', lua_dir .. '/main.lua'},
+        IntelliSense = {traceBeSetted = true},
+        color = {mode = 'Grammar'},
+      runtime = {
+        version = 'LuaJIT',
+        path = path,
+      },
+      diagnostics = {
+        globals = {'vim'},
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+      },
+      -- Do not send telemetry data containing a randomized but unique identifier
+      telemetry = {
+        enable = false,
+      }
+    }
+  }
+}
+
+
 
 local border = {
       {"🭽", "FloatBorder"},
@@ -60,6 +93,25 @@ local handlers = { ['textDocument/signatureHelp'] = vim.lsp.with(
         ),
 ['textDocument/publishDiagnostics'] = vim.lsp.with(
 vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = {
+        source = 'if_many',
+    format = function(diagnostic)
+        local lookup = {[1] = 'E', [2] = 'W', [3] = 'I', [4] = 'H'}
+        local format = lookup[diagnostic.severity] or ''
+         --if diagnostic.severity == vim.diagnostic.severity.ERROR then
+             --format = 'E'
+         --elseif diagnostic.severity == vim.diagnostic.severity.WARN then
+             --format = 'W'
+         --elseif diagnostic.severity ==vim.diagnostic.severity.INFO then
+             --format = 'I'
+         --elseif diagnostic.severity == vim.diagnostic.severity.HINT then
+             --format = 'H'
+         --else
+             --format = ''
+         --end
+        return string.format(format .. ': %s', diagnostic.message)
+    end
+    },
     update_in_insert = true,
     underline = true,
     severity_sort = true
@@ -69,10 +121,11 @@ vim.lsp.diagnostic.on_publish_diagnostics, {
 }
 
 local nvim_lsp = require("lspconfig")
-for _, server in ipairs(servers) do
+for server, settings in pairs(servers) do
     nvim_lsp[server].setup{
+    capabilities = capabilities,
     handlers = handlers,
     on_attach = on_attach,
-    capabilities = capabilities
+    settings = settings
     }
 end

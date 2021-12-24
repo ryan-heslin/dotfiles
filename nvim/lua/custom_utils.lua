@@ -9,26 +9,22 @@ set_term_opts = function()
     vim.g.last_terminal_win_id = vim.fn.bufwinid(vim.g.last_terminal_buf_id)
 end
 
--- Last error message
-last_message = function(n)
-
-end
 -- Yank text at end of terminal buffer
 term_yank = function(term_id)
-    prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
+    local prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
     if prompt_line == 0 then
         return
     end
-    text = vim.fn.win_execute(term_id, 'normal ' .. tostring(prompt_line) .. 'gg0f>lvG$y')
+    local text = vim.fn.win_execute(term_id, 'normal ' .. tostring(prompt_line) .. 'gg0f>lvG$y')
     --vim.fn.setreg('+', text)
     return text
 end
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
 -- TODO handle different scopes (vim['g']), etc.)
 toggle_var = function(...)
-    arg = {...}
+    local arg = {...}
     for _, var in ipairs(arg) do
-        old = vim.g[var]
+        local old = vim.g[var]
         if old ~= nil then
             if old == 0 or old == 1 then
                 vim.g[var] = (old  + 1 ) % 2
@@ -44,19 +40,19 @@ toggle_var = function(...)
 end
 
 jump_delete = function(flags)
-    count = vim.v.count1
-    string = vim.fn.input('Enter pattern: ')
+    local count = vim.v.count1
+    local string = vim.fn.input('Enter pattern: ')
     if string.len(string) == 0 then
         return
     end
-    start = vim.fn.getpos('.')
-    flags = 'wz' .. (flags or '')
+    local start = vim.fn.getpos('.')
+    local flags = 'wz' .. (flags or '')
     -- Search forward or backward; ternary-ish expression
     step= (vim.fn.stridx(flags, 'b') == -1) and 'n' or 'N'
 
     vim.fn.setreg('/', string)
-    matches = vim.fn.searchcount()['total']
-    stop = math.min(matches, count)
+    local matches = vim.fn.searchcount()['total']
+    local stop = math.min(matches, count)
 
     -- Search for next match {count} times
     for _  = 0, stop - 1 do
@@ -69,20 +65,20 @@ jump_delete = function(flags)
     print('Removed ' .. stop .. ' match(es)')
 end
 
-    count_bufs_by_type = function(loaded_only)
-        loaded_only = (loaded_only == nil and true or loaded_only)
-        count = {normal = 0, acwrite = 0, help = 0, nofile = 0,
-        nowrite = 0, quickfix = 0, terminal = 0, prompt = 0}
-        buftypes = vim.api.nvim_list_bufs()
-        for _, bufname in pairs(buftypes) do
-           if (not loaded_only) or vim.api.nvim_buf_is_loaded(bufname) then
-               buftype = vim.api.nvim_buf_get_option(bufname, 'buftype')
-               buftype = buftype ~= '' and buftype or 'normal'
-               count[buftype] = count[buftype] + 1
-           end
+count_bufs_by_type = function(loaded_only)
+    local loaded_only = (loaded_only == nil and true or loaded_only)
+    local count = {normal = 0, acwrite = 0, help = 0, nofile = 0,
+    nowrite = 0, quickfix = 0, terminal = 0, prompt = 0}
+    local buftypes = vim.api.nvim_list_bufs()
+    for _, bufname in pairs(buftypes) do
+        if ((not loaded_only) or vim.api.nvim_buf_is_loaded(bufname)) and bufname then
+            local buftype = vim.api.nvim_buf_get_option(bufname, 'buftype')
+            local buftype = buftype ~= '' and buftype or 'normal'
+            count[buftype] = count[buftype] + 1
         end
-        return count
     end
+    return count
+end
 
 
 close_bufs_by_type = function(buftype)
@@ -103,38 +99,40 @@ end
 -- Takes a key sequence, executes it in first window in specified
 -- direction, then returns to original window
 get_opposite_window = function(dir)
-    dir_pairs = {h = "l", l = "h", j = "k", k = "j"}
+    local dir_pairs = {h = "l", l = "h", j = "k", k = "j"}
     return dir_pairs[dir]
 end
 
 win_exec = function(keys, dir)
-    count = vim.v.count1
-    reverse = get_opposite_window(dir)
-    command = "normal " ..  tostring(count) .. t(keys)
+    local count = vim.v.count1
+    local reverse = get_opposite_window(dir)
+    local command = "normal " ..  tostring(count) .. t(keys)
     -- then window id supplied, not direction
     if reverse == nil then
         vim.fn.win_execute(dir, command)
     else
         vim.cmd("wincmd " .. dir)
         vim.cmd(command)
-        vim.cmd("wincmd " .. dir_pairs[dir])
+        vim.cmd("wincmd " .. reverse)
     end
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
-term_exec = function(keys)
+term_exec = function(keys, scroll_down)
     if vim.g.last_terminal_chan_id == nil then
         return false
     end
-    count =  vim.v.count1
-    command = keys
+    local count =  vim.v.count1
+    local command = keys
     if vim.fn.stridx(keys, [[\]]) ~= -1 then
-        command = t(keys)
+        local command = t(keys)
     end
-    for _ = 0, count do
+    for  _ = 1, count do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
     end
     vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
+    -- Scroll down if argument specified, useful for long input
+    if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
 end
 
 -- Wrap an argument in double quotes; do not change the empty string
@@ -144,7 +142,7 @@ quote_arg = function(string)
 end
 
 jump = function(pattern, offset, flags)
-    newpos = vim.fn.search(pattern, flags)
+    local newpos = vim.fn.search(pattern, flags)
     if newpos == 0 then
         return
     end
@@ -154,8 +152,8 @@ end
 --add_note = function(search)
     --vim.cmd('Znote ' .. search)
     --    Get note from key, save to varaible, process
-    --    let zotkey = zotcite#FindCitationKey(a:key)
-    --            let repl = py3eval('ZotCite.GetNotes("' . zotkey . '")')
+    --    let local zotkey = zotcite#FindCitationKey(a:key)
+    --            let local repl = py3eval('ZotCite.GetNotes("' . zotkey . '")')
     --            Does not recognize valid key - why?
 -- end
 --
@@ -175,10 +173,10 @@ summarize_option = function(opt)
         print('Invalid option ' .. opt)
         return
     end
-    summary = {}
+    local summary = {}
 
     for _, bufname in pairs(vim.api.nvim_list_bufs()) do
-        value = vim.api.nvim_buf_get_option(bufname, opt)
+        local value = vim.api.nvim_buf_get_option(bufname, opt)
         if summary[value] == nil then
             --table.insert(summary, value)
             summary[value] = 1
@@ -191,20 +189,20 @@ end
 
 repeat_cmd = function(...)
     local arg = {...}
-    cmd = arg[1]
-    count = arg[2] or vim.v.count1
+    local cmd = arg[1]
+    local count = arg[2] or vim.v.count1
     if count > 1 then
         if string.find(cmd, "normal", 1) then
-            cmd = string.gsub(cmd, "normal%s+", "normal " .. tostring(count))
+            local cmd = string.gsub(cmd, "normal%s+", "normal " .. tostring(count))
         else
-            cmd = tostring(count) ..arg[1]
+            local cmd = tostring(count) ..arg[1]
     end
     end
     vim.cmd(cmd)
 end
 
 reinstall = function(plug)
-    line = vim.fn.search(quote_args(plug))
+    local line = vim.fn.search(quote_args(plug))
     if line == 0 then
         print('Could not find plugin' .. plug)
         return
@@ -213,43 +211,75 @@ reinstall = function(plug)
 end
 
 get_input = function(str)
-    input = vim.fn.input("Enter expansion for " .. str)
+    local input = vim.fn.input("Enter expansion for " .. str)
 end
+
 -- Append abbreviation to abbreviations file
 add_abbrev = function(abbrev, expansion)
     if expansion == nil then
-        expansion = vim.fn.input('Enter expansion for abbreviation ' .. quote_arg(abbrev) .. ": ")
+        local expansion = vim.fn.input('Enter expansion for abbreviation ' .. quote_arg(abbrev) .. ": ")
     end
     -- vim command to sub in new abbreviation at end of abbreviation chunk
-    cmd = [[$-1 s/$/\rinoreabbrev ]] .. abbrev .. ' ' .. expansion  .. '/'
-    cmd = ("nvim -c '" .. cmd .. "' -c 'wq' /home/rheslin/dotfiles/nvim/lua/abbrev.lua")
+    local cmd = [[$-1 s/$/\rinoreabbrev ]] .. abbrev .. ' ' .. expansion  .. '/'
+    local cmd = ("nvim -c '" .. cmd .. "' -c 'wq' /home/rheslin/dotfiles/nvim/lua/abbrev.lua")
     vim.fn.system(cmd)
     print('\nAdded abbreviation ' .. quote_arg(expansion) .. ' for ' .. quote_arg(abbrev))
 end
 
 no_jump = function()
-    cmd = 'normal ' .. vim.fn.input("Normal command: ")
+    local cmd = 'normal ' .. vim.fn.input("Normal command: ")
     print('\n')
-    pos = vim.fn.getpos('.')
+    local pos = vim.fn.getpos('.')
     repeat_cmd(cmd)
     vim.fn.setpos('.', pos)
 end
 
 refresh = function(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
-    file = file or vim.fn.expand('%:p')
-    extension = vim.o.filetype
+    local file = file or vim.fn.expand('%:p')
+    local extension = vim.o.filetype
     if extension == 'R' or extension == 'r' then
-        cmd = 'Rsend source("' ..file .. '")'
+        local cmd = 'Rsend source("' ..file .. '")'
     elseif extension == 'python' then
-        cmd = 'IPythonCellRun'
+        local cmd = 'IPythonCellRun'
     elseif extension == 'bash' or extension == 'sh' then
-        cmd = '!. ' .. file
+        local cmd = '!. ' .. file
     elseif extension == 'lua' or extension == 'vim' then
-        cmd = 'source ' .. file
+        local cmd = 'source ' .. file
     else
         print('Don\'t know how to handle extension ' .. extension)
         return
     end
     vim.cmd(cmd)
+end
+
+-- Mostly copied from https://vi.stackexchange.com/questions/11310/what-is-a-scratch-window
+-- Makes a scratch buffer
+make_scratch = function(command)
+    vim.cmd('split')
+    vim.bo.swapfile = false
+    vim.cmd('enew')
+    vim.bo.buftype = 'nofile'
+    vim.bo.bufhidden = 'hide'
+    vim.bo.buflisted = false
+    vim.cmd('lcd ' .. vim.fn.expand('$HOME'))
+    --if bufname then vim.cmd('file ' .. bufname) end
+    if command then  vim.cmd(command) end
+end
+
+-- Dump messages to scratch buffer
+capture_messages = function()
+    vim.cmd('redir @z')
+    vim.cmd('silent messages')
+    make_scratch('put z')
+    vim.cmd('redir end')
+end
+
+-- Open scratch buffer containing terminal history so you can browse and rerun commands
+-- TODO fix syntax highlighting in scratch
+term_edit = function(history_command, syntax)
+    history_command = history_command or 'history -w /tmp/history.txt'
+    syntax = syntax or 'bash'
+    term_exec(history_command)
+    make_scratch([[read /tmp/history.txt | setlocal number syntax=]] .. syntax .. [[ | normal G ]])
 end

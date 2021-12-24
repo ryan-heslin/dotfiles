@@ -21,6 +21,7 @@ cplock() {
 cdf(){
     cd $(fdfind -type d --color 'never' "$1" | head -n 1)
 }
+
 install(){
     local package="$HOME/R/Packages/${1}"
     [ -d "$package" ] && R  --quiet -e "install2('${package}')"

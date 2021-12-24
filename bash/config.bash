@@ -2,10 +2,10 @@
 
 # CONFIG
 shopt -s extglob cdable_vars globstar
-export PATH="$PATH:/home/rheslin/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin"
+export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin"
 export EDITOR="nvim"
-export INPUTRC=$HOME/.inputrc
-export R_SNIPPETS_PATH="/c/Users/rheslin/AppData/Roaming/RStudio/snippets/"
+export INPUTRC="$HOME/.inputrc"
+export R_SNIPPETS_PATH="/c/Users/$USER/AppData/Roaming/RStudio/snippets/"
 export R_KEYRING_BACKEND="secret_service"
 export PYTHONIOENCODING=UTF-8
 export WEBDRIVER="C:\Users\heslinr1\geckodriver\geckodriver.exe"
@@ -37,5 +37,5 @@ fi
 if [ $OSTYPE == "linux-gnu" ]; then
     PS1="\$(new_line_ps1)\[\033[1;34m\]UbuntuVM\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]\$(parse_git_branch)\[\033[1;15m\]> \[\033[0m\]"
 else
-  PS1="\[\033[1;34m\]rheslin\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]$(__git_ps1 " (%s)")\[\033[1;15m\]> \[\033[0m\]"
+  PS1="\[\033[1;34m\]$USER\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]$(__git_ps1 " (%s)")\[\033[1;15m\]> \[\033[0m\]"
 fi
