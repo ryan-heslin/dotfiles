@@ -1,16 +1,18 @@
 #!/usr/bin/bash
-function npp {
-    "C:\Program Files (x86)\Notepad++\notepad++.exe" -multiInst -notabbar -nosession -noPlugin "$*";
-}
 
 get(){
 
 	z -e open -r -f "$1"
 }
 
+# Use lock file to copy directories to  Google Drive. Requires rclone setup.
 cplock() {
 
-    dirs=(dotfiles gradebook misc R sh_utils .venvs Zotero)
+    if [ "$#" -gt 0]; then
+        local dirs = "($@)"
+    else
+        local dirs=(dotfiles gradebook misc R sh_utils .venvs Zotero)
+    fi
 
     for dir in "${dirs[@]}"; do
         flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> $HOME/backup.log
@@ -65,11 +67,6 @@ open2 () {
 	touch "$1" && nvim "$1"
 }
 
-rsubs() {
-	start https://www.reddit.com/r/rstats/
-	start https://www.reddit.com/r/Rlanguage/
-	start https://www.reddit.com/r/rprogramming/
-}
 
 google() {
 	start "https://google.com/search?q=$(echo "$1" | sed -r 's/\s/\+/')"

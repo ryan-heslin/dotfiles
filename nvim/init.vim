@@ -48,7 +48,6 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'jose-elias-alvarez/null-ls.nvim'
 call plug#end()
 
-" LSP setup - largely copied from various repoes
 lua <<EOF
   -- Set up nvim-cmp.
   local custom_utils=require("custom_utils")
@@ -72,6 +71,7 @@ lua <<EOF
           \})
   \}
   ]]
+
  vim.cmd[[
  augroup sql
  autocmd!
@@ -177,15 +177,9 @@ au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
 autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif
 autocmd TermEnter * :lua set_term_opts()
 " Statusline
-let g:airline_theme="badwolf"
 set laststatus=2
-let g:airline#extensions#branch#enabled = 1
-let g:airline#extensions#ale#enabled = 1
-let g:airline#extensions#tabline#enabled = 1
-let g:airline#extensions#tagbar#enabled = 1
-let g:airline_skip_empty_sections = 1
 
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.RDS
+set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.RDS,__pycache__,
 " Error log files
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
@@ -202,7 +196,7 @@ set showbreak=\\\\\
 set clipboard+=unnamed,unnamedplus
 " Line numbers & indentation
 set backspace=indent,eol,start
-set ma                          " To set mark a at current cursor location.
+set ma
 set hidden
 set wrapscan
 set shortmess+=c
@@ -233,12 +227,6 @@ set titleold="Terminal"
 set titlestring=%F
 set lazyredraw "Faster mappings
 
-set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)\
-
-" Search mappings: These will make it so that going to the next one in a
-" search will center on the line it's found in.
-"nnoremap n nzzzv
-"nnoremap N Nzzzv
 "Parenthesize paragraph
 "nnoremap <leader>PP mz(I(<esc>)A)<Esc>`z
 " Highlight long lines
@@ -270,17 +258,6 @@ set confirm
 set autowrite
 set noswapfile
 
-"pear_tree
-let g:pear_tree_pairs = {
-            \ '(': {'closer': ')'},
-            \ '[': {'closer': ']'},
-            \ '{': {'closer': '}'},
-            \ "'": {'closer': "'"},
-            \ '"': {'closer': '"'},
-            \ "<!--": {'closer': "-->"},
-            \ "`" : {'closer' : '`'},
-            \ "<" : {'closer' : '>'}
-            \ }
 " fzf
 let g:fzf_tags_command = 'ctags -R'
 
@@ -329,7 +306,7 @@ set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
   \,sm:block-blinkwait175-blinkoff150-blinkon175
 
 " From https://github.com/Matt-A-Bennett/linux_config_files/blob/master/minimal_vimrc
-augroup cursor_behaviour
+augroup Cursor
     autocmd!
     let &t_EI = "\e[2 q"
     " highlight current line when in insert mode
@@ -343,7 +320,7 @@ augroup R
     autocmd!
     autocmd FileType rmarkdown,rmd,r setlocal cinwords=if,else,for,while,repeat,function
     autocmd FileType rmarkdown,rmd nnoremap \kk :call functions#InlineSend()<CR>
-  augroup end
+augroup end
 
 augroup shell
   autocmd!
@@ -352,7 +329,6 @@ augroup end
 " Remove all trailing whitespace by pressing C-S
 "nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
-"autocmd FileType help windo normal 6-<CR>
 " General macros
 
 autocmd User TelescopePreviewerLoaded setlocal wrap
@@ -388,13 +364,12 @@ autocmd! User TelescopePreviewerLoaded setlocal wrap
 autocmd! BufWritePost if get(b:, b:source_on_save) == 1  | lua refresh(vim.fn.expand('%:p')) | endif
 autocmd! FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
 
-
 if(argc() == 0)
-	au VimEnter * nested :call functions#LoadSession()
+	autocmd! VimEnter * nested :call functions#LoadSession()
 endif
 
 " From https://superuser.com/questions/345520/vim-number-of-total-buffers
-au VimLeavePre * if (luaeval("count_bufs_by_type(true)['normal']") > 1) && (luaeval("summarize_option('ft')['anki_vim'] == nil") == 1) | :call functions#SaveSession() | endif
+autocmd VimLeavePre * if (luaeval("count_bufs_by_type(true)['normal']") > 1) && (luaeval("summarize_option('ft')['anki_vim'] == nil") == 1) | :call functions#SaveSession() | endif
 
-" Disable dangerous setting
+" Disable dangerous setting if turned on
 autocmd VimLeave let g:UltiSnipsDebugServerEnable = 0

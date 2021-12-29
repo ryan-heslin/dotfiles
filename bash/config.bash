@@ -2,13 +2,13 @@
 
 # CONFIG
 shopt -s extglob cdable_vars globstar
+eval "$(dircolors -b)"
+
 export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin"
 export EDITOR="nvim"
 export INPUTRC="$HOME/.inputrc"
-export R_SNIPPETS_PATH="/c/Users/$USER/AppData/Roaming/RStudio/snippets/"
 export R_KEYRING_BACKEND="secret_service"
 export PYTHONIOENCODING=UTF-8
-export WEBDRIVER="C:\Users\heslinr1\geckodriver\geckodriver.exe"
 export VM_NAME="Ubuntu"
 export FZF_DEFAULT_OPTS="-m --cycle --height 70% --reverse --border --tabstop=4 --ansi --preview 'file {} && [ -f {} ] && bat {} --color=always --style=numbers --line-range :500' --preview-window=right:50%:wrap --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'"
 export VIM_SESSION_DIR="$HOME/.vim/sessions"
@@ -22,7 +22,6 @@ export CDPATH=":~/.config/nvim"
 export DOWNLOAD_STATIC_LIBV8=1
 export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
 set -a
-#export AOC_COOKIE="session=53616c7465645f5fc3d443e0f30952d8d52fa202dfceb2daf7b7d58825e056bc912592cb68a4e5e2ca3620701e5dd05d"
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'
 set +a
@@ -35,7 +34,7 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
 fi
 # Customize prompt
 if [ $OSTYPE == "linux-gnu" ]; then
-    PS1="\$(new_line_ps1)\[\033[1;34m\]UbuntuVM\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]\$(parse_git_branch)\[\033[1;15m\]> \[\033[0m\]"
+    PS1="\$(new_line_ps1)\[\033[1;34m\]Ubuntu\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]\$(parse_git_branch)\[\033[1;15m\]> \[\033[0m\]"
 else
-  PS1="\[\033[1;34m\]$USER\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]$(__git_ps1 " (%s)")\[\033[1;15m\]> \[\033[0m\]"
+    PS1="\[\033[1;34m\]$USER\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]$(__git_ps1 " (%s)")\[\033[1;15m\]> \[\033[0m\]"
 fi

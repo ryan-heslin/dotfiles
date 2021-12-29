@@ -16,5 +16,9 @@ of Lua utility functions, and some other goodies.
 While some of my `bash` functions date back to early 2021, I wrote most of the included files in fall
 of that year and had lots of fun doing it. This is one repository I hope never to call finished!
 
+By their nature, these files are perpetually unfinished and intended for personal use. Not all features will work correctly, and my setup depends on having many programs installed. This is particularly true about my bash functions, some of which are old and not thoroughly tested.
+
 Many pieces of files in this repository were copied or repurposed from StackOverflow posts and
 the like. I did my best to credit the source whenever I did so.
+
+Enjoy!
