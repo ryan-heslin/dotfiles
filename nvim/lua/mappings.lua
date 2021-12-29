@@ -26,6 +26,8 @@ vim.api.nvim_set_keymap('n', '<Leader>jj', ':lua win_exec("3j", "j")<CR>', { nor
 vim.api.nvim_set_keymap('n', '<Leader>hk', ':lua win_exec("3k", "h")<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>hj', ':lua win_exec("3j", "h")<CR>', { noremap = true, silent = true })
 
+vim.api.nvim_set_keymap('n', '<Leader>te', ':vsplit<CR>l:terminal<CR>i', { noremap = true, silent = true })
+
 --vim.api.nvim_set_keymap('n', '<C-S>', ':let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>', {noremap = true, silent = true}
 vim.api.nvim_set_keymap('n', '<Leader>o', 'o<Esc>k', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>O', 'O<Esc>j', {noremap = true, silent = true})

@@ -1,52 +1,36 @@
 global !p
 from regex import sub as rsub
+from snippet_helpers import *
+from r_snippet_helpers import *
 #Find function definition line above cursor
-def get_definition(snip):
-		#if (fun := re.match("^[:alnum:]+\s+<-\s+function\(([\w]*\)",  snip.buffer[snip.line]))
-		#^[a-zA-Z0-9._]\+
-	if (line := int(vim.eval("search('\\sfunction(', 'bcW')"))) != 0:
-		#fun = re.match("^[\w.]+", snip.buffer[line]).groups(0)
-		return line - 1
-	return None
+#def get_definition(snip):
+        ##if (fun := re.match("^[:alnum:]+\s+<-\s+function\(([\w]*\)",  snip.buffer[snip.line]))
+        ##^[a-zA-Z0-9._]\+
+    #if (line := int(vim.eval("search('\\sfunction(', 'bcW')"))) != 0:
+        #return line - 1
+    #return None
 # https://stackoverflow.com/questions/26385984/recursive-pattern-in-regex
+def get_function_name(line):
+    fun_line = line if re.match("[^<]+<-", snip.buffer[snip.line]) else line - 1
+    fun = re.match("^\s*([^ ]+).*", snip.buffer[fun_line])
+    return fun.group(1) if fun else None
 
-def extract_args(start):
+def extract_args(start, fun):
     line = snip.buffer[start]
 # Handle signatures that flow ove multiple lines: not as annoying as feared!
     if not re.match("\)\s*\{\s*$", line):
-        #orig = [snip.line, snip.column]
-        #snip.cursor.set(start, 0)
-        stop = int(vim.eval("searchpairpos('function(', '', ')\\s*{')")[0])
-        line = " ".join([line] + [snip.buffer[i] for i in range(start + 1, stop)])
+        #stop = int(vim.eval("searchpairpos('function(', '', ')\\s*{\\s*$')")[0])
+        stop = int(vim.eval("search(')\\s*{\\s*$')"))
+        vim.command("echom '" + str(stop) + "'")
+        line = " ".join([line] + [snip.buffer[i].lstrip() for i in range(start + 1, stop)])
         #snip.cursor.set(*orig)
     line = re.sub("^[\w.]*\s*(?:<-)?\s*function\s*\(", "", line)
+    signature = str(fun) + "(" + re.sub("\s*\{\s*$", "", line)
     line = rsub('[\w.]*\((((?>[^()]+)|(?R))*)\)', "", line)
+    line = re.sub("\).*$", "", line)
+    #vim.command('echo "' + str(line) + '"')
     args = re.findall("(?:^|,)\s*([\w\.]+)", line)
-    return args
-
-# Produce roxygen documentation
-def render_roxygen(args, line):
-	mark = "#'"
-# Only generate argument tabstops if function actually has them
-	args_text = [mark + " @param " + arg + " $" + str(num +4) for num, arg in enumerate(args)] if (offset := len(args))  else []
-	text = ([mark + " ${1:${2:@inheritParams }}", mark, mark + " @description ${3:}"] +
-		args_text + [ mark + " @details $" + str(offset + 4)] + [mark, mark + " @return $" + str(offset + 5),
-		mark +  " ${" + str(offset + 6) + ":@export}", mark, mark + " @examples", mark]
-		)
-	vim.current.window.cursor = [max(line, 1), 0]
-	snip.expand_anon("\n" + "\n".join(text) + "\n")
-
-#Helper to compose these tasks
-def document(snip):
-# Get rid of trigger
-    snip.buffer[snip.line] = re.sub("(?:\s*|^)rox", "", snip.buffer[snip.line])
-    line = get_definition(snip)
-    # Bail out if no match
-    if line is None:
-        snip.cursor.set(snip.line, snip.column)
-        return None
-    args = extract_args(line)
-    render_roxygen(args, line)
+    return args, signature
 endglobal
 
 #pre_expand "snip.buffer[snip.line] = re.sub('rox$', '', snip.buffer[snip.line])"
@@ -60,15 +44,10 @@ ggplot(${1}${2:,} aes(${3:${4:x = ${5},} ${6:y = ${7}}})) +
   geom_${8|point,density,bar,col,histogram|}(${9:}) ${0}
 endsnippet
 
-snippet q
-Your age: ${1|<18,18~60,>60|}
-Your height: ${2|<120cm,120cm~180cm,>180cm|}
-endsnippet
-
 context "snip.buffer[snip.line][0:2] == '#\''"
 priority 100
-snippet lin "Rmarkdown link"
-\code{\link{$1}}$0
+snippet lin "Roxygen link"
+\link{\code{$1}}$0
 endsnippet
 
 snippet AoC "Advent of Code template" b

@@ -283,3 +283,7 @@ term_edit = function(history_command, syntax)
     term_exec(history_command)
     make_scratch([[read /tmp/history.txt | setlocal number syntax=]] .. syntax .. [[ | normal G ]])
 end
+
+function toggle_ultisnips_debug()
+   toggle_var( 'UltiSnipsDebugServerEnable', 'UltiSnipsPMDebugBlocking' )
+end

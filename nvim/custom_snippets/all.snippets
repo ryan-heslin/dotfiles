@@ -9,7 +9,7 @@ delimiters = {
 }
 
 
-def flow_comment(snip, down = True):
+def flow_comment(snip, down = True, space = True):
     snip.buffer[snip.line] = re.sub("\s*f[cC]\s*$", "", snip.buffer[snip.line])
     comment = re.match("^([^ ]+\s{0,1})", snip.buffer[snip.line])
     if not comment:
@@ -21,7 +21,7 @@ def flow_comment(snip, down = True):
             return
         snip.buffer[snip.line -1] += " "
         vim.command("normal k$l")
-    snip.expand_anon("\n" + comment)
+    snip.expand_anon("\n" +  comment + (" " if space else ""))
 
 def clamp_line(snip, val, min_val = 0):
     return max(min(int(vim.eval("line('$')")) - 1, val), 0)

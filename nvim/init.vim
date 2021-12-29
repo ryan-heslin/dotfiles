@@ -395,3 +395,6 @@ endif
 
 " From https://superuser.com/questions/345520/vim-number-of-total-buffers
 au VimLeavePre * if (luaeval("count_bufs_by_type(true)['normal']") > 1) && (luaeval("summarize_option('ft')['anki_vim'] == nil") == 1) | :call functions#SaveSession() | endif
+
+" Disable dangerous setting
+autocmd VimLeave let g:UltiSnipsDebugServerEnable = 0
