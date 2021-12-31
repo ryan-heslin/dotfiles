@@ -28,3 +28,10 @@ with open('inputs/`!p snip.rv = fn.split('.')[0]`.txt') as f:
 #answer2 =
 #print(f"Answer 2 = {answer2}")
 endsnippet
+
+snippet bl "Wrap visual selection in block"
+${1:if${2:}}:
+    ${VISUAL}
+${3:else}:
+    $0
+endsnippet

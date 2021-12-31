@@ -4,6 +4,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-unimpaired'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-fugitive'
+    Plug 'kkoomen/vim-doge', { 'do': { -> doge#install() } }
     Plug 'kassio/neoterm'
     Plug 'jpalardy/vim-slime', { 'for': 'python' }
     Plug 'sillybun/vim-repl'
