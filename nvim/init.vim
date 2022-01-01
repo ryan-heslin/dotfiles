@@ -88,11 +88,6 @@ let g:session_dir="~/.vim/sessions"
 set termguicolors
 " Plugin settings
 
-let g:codi#interpreters = { 'r': {
-    \'bin': '/usr/bin/R',
-    \'prompt': '^\(>\) ',
-\}
-\}
 " UltiSnips
 let g:UltiSnipsExpandTrigger="<F2>"
 let g:UltiSnipsJumpForwardTrigger="<Tab>"
@@ -121,7 +116,7 @@ let Rout_more_colors = 1
 " Disable default assign shortcut
 "let R_esc_term = 0
 let R_buffer_opts = "winfixwidth nonumber"
-"let R_editing_mode= "vi"
+let R_editing_mode= "vi"
 "let R_args = ['--no-readline']
 let R_csv_app = '/usr/bin/libreoffice  --calc'
 let R_clear_line = 1

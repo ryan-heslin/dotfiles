@@ -18,6 +18,7 @@ alias vmon='VBoxManage startvm "$VM_NAME"'
 alias vmoff='VBoxManage controlvm "$VM_NAME" poweroff'
 alias vmreset='VBoxManage controlvm "$VM_NAME" reset'
 alias redo='sudo $(history -p \!\!)'
+alias luamake='/home/rheslin/lua-language-server/3rd/luamake/luamake'
 
 # From https://stackoverflow.com/questions/66382994/how-to-start-fzf-from-another-directory-the-the-current-working-directory
 # restore fzf default options ('fzf clear')

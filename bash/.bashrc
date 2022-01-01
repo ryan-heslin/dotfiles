@@ -3,5 +3,3 @@ if [ -f $HOME/.bash_profile ]; then
 else
 	echo "Problem reading .bash_profile"
 fi
-
-alias luamake=/home/rheslin/lua-language-server/3rd/luamake/luamake

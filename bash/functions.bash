@@ -388,12 +388,19 @@ _sess_complete(){
 
 complete  -F _sess_complete nvimsess
 
+# Remove all broken symlinks in a directory. See https://linuxize.com/post/how-to-remove-symbolic-links-in-linux/
+delink() {
+
+    find "$1{:-.}" -xtype l -delete
+}
+
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
 get_AoC(){
 
     # Adapted from
     local verbose=false
     local AoC_dir="$HOME/misc/AoC"
+    local last_valid_year=$(date +"%-Y")
     while [ "$#" -gt 0 ]; do
         key="$1"
         case $key in
@@ -408,10 +415,14 @@ get_AoC(){
                 shift
                 ;;
             -y|--year )
+                # Confirm specified year is this year (if the month is December), or last year (otherwise)
                 local year="$2"
+                if [ $(date +"%-m") -lt 12 ]; then
+                    local last_valid_year=$(( last_valid_year - 1 ))
+                fi
                 #Confirm year is valid
-                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $(date +"%-Y") ] );  then
-                    echo "$year is not a valid Advent of Code year. Valid: 2015-$(date +"%-Y")"
+                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $last_valid_year ] );  then
+                    echo "$year is not a valid Advent of Code year. Valid: 2015-$last_valid_year"
                     return 1
                 fi
                 shift
@@ -452,8 +463,9 @@ get_AoC(){
     if [ -z "${day+x}" ]; then
         local day=$(date +"%-e")
     fi
+
     if [ -z "${year+x}" ]; then
-        local year=$(date +"%-Y")
+        local year=$last_valid_year
     fi
 
     local file="$AoC_dir/$year/inputs"

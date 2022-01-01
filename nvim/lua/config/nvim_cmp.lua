@@ -31,6 +31,16 @@ local cmp_buffer = require('cmp_buffer')
     local press = function(key)
       vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), "n", true)
   end
+
+  -- From official repo
+  local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
+  function M.expand_or_jump_forwards(fallback)
+    M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
+  end
+
+  function M.jump_backwards(fallback)
+    M.compose({ "jump_backwards", "select_prev_item" })(fallback)
+  end
   cmp_config.setup({
     completion = {
         completeopt = 'menu,menuone,preview,noselect',

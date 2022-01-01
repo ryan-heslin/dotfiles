@@ -61,7 +61,7 @@ end
             ultisnips = "{snip}"
         }
     })
-}, fun
+},
     sorting= {
         priority_weight = 3},
     snippet = {

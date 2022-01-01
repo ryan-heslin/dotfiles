@@ -1,36 +1,24 @@
 global !p
+global active
+active = True
+import re
 from regex import sub as rsub
 from snippet_helpers import *
 from r_snippet_helpers import *
-#Find function definition line above cursor
-#def get_definition(snip):
-        ##if (fun := re.match("^[:alnum:]+\s+<-\s+function\(([\w]*\)",  snip.buffer[snip.line]))
-        ##^[a-zA-Z0-9._]\+
-    #if (line := int(vim.eval("search('\\sfunction(', 'bcW')"))) != 0:
-        #return line - 1
-    #return None
-# https://stackoverflow.com/questions/26385984/recursive-pattern-in-regex
-def get_function_name(line):
-    fun_line = line if re.match("[^<]+<-", snip.buffer[snip.line]) else line - 1
-    fun = re.match("^\s*([^ ]+).*", snip.buffer[fun_line])
-    return fun.group(1) if fun else None
 
-def extract_args(start, fun):
-    line = snip.buffer[start]
-# Handle signatures that flow ove multiple lines: not as annoying as feared!
-    if not re.match("\)\s*\{\s*$", line):
-        #stop = int(vim.eval("searchpairpos('function(', '', ')\\s*{\\s*$')")[0])
-        stop = int(vim.eval("search(')\\s*{\\s*$')"))
-        vim.command("echom '" + str(stop) + "'")
-        line = " ".join([line] + [snip.buffer[i].lstrip() for i in range(start + 1, stop)])
-        #snip.cursor.set(*orig)
-    line = re.sub("^[\w.]*\s*(?:<-)?\s*function\s*\(", "", line)
-    signature = str(fun) + "(" + re.sub("\s*\{\s*$", "", line)
-    line = rsub('[\w.]*\((((?>[^()]+)|(?R))*)\)', "", line)
-    line = re.sub("\).*$", "", line)
-    #vim.command('echo "' + str(line) + '"')
-    args = re.findall("(?:^|,)\s*([\w\.]+)", line)
-    return args, signature
+def extend_snippet(snip, fmt, end, end_code = ""):
+    #next_tabstop = len(snip.t) + 1
+    fmt = end if snip.tabstops[snip.tabstop].current_text == end_code else fmt
+    fmt.replace("+", str(snip.tabstop + 1))
+    #snip.cursor.set(snip.line, snip.tabstops[snip.tabstop].end[1] + 1)
+    snip.expand_anon(fmt)
+
+def create_vector(snip):
+    snip.expand_anon("c($1")
+
+def in_vector(snip):
+    pass
+
 endglobal
 
 #pre_expand "snip.buffer[snip.line] = re.sub('rox$', '', snip.buffer[snip.line])"
@@ -62,4 +50,10 @@ $0
 #answer2 <- #TODO
 
 #print(paste("Answer 2:", answer2))
+endsnippet
+
+post_expand "create_vector(snip)"
+post_jump "extend_snippet(snip, fmt = r', ${+:}', end = ')')"
+snippet vec "Dynamic vector"
+`!p vim.command("let g:snippet_active = 1)`
 endsnippet
