@@ -1,2 +1,3 @@
 *.env
 ./bash/*.env
+__pycache__

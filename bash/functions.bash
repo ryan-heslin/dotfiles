@@ -68,7 +68,7 @@ open2 () {
 }
 
 
-google() {
+search() {
 	start "https://google.com/search?q=$(echo "$1" | sed -r 's/\s/\+/')"
 }
 
@@ -309,7 +309,7 @@ cv(){
 }
 
 cs(){
-"$1" | xclip -selection clipboard
+echo "$1" | xclip -selection clipboard
 }
 
 dbconv(){
@@ -392,6 +392,10 @@ complete  -F _sess_complete nvimsess
 delink() {
 
     find "$1{:-.}" -xtype l -delete
+}
+
+testPyPi(){
+    python3 -m pip install --force-reinstall --user --index-url https://test.pypi.org/simple/ --upgrade --no-deps "${1}"
 }
 
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
@@ -482,4 +486,26 @@ get_AoC(){
     fi
 
     curl -sS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+}
+
+#Retrieve secret from secret-tool and copy to clipboard
+# TODO fix
+secretget(){
+    local st="$(which secret-tool)"
+    if [ -z "$st" ]; then
+        echo "secret-tool not on PATH"
+        return
+    fi
+    local cmd="$st lookup $1 $2"
+    local secret="$($cmd)"
+    [ -n "$secret" ] && cs "$secret" || echo "Secret not found"
+}
+
+# Build Python package and upload to test-PyPi
+rebuild(){
+    local package="$(basename $(realpath .))"
+    [ -d ."/dist" ] && rm -r "./dist"
+    [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info" && echo "okay"
+    python3 -m build || echo "Error building $package"
+    python3 -m twine upload --repository testpypi dist/*
 }

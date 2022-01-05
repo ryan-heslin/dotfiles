@@ -34,6 +34,7 @@ local cmp_buffer = require('cmp_buffer')
 
   -- From official repo
   local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
+  local M = {}
   function M.expand_or_jump_forwards(fallback)
     M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
   end
@@ -97,9 +98,6 @@ local cmp_buffer = require('cmp_buffer')
       ['<CR>'] = cmp_config.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp_config.mapping(function(fallback)
           if cmp_config.visible() then
-            if vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-              return press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-            end
             cmp_config.select_next_item()
           elseif has_any_words_before() then
             press("<Space>")
@@ -109,22 +107,14 @@ local cmp_buffer = require('cmp_buffer')
         end, {
           "i",
           "s",
+          "c"
         }),
         ["<Tab>"] = cmp_config.mapping(function(fallback)
-          if vim.fn.complete_info()["selected"] == -1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-            press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-          elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-            press("<ESC>:call UltiSnips#JumpForwards()<CR>")
-          elseif cmp_config.visible() then
-            cmp_config.select_next_item()
-          elseif has_any_words_before() then
-            press("<Tab>")
-          else
-            fallback()
-          end
+            cmp_ultisnips_mappings.expand_or_jump_forwards(fallback)
         end, {
           "i",
           "s",
+          "c"
         }),
         ["<C-z>"] = cmp_config.mapping(function(fallback)  --nested snippets
         if vim.fn["UltiSnips#CanJumpForwards"]() == 1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
@@ -135,16 +125,11 @@ local cmp_buffer = require('cmp_buffer')
     end, {"i",
     "s"}),
         ["<S-Tab>"] = cmp_config.mapping(function(fallback)
-          if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
-            press("<ESC>:call UltiSnips#JumpBackwards()<CR>")
-          elseif cmp_config.visible() then
-            cmp_config.select_prev_item()
-          else
-            fallback()
-          end
+          cmp_ultisnips_mappings.jump.backwards(fallback)
         end, {
           "i",
           "s",
+          "c"
         }),
       },
     sources = sources

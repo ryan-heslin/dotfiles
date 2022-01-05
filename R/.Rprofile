@@ -16,6 +16,7 @@ local({
     echo = TRUE,
     error = utils::recover,
     #scipen = 999,
+    shiny.error = utils::recover,
     warnPartialMatchDollar = TRUE,
     warnPartialMatchArgs = TRUE,
     warnPartialMatchAttr = TRUE,
@@ -29,17 +30,6 @@ local({
 
 .my_funs$q2 <- function() quit(save = "no")
 
-.my_funs$set_trace <- function(fun, debug_call, tracer =  bquote({print(ls.str()); browser(skipCalls = .(sys.nframe()))}),
-    exit = quote(print(ls.str())), untrace = FALSE, ...){
-    stopifnot(!is.null(...names()), all(...names() %in% names(args(fun))))
-    print(as.list(body(match.fun(fun))))
-    at <- readline("Enter function step to begin trace: ")
-    #debug_call <- parse(text = readline("Enter call: "))
-    #do.call(trace, list(what = substitute(fun), tracer = tracer, exit = exit, at = at, ...), envir = parent.frame())
-    #eval(debug_call)
-    debug_call
-    on.exit(if(untrace) tryCatch(untrace(fun), error = function(e) e))
-} 
 .my_funs$my_theme <- function() {
   theme_standard <- ggplot2::theme(
     panel.background = element_blank(),
@@ -130,10 +120,26 @@ local({
     }
   }
 
-.my_funs$switch_project <- function(project = NULL, stem = "~/R/Projects"){
-  tryCatch(rstudioapi::openProject(paste0(stem, "/", project, project, "/", ".Rproj")),
-      error = function(e) cat(project, "does not exist", sep = "\n"))
+.my_funs$switch_project <- function(project, stem = "~/R/Projects"){
+  .my_funs$rstudio_wrap(
+  expr =tryCatch(rstudioapi::openProject(paste0(stem, "/", project, "/", project, ".Rproj")),
+      error = function(e) cat("Project", project, "does not exist\n")), project = NULL, stem = "~/R/Projects")
 }
+
+
+.my_funs$rstudio_wrap <- function(expr,  ..., .env  = globalenv()){
+    fun_args <- list(...)
+    expr <- substitute(expr)
+    fun_body <- bquote({
+            if(rstudioapi::isAvailable()){
+                .(expr)
+            }else{
+                cat("RStudio not running\n")
+            }
+    }, splice = TRUE)
+    as.function(c(fun_args, fun_body), envir = .env)
+}
+
 .my_funs$unload_all <- function(pkg = loadedNamespaces()) {
   srcpkg <-
     c(
@@ -772,7 +778,6 @@ local({
 .my_funs$split_vec <- function(len, per) {
   rep(1:((len %/% per) + (len %% per != 0)), each = per)
 }
-
 
 # Generate snippet for n x m matrix
 .my_funs$fill_mat <- function(dims, file = "") {

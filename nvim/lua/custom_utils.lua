@@ -193,9 +193,9 @@ repeat_cmd = function(...)
     local count = arg[2] or vim.v.count1
     if count > 1 then
         if string.find(cmd, "normal", 1) then
-            local cmd = string.gsub(cmd, "normal%s+", "normal " .. tostring(count))
+             cmd = string.gsub(cmd, "normal%s+", "normal " .. tostring(count))
         else
-            local cmd = tostring(count) ..arg[1]
+             cmd = tostring(count) .. arg[1]
     end
     end
     vim.cmd(cmd)

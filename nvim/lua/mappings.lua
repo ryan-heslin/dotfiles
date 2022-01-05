@@ -66,9 +66,9 @@ vim.api.nvim_set_keymap('n', '<tab>J', '<C-w>J', {noremap = true, silent = true}
 vim.api.nvim_set_keymap('n', '<tab>K', '<C-w>K', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<tab>L', '<C-w>L', {noremap = true, silent = true})
 
-vim.api.nvim_set_keymap('n', '<tab>+', '<C-w>+', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<tab>-', '<C-w>-', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<Tab><', '<cmd>lua repeat_cmd("wincmd >", vim.v.count1)<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Tab>+', '<C-w>+', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Tab>-', '<C-w>-', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Tab><', ':<C-u>lua repeat_cmd("wincmd >", vim.v.count1)<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Tab>>', '<cmd>lua repeat_cmd("wincmd >", vim.v.count1)<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Tab>_', '<C-w>_', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Tab><bar>', '<C-w><bar>', {noremap = true, silent = true})

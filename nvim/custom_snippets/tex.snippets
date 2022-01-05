@@ -17,27 +17,32 @@ def repeat_string(snip, string, env, offset = 1):
     anon_snip_body = enclose(anon_snip_body, env)
     snip.expand_anon(anon_snip_body)
 
-def enclose(string, env, end = "$0", newline = True):
-	return "\\begin{" + env +"}" + ("\n" *newline) + string + ("\n" * newline) +"\\end{" + env + "}" + end
+def enclose(string, env, end = "$0", line_end = "\n", args = ""):
+# args must be brace-enclosed
+	return "\\begin{" + env +"}" + args + line_end + string + line_end +"\\end{" + env + "}" + end
 
 # Assume if an odd number of "$" before position, we are in an inline math chunk
 def in_inline_math(snip):
     return snip.buffer[snip.line][0:snip.column].count("$") % 2 != 0
 
 """Create an n x m matrix. Now memoized!"""
-def create_table(snip, env = "bmatrix", memo = {}):
+def create_table(snip, env = "bmatrix"):
     nrow, ncol = (int (x) for x in re.match("^.*?[a-z](\d+)x(\d+)", snip.buffer[snip.line]).group(1, 2))
-    inline = in_inline_math(snip)
+    args = ""
+    if env == "bmatrix":
+        inline = in_inline_math(snip)
+    else:
+        #Column args for tabular env
+        inline = False
+        args = "{" + "|".join(("c" * ncol)) + "}"
+# Create matrix with tabstops entered rowwise
     table =  ("\\\\\\\\" + ("\n" * (not inline))).join([" & ".join([f"${j}" for j in range((i-1) * ncol + 1, i * ncol + 1, 1)]) for i in range(1, nrow + 1, 1) ])
 # Sub out trigger
     snip.buffer[snip.line] = re.sub("\$?\s*[a-z]\d+x\d+", "", snip.buffer[snip.line])
     if "\\begin" not in snip.buffer[snip.line]:
-        try:
-            out = memo[str(nrow) + "x" + str(ncol)]
-        except KeyError:
-            out = enclose(table, env, end = "" + ("$0" * (not inline)), newline = (not inline)) + ("\$" * inline)
-            memo[str(nrow) + "x" +str(ncol)] = out
-        snip.expand_anon(out)
+        out = enclose(table, env, end = "" + ("$0" * (not inline)),
+        line_end = "\n" if not inline else "", args = args) + ("\$" * inline)
+    snip.expand_anon(out)
 
 def embiggen(snip, pat, modifier = "\\Bigg"):
 	#tag = re.match(pat, snip.buffer[snip.line]).groups(1)
@@ -84,7 +89,12 @@ endsnippet
 
 #post_expand "snip.cursor.preserve(); snip.buffer[snip.line] = re.sub('\d+x\d+', '', snip.buffer[snip.line])"
 pre_expand "create_table(snip, 'bmatrix')"
-snippet "m(\d+)x(\d+)" "Create table of given dimensions" ir
+snippet "m(\d+)x(\d+)" "Create matrix of given dimensions" ir
+`!p snip.rv = ""`
+endsnippet
+
+pre_expand "create_table(snip, 'tabular')"
+snippet "t(\d+)x(\d+)" "Create table of given dimensions" ir
 `!p snip.rv = ""`
 endsnippet
 

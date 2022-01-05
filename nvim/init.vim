@@ -47,6 +47,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-dadbod'
     Plug 'frazrepo/vim-rainbow'
     Plug 'jose-elias-alvarez/null-ls.nvim'
+    Plug 'makerj/vim-pdf'
 call plug#end()
 
 lua <<EOF
