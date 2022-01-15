@@ -65,12 +65,12 @@ lua <<EOF
   require('mappings')
 
   vim.cmd [[
-  autocmd FileType rmd lua cmp_config.setup.buffer {
-      \ sources = table.insert(sources, {
+  autocmd FileType md,rmd,anki_vim,txt lua cmp_config.setup.buffer {
+      \ sources = table.insert(sources,
           \ {name = 'spell',
           \ max_item_count = 5,
-          \ keyword_length = 3},
-          \})
+          \ keyword_length = 3}
+          \)
   \}
   ]]
 
@@ -119,7 +119,7 @@ let Rout_more_colors = 1
 let R_buffer_opts = "winfixwidth nonumber"
 let R_editing_mode= "vi"
 "let R_args = ['--no-readline']
-let R_csv_app = '/usr/bin/libreoffice  --calc'
+let R_csv_app = 'terminal:wd' "/usr/bin/libreoffice  --calc'
 let R_clear_line = 1
 let R_assign = 0
 let R_nvimpager="tab"
@@ -131,6 +131,7 @@ let R_set_omnifunc = []
 let R_auto_omni = []
 " let R_external_term = 'xterm -title R -e'
 let R_Rconsole_width = 15
+let R_nvim_wd = 1
 autocmd VimResized * let R_Rconsole_width = winwidth(0) / 4
 let R_min_editor_width = 25
 
@@ -168,9 +169,9 @@ augroup Colors
     \ | let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
 augroup end
 " Remember cursor position color
-au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-    \| exe "normal! g'\"" |
-
+autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+            \| execute "normal! g'\"" | endif
+autocmd TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150}
 autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif
 autocmd TermEnter * :lua set_term_opts()
 " Statusline
@@ -224,11 +225,8 @@ set titleold="Terminal"
 set titlestring=%F
 set lazyredraw "Faster mappings
 
-"Parenthesize paragraph
-"nnoremap <leader>PP mz(I(<esc>)A)<Esc>`z
 " Highlight long lines
 " From https://www.youtube.com/watch?v=aHm36-na4-4
-"autocmd BufEnter * if &buftype == "" | :bufdo set colorcolumn=80 | endif
 
 set colorcolumn=80
 set spell spelllang=en_us
@@ -312,7 +310,6 @@ augroup Cursor
     autocmd InsertLeave * set nocursorline
 augroup END
 
-
 augroup R
     autocmd!
     autocmd FileType rmarkdown,rmd,r setlocal cinwords=if,else,for,while,repeat,function
@@ -358,7 +355,9 @@ endfunction
 command! BD :bprevious | split | bnext | bdelete
 
 autocmd! User TelescopePreviewerLoaded setlocal wrap
-autocmd! BufWritePost if get(b:, b:source_on_save) == 1  | lua refresh(vim.fn.expand('%:p')) | endif
+autocmd! BufWritePost * if ( get(b:, 'source_on_save') == 1 )  
+            \| lua refresh(vim.fn.expand('%:p')) 
+            \| endif
 autocmd! FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
 
 if(argc() == 0)

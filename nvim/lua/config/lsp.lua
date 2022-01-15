@@ -57,7 +57,8 @@ sumneko_lua = { Lua = {
         path = path,
       },
       diagnostics = {
-        globals = {'vim'},
+        globals = {'vim', 'use'},
+        disable = {'lowercase-global'}
       },
       workspace = {
         library = vim.api.nvim_get_runtime_file("", true),
@@ -96,19 +97,8 @@ vim.lsp.diagnostic.on_publish_diagnostics, {
     virtual_text = {
         source = 'if_many',
     format = function(diagnostic)
-        local lookup = {[1] = 'E', [2] = 'W', [3] = 'I', [4] = 'H'}
+        local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
         local format = lookup[diagnostic.severity] or ''
-         --if diagnostic.severity == vim.diagnostic.severity.ERROR then
-             --format = 'E'
-         --elseif diagnostic.severity == vim.diagnostic.severity.WARN then
-             --format = 'W'
-         --elseif diagnostic.severity ==vim.diagnostic.severity.INFO then
-             --format = 'I'
-         --elseif diagnostic.severity == vim.diagnostic.severity.HINT then
-             --format = 'H'
-         --else
-             --format = ''
-         --end
         return string.format(format .. ': %s', diagnostic.message)
     end
     },

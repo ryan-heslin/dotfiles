@@ -1,8 +1,8 @@
 extends tex
 
 global !p
-def count_cloze(snip):
-    snip.expand_anon(int(len([*re.finditer('\{\{c\d+:', ' '.join(snip.buffer[snip.line]))])))
+def count_pattern(snip, pat):
+    return sum(len(re.findall(pat, snip.buffer[i])) for i in range(len(snip.buffer)))
 endglobal
 
 priority 100
@@ -17,10 +17,9 @@ snippet il "Inline math" A
 endsnippet
 
 snippet "c(\d+)" "Cloze with given number" r
-{{c`!p snip.rv = match.group(1)`::${1:cloze}}}${2.,, }
+{{c`!p snip.rv = match.group(1)`::${1:cloze}}}$0
 endsnippet
 
-pre_expand "count_cloze(snip)"
 snippet cl "Autonumber cloze"
-{{c`!p`::${1:cloze}}}{$2:.,, }}}
+{{c`!p snip.rv=count_pattern(snip, r"{{c\d+::")`::${1:cloze}}}$0
 endsnippet

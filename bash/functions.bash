@@ -259,10 +259,6 @@ knit(){
   argexec 'R -e' 'rmarkdown::render' "$1" "${@:2}"
 }
 
-# Open dotfile
-df(){
-   find  ~/dotfiles -name "$1" | xargs nvim
-}
 
 # Crete new file, opening with comment
 newf(){
@@ -279,7 +275,7 @@ newf(){
 draft2(){
 
   local args=("$@")
-  IFS="-"
+  IFS="|"
   #Split filename and arg list by -, then build and execute command
   for arg in "${args[@]}";do
     read -r -a split <<< "${arg}"
@@ -391,7 +387,7 @@ complete  -F _sess_complete nvimsess
 # Remove all broken symlinks in a directory. See https://linuxize.com/post/how-to-remove-symbolic-links-in-linux/
 delink() {
 
-    find "$1{:-.}" -xtype l -delete
+    find "${1:-.}" -xtype l -delete
 }
 
 testPyPi(){
@@ -488,16 +484,14 @@ get_AoC(){
     curl -sS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
-#Retrieve secret from secret-tool and copy to clipboard
-# TODO fix
+# Retrieve secret from secret-tool and copy to clipboard
 secretget(){
     local st="$(which secret-tool)"
-    if [ -z "$st" ]; then
-        echo "secret-tool not on PATH"
+    if [ "$#" -lt 2 ]; then
+        echo 'Password not provided'
         return
     fi
-    local cmd="$st lookup $1 $2"
-    local secret="$($cmd)"
+    local secret="$($st lookup $1 $2)"
     [ -n "$secret" ] && cs "$secret" || echo "Secret not found"
 }
 
@@ -508,4 +502,8 @@ rebuild(){
     [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info" && echo "okay"
     python3 -m build || echo "Error building $package"
     python3 -m twine upload --repository testpypi dist/*
+}
+
+ts(){
+    date +"%d-%m-%Y"
 }

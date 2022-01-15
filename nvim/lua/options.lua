@@ -1,76 +1,74 @@
 
-filetype plugin indent on
-colorscheme OceanicNext
-let g:session_dir="~/.vim/sessions"
-set termguicolors
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.rds
-" Error log files
+vim.cmd('filetype plugin indent on')
+vim.cmd('colorscheme OceanicNext')
+vim.g.session_dir="~/.vim/sessions"
+vim.o.termguicolors = true
+vim.o.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc','*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds'})
+-- Error log files
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
-set background=dark
-set mouse=i                   " Enable mouse support in insert mode.
-set breakindent
-set breakindentopt=shift:2
-set showbreak=\\\\\
+vim.o.background='dark'
+vim.o.mouse='i'   
+vim.o.breakindent = true
+vim.o.breakindentopt='shift:2'
+vim.o.showbreak='\\\\\'
 
-set clipboard+=unnamedplus
-" Line numbers & indentation
-set backspace=indent,eol,start
-set ma                          " To set mark a at current cursor location.
-set hidden
-set wrapscan
+vim.o.clipboard:append({'unnamedplus'})
+-- Line numbers & indentation
+vim.o.backspace:append({'indent', 'eol', 'start'})
+set ma                          -- To set mark a at current cursor location.
+vim.o.hidden = true
+vim.o.wrapscan = true
 set shortmess+=c
-let &showbreak=">>"
-set laststatus=2
-set number
-set sessionoptions+=winpos,terminal,globals
-set relativenumber
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set autoindent
-set cursorcolumn
-set cmdheight=3
-set si "Smart indentation
-set ruler
-set backspace=indent,eol,start
-" Search
-set smartcase
-set hlsearch
-set incsearch
-set magic
-set scrolloff=3
+vim.o.showbreak='>>'
+vim.o.laststatus=2
+vim.o.number = true
+vim.o.sessionoptions:append({'winpos','terminal',globals'})
+vim.o.relativenumber = true
+vim.o.expandtab = true
+vim.o.tabstop=4
+vim.o.softtabstop=4
+vim.o.shiftwidth=4
+vim.o.autoindent = true
+vim.o.cursorcolumn = true
+vim.o.cmdheight=3
+vim.o.si = true  --Smart indentation
+vim.o.ruler = true
+vim.o.backspace:append({'indent' ,'eol','start'})
+-- Search
+vim.o.smartcase = true
+vim.o.hlsearch = true
+vim.o.incsearch = true
+vim.o.magic = true
+vim.o.scrolloff=3
 
-set title
-set titleold="Terminal"
-set titlestring=%F
-set lazyredraw "Faster mappings
+vim.o.title = true
+vim.o.titleold='Terminal'
+vim.o.titlestring='%F'
+vim.o.lazyredraw = true --Faster mappings
 
-set colorcolumn=80
-set spell spelllang=en_us
-set showmatch
-set mat=2
-set noerrorbells
+vim.o.colorcolumn=80
+vim.o.spelllang='en_us'
+vim.o.showmatch = true
+vim.o.mat=2
+vim.o.noerrorbells = true
 
 syntax enable
-set encoding=utf-8
-set fileencoding=utf-8
+vim.o.encoding='utf-8'
+vim.o.fileencoding='utf-8'
 
-" Navigation
-set path+=**
-set wildmenu
-set wildmode=longest,list,full
-set titlestring=%t
+-- Navigation
+vim.o.path:append({'**'})
+vim.o.wildmenu = true
+vim.o.wildmode:append({'longest', 'list', 'full'})
+vim.o.titlestring='%t'
 
-" Backups
-execute 'set backupdir=' . join([stdpath('data'), 'backup'], "/")
-execute 'set undodir=' . join([stdpath('data'), 'undo'], "/")
-set backup
-set undofile
-set confirm
-set autowrite
-set noswapfile
-set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
-set statusline=%F%m%r%h%w%=(%{&ff}/%Y)\ (line\ %l\/%L,\ col\ %c)\
-!p "\`\`\`" if len(snip.buffer) == snip.line +1 or snip.buffer[snip.line + 1] != "\`\`\`"`
+-- Backups
+vim.o.backupdir= vim.fn.stdpath('data') .. '/backup'
+vim.o.undodir=vim.fn.stdpath('data') ..  '/undo'
+vim.o.backup = true
+vim.o.undofile = true
+vim.o.confirm = true
+vim.o.autowrite = true
+vim.o.noswapfile = true
+vim.o.guicursor='n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50'

@@ -13,3 +13,23 @@ function _G.put(...)
   print(table.concat(objects, '\n'))
   return ...
 end
+function _G.refresh(file)
+    -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
+    local file = file or vim.fn.expand('%:p')
+    local extension = vim.bo.filetype
+    local cmd = ""
+    if extension == 'R' or extension == 'r' then
+        cmd = 'Rsend source("' ..file .. '")'
+    elseif extension == 'python' then
+        cmd = 'IPythonCellRun'
+    elseif extension == 'bash' or extension == 'sh' then
+        cmd = '!. ' .. file
+    elseif extension == 'lua' or extension == 'vim' then
+        cmd = 'source ' .. file
+    else
+        print('Don\'t know how to handle extension ' .. extension)
+        return
+    end
+    print(cmd)
+    vim.cmd(cmd)
+end

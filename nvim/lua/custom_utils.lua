@@ -20,6 +20,7 @@ term_yank = function(term_id)
     return text
 end
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
+
 -- TODO handle different scopes (vim['g']), etc.)
 toggle_var = function(...)
     local arg = {...}
@@ -40,11 +41,11 @@ toggle_var = function(...)
 end
 
 jump_delete = function(flags)
-    local count = vim.v.count1
     local string = vim.fn.input('Enter pattern: ')
     if string.len(string) == 0 then
         return
     end
+    local count = vim.v.count1
     local start = vim.fn.getpos('.')
     local flags = 'wz' .. (flags or '')
     -- Search forward or backward; ternary-ish expression
@@ -73,7 +74,7 @@ count_bufs_by_type = function(loaded_only)
     for _, bufname in pairs(buftypes) do
         if ((not loaded_only) or vim.api.nvim_buf_is_loaded(bufname)) and bufname then
             local buftype = vim.api.nvim_buf_get_option(bufname, 'buftype')
-            local buftype = buftype ~= '' and buftype or 'normal'
+            buftype = buftype ~= '' and buftype or 'normal'
             count[buftype] = count[buftype] + 1
         end
     end
@@ -89,7 +90,7 @@ close_bufs_by_type = function(buftype)
     end
 end
 
--- suggested by official guide
+-- suggested by official guide to automatically escape terminal codes
 
 t = function(str)
     --last arg is "special"
@@ -124,15 +125,16 @@ term_exec = function(keys, scroll_down)
     end
     local count =  vim.v.count1
     local command = keys
+    scroll_down = scroll_down or true
     if vim.fn.stridx(keys, [[\]]) ~= -1 then
-        local command = t(keys)
+        command = t(keys)
     end
     for  _ = 1, count do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
     end
     vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     -- Scroll down if argument specified, useful for long input
-    if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
+    --if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
 end
 
 -- Wrap an argument in double quotes; do not change the empty string
@@ -188,6 +190,8 @@ summarize_option = function(opt)
 end
 
 repeat_cmd = function(...)
+    --Window commands glitch command editing window
+    --if vim.fn.bufexists('[Command Line]') then return end
     local arg = {...}
     local cmd = arg[1]
     local count = arg[2] or vim.v.count1
@@ -233,23 +237,24 @@ no_jump = function()
     repeat_cmd(cmd)
     vim.fn.setpos('.', pos)
 end
-
 refresh = function(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
     local file = file or vim.fn.expand('%:p')
-    local extension = vim.o.filetype
+    local extension = vim.bo.filetype
+    local cmd = ""
     if extension == 'R' or extension == 'r' then
-        local cmd = 'Rsend source("' ..file .. '")'
+        cmd = 'Rsend source("' ..file .. '")'
     elseif extension == 'python' then
-        local cmd = 'IPythonCellRun'
+        cmd = 'IPythonCellRun'
     elseif extension == 'bash' or extension == 'sh' then
-        local cmd = '!. ' .. file
+        cmd = '!. ' .. file
     elseif extension == 'lua' or extension == 'vim' then
-        local cmd = 'source ' .. file
+        cmd = 'source ' .. file
     else
         print('Don\'t know how to handle extension ' .. extension)
         return
     end
+    print(cmd)
     vim.cmd(cmd)
 end
 
@@ -263,7 +268,6 @@ make_scratch = function(command)
     vim.bo.bufhidden = 'hide'
     vim.bo.buflisted = false
     vim.cmd('lcd ' .. vim.fn.expand('$HOME'))
-    --if bufname then vim.cmd('file ' .. bufname) end
     if command then  vim.cmd(command) end
 end
 
@@ -284,6 +288,63 @@ term_edit = function(history_command, syntax)
     make_scratch([[read /tmp/history.txt | setlocal number syntax=]] .. syntax .. [[ | normal G ]])
 end
 
-function toggle_ultisnips_debug()
-   toggle_var( 'UltiSnipsDebugServerEnable', 'UltiSnipsPMDebugBlocking' )
+
+get_pair = function(char)
+    local pairs_mapping = {[ '(' ] = ')', [ '[' ] = ']',
+    [ '{' ] = '}',
+    [ "' "] = "'",
+    ['"'] = '"',
+    ['<'] = '>'}
+return pairs_mapping[char] or ''
+end
+
+get_char = function(offset, mode)
+    --Given an editor mode and offset, returns the character {offset} columns from the current character in the current line in that mode
+    local offset = offset or 0
+    local fns = {command = {'getcmdpos', 'getcmdline'}, normal = {'col', 'getline'}}
+    if mode == 'n' then 
+        local which = vim.fn.col('.') + offset
+        return string.sub(vim.fn.getline('.'), which, which)
+    elseif mode == "c" then 
+        local which = vim.fn.getcmdpos() + offset
+        return string.sub(vim.fn.getcmdline(), which, which)
+    end
+end
+
+expand_pair = function(char, mode)
+    --Credit  https://stackoverflow.com/questions/23323747/vim-vimscript-get-exact-character-under-the-cursor
+    local next_char= get_char(1, mode)
+    local out
+    if string.find(next_char, '%w')  then
+        out = char
+    --elseif next_char == ")" then
+     --   out = '<Right>'
+    else
+        out = char .. get_pair( char )
+    end
+    vim.cmd('echom' .. quote_arg(out))
+    return out
+    --vim.fn.feedkeys(t(out), 'nix')
+end
+
+compose_commands = function(...)
+    local args = {...}
+    return function(...)
+        for _, cmd in ipairs(args) do
+            vim.cmd(cmd)
+        end
+    end
+end
+
+surround = function()
+    vim.fn.setline('.', vim.fn.input('function: ') .. '(' ..  vim.fn.getline('.') .. ')')
+end
+
+--TODO put input function name
+ -- Build an R character vector or list from optionally named, unquoted arguments,
+ -- quoting automatically
+vec = function()
+    compose_commands([[s/\([^ =]\+\)/"\1"/g]],
+[[s/\("[^ =]\+"\)\ze\s\+[^=]/\1,/g]])()
+    surround()
 end
