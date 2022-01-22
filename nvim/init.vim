@@ -57,7 +57,7 @@ lua <<EOF
   require('config/lsp')
 
   --Local variable represents module, but also created global for configuration ugh
-  require('config/nvim_cmp')
+  require('config/nvim-cmp')
   require('config/lualine')
   require('config/autopairs')
   require('config/formatting')
@@ -355,8 +355,8 @@ endfunction
 command! BD :bprevious | split | bnext | bdelete
 
 autocmd! User TelescopePreviewerLoaded setlocal wrap
-autocmd! BufWritePost * if ( get(b:, 'source_on_save') == 1 )  
-            \| lua refresh(vim.fn.expand('%:p')) 
+autocmd! BufWritePost * if ( get(b:, 'source_on_save') == 1 )
+            \| execute 'lua refresh(vim.fn.expand("%:p"))'
             \| endif
 autocmd! FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
 

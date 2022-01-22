@@ -179,8 +179,12 @@ vim.api.nvim_set_keymap('c', '<-A-l>', '&cedit . "l" . "<C-c>"', {noremap = true
 --vim.api.nvim_set_keymap('t', '(', '()<left>', {noremap = true, silent = true})
 --vim.api.nvim_set_keymap("c", "'", "\'\'<left>", {noremap = true, silent = true})
 
+vim.api.nvim_set_keymap('n', ',ty', ':lua term_exec(vim.fn.getreg("+"))<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('v', ',ty', ':lua term_exec(yank_visual("+"))<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('t', '++', '<Space><bar>><Space>', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('c', '(', ':<C-U>lua expand_pair("(", "c")<CR>', {noremap = true, silent = true})
+--vim.api.nvim_set_keymap('c', '(', [[luaeval('expand_pair("(", "c")')]], {noremap = true, silent = true, expr = true})
+--vim.api.nvim_set_keymap('c', ')', [[luaeval('match_pair(")", "c")')]], {noremap = true, silent = true, expr = true})
+
 vim.api.nvim_set_keymap('n', '!!', '@:<CR>', {noremap = true, silent = true})
 
 vim.api.nvim_set_keymap('n', '<leader>ab', [[<cmd>lua add_abbrev(vim.fn.expand('<cword>'))<CR>]], {noremap = true})

@@ -59,7 +59,7 @@ post_jump "embiggen(snip,  pat = 'tag([(\[{<]).?')"
 snippet "tag([(\[{<]).?" "Create matching braces with \Bigg" wr
 endsnippet
 
-snippet frac
+snippet frac "Fraction" w
 \frac {${1:num}}{${2:denom}}
 endsnippet
 
@@ -78,8 +78,16 @@ snippet enum
 \end{enumerate}
 endsnippet
 
-snippet sumn
+snippet lr "Left-right pair"
+\left ${1:(}${2:\right ${1:)}}$0
+endsnippet
+
+snippet sumn "Summation" w
 \sum_{${1:i}=${2:1}}^{${3:n}}{${4:expr}}${0}
+endsnippet
+
+snippet prodn "Product" q
+\prod_{${1:i}=${2:1}}^{${3:n}}{${4:expr}}${0}
 endsnippet
 
 post_jump  "repeat_string(snip, '\\item', 'enumerate')"
@@ -87,7 +95,6 @@ snippet "enum(\d+)" "Enum of specified length" wr
 	`!p snip.rv = match.group(1)`
 endsnippet
 
-#post_expand "snip.cursor.preserve(); snip.buffer[snip.line] = re.sub('\d+x\d+', '', snip.buffer[snip.line])"
 pre_expand "create_table(snip, 'bmatrix')"
 snippet "m(\d+)x(\d+)" "Create matrix of given dimensions" ir
 `!p snip.rv = ""`
@@ -100,13 +107,13 @@ endsnippet
 
 snippet env "Expand environment" A
 \begin{${1:tabular}
-    ${VISUAL:}
+    ${VISUAL}$1
 \end{${1:tabular}}
 endsnippet
 
 snippet \ "Math mode" b
 \[
-	${VISUAL}${1}
+	${VISUAL}$1
 \]
 ${0}
 
@@ -115,13 +122,13 @@ endsnippet
 snippet & "Aligned"
 \[
 	\begin{aligned}
-	& ${1}
+	& ${1}\\\\
 	\end{aligned}
 \]
 $0
 endsnippet
 
-snippet pa "Partial derivative"
+snippet pa "Partial derivative" w
 \frac{\partial ${1:f}}{\partial ${2:x}} ${3:=} ${0}
 endsnippet
 

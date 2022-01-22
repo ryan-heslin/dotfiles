@@ -9,49 +9,49 @@ local cmp_buffer = require('cmp_buffer')
         keyword_length = 3},
     { name = 'path',
     keyword_length = 2},
-      {name = "latex_symbols"},
-      {name = "nvim_lua"},
+      {name = 'latex_symbols'},
+      {name = 'nvim_lua'},
     { name = 'ultisnips' }
   }
-  --require('telescope').load_extension("fzf")
+  --require('telescope').load_extension('fzf')
 
     local check_back_space = function()
-      local col = vim.fn.col(".") - 1
-      return col == 0 or vim.fn.getline("."):sub(col, col):match("%s") ~= nil
+      local col = vim.fn.col('.') - 1
+      return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') ~= nil
     end
 
     local has_any_words_before = function()
-      if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
+      if vim.api.nvim_buf_get_option(0, 'buftype') == 'prompt' then
         return false
       end
       local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+      return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match('%s') == nil
     end
 
     local press = function(key)
-      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), "n", true)
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), 'n', true)
   end
 
   -- From official repo
-  local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
+  local cmp_ultisnips_mappings = require('cmp_nvim_ultisnips.mappings')
   local M = {}
   function M.expand_or_jump_forwards(fallback)
-    M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
+    M.compose({ 'expand', 'jump_forwards', 'select_next_item' })(fallback)
   end
 
   function M.jump_backwards(fallback)
-    M.compose({ "jump_backwards", "select_prev_item" })(fallback)
+    M.compose({ 'jump_backwards', 'select_prev_item' })(fallback)
   end
   cmp_config.setup({
     completion = {
         completeopt = 'menu,menuone,preview,noselect',
         get_trigger_characters = function(trigger_characters)
-            if vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
-                table.insert(trigger_characters, "$")
+            if vim.bo.filetype == 'r' or vim.bo.filetype == 'rmd' then
+                table.insert(trigger_characters, '$')
             end
             --bibliography completion
-            if vim.bo.filetype == "tex" or vim.bo.filetype == "rmd" then
-                table.insert(trigger_characters, "@")
+            if vim.bo.filetype == 'tex' or vim.bo.filetype == 'rmd' then
+                table.insert(trigger_characters, '@')
             end
             return trigger_characters
         end,
@@ -71,11 +71,12 @@ local cmp_buffer = require('cmp_buffer')
         maxwidth = 50,
         with_text = false,
         menu = {
-            buffer = "{buf}",
-            nvim_lsp = "{LSP}",
-            path = "{path}",
-            spell = "{spell}",
-            ultisnips = "{snip}"
+            buffer = '{buf}',
+            latex_symbols = '{TeX}',
+            nvim_lsp = '{LSP}',
+            path = '{path}',
+            spell = '{spell}',
+            ultisnips = '{snip}'
         }
     })
 },
@@ -86,7 +87,7 @@ local cmp_buffer = require('cmp_buffer')
         priority_weight = 3},
     snippet = {
       expand = function(args)
-        vim.fn["UltiSnips#Anon"](args.body)
+        vim.fn['UltiSnips#Anon'](args.body)
       end,
     },
     mapping = {
@@ -96,40 +97,40 @@ local cmp_buffer = require('cmp_buffer')
       ['<C-h>'] = cmp_config.mapping.select_prev_item(),
       ['<C-e>'] = cmp_config.mapping.close(),
       ['<CR>'] = cmp_config.mapping.confirm({ select = true }),
-        ["<C-Space>"] = cmp_config.mapping(function(fallback)
+        ['<C-Space>'] = cmp_config.mapping(function(fallback)
           if cmp_config.visible() then
             cmp_config.select_next_item()
           elseif has_any_words_before() then
-            press("<Space>")
+            press('<Space>')
           else
             fallback()
           end
         end, {
-          "i",
-          "s",
-          "c"
+          'i',
+          's',
+          'c'
         }),
-        ["<Tab>"] = cmp_config.mapping(function(fallback)
+        ['<Tab>'] = cmp_config.mapping(function(fallback)
             cmp_ultisnips_mappings.expand_or_jump_forwards(fallback)
         end, {
-          "i",
-          "s",
-          "c"
+          'i',
+          's',
+          'c'
         }),
-        ["<C-z>"] = cmp_config.mapping(function(fallback)  --nested snippets
-        if vim.fn["UltiSnips#CanJumpForwards"]() == 1 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1 then
-            press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
+        ['<C-z>'] = cmp_config.mapping(function(fallback)  --nested snippets
+        if vim.fn['UltiSnips#CanJumpForwards']() == 1 and vim.fn['UltiSnips#CanExpandSnippet']() == 1 then
+            press('<C-R>=UltiSnips#ExpandSnippet()<CR>')
         else
             fallback()
         end
-    end, {"i",
-    "s"}),
-        ["<S-Tab>"] = cmp_config.mapping(function(fallback)
+    end, {'i',
+    's'}),
+        ['<S-Tab>'] = cmp_config.mapping(function(fallback)
           cmp_ultisnips_mappings.jump.backwards(fallback)
         end, {
-          "i",
-          "s",
-          "c"
+          'i',
+          's',
+          'c'
         }),
       },
     sources = sources

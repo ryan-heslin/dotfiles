@@ -27,23 +27,35 @@ lspkind = require('lspkind')
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
   vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
   -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
-  if client and client.resolved_capabilities.document_formatting then
+  if client then
+      if client.resolved_capabilities.document_formatting then
       vim.cmd [[
           augroup Format
             au! * <buffer>
             au BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
           augroup END
-        ]]
+          ]]
+      end
+        if client.resolved_capabilities.document_highlight then
+              vim.cmd [[
+                highlight LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
+                highlight LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
+                highlight LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+                augroup lsp_document_highlight
+                  autocmd! * <buffer>
+                  autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+                  autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+                augroup END
+              ]]
+          end
     end
 end
 
 
-
-
-local lua_dir = vim.fn.expand("$HOME") .. '/.local/bin/lua-language-server'
+local lua_dir = vim.fn.expand('$HOME') .. '/.local/bin/lua-language-server'
 local path = vim.fn.split(package.path, ';')
-table.insert(path, "lua/?.lua")
-table.insert(path, "lua/?/init.lua")
+table.insert(path, 'lua/?.lua')
+table.insert(path, 'lua/?/init.lua')
 
 local servers = {r_language_server = {},
 pyright={},
@@ -61,7 +73,7 @@ sumneko_lua = { Lua = {
         disable = {'lowercase-global'}
       },
       workspace = {
-        library = vim.api.nvim_get_runtime_file("", true),
+        library = vim.api.nvim_get_runtime_file('', true),
       },
       -- Do not send telemetry data containing a randomized but unique identifier
       telemetry = {
@@ -74,22 +86,22 @@ sumneko_lua = { Lua = {
 
 
 local border = {
-      {"🭽", "FloatBorder"},
-      {"▔", "FloatBorder"},
-      {"🭾", "FloatBorder"},
-      {"▕", "FloatBorder"},
-      {"🭿", "FloatBorder"},
-      {"▁", "FloatBorder"},
-      {"🭼", "FloatBorder"},
-      {"▏", "FloatBorder"},
+      {'🭽', 'FloatBorder'},
+      {'▔', 'FloatBorder'},
+      {'🭾', 'FloatBorder'},
+      {'▕', 'FloatBorder'},
+      {'🭿', 'FloatBorder'},
+      {'▁', 'FloatBorder'},
+      {'🭼', 'FloatBorder'},
+      {'▏', 'FloatBorder'},
 }
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
  --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
 local handlers = { ['textDocument/signatureHelp'] = vim.lsp.with(
             vim.lsp.handlers.signature_help, {
-                border = 'single',
-                close_events = {"CursorMoved", "BufHidden"},
+                border = border,
+                close_events = {'CursorMoved', 'BufHidden'},
             }
         ),
 ['textDocument/publishDiagnostics'] = vim.lsp.with(
@@ -107,10 +119,19 @@ vim.lsp.diagnostic.on_publish_diagnostics, {
     severity_sort = true
     }
 ),
-["textDocument/hover"] =  vim.lsp.with(vim.lsp.handlers.hover, {border = border})
+['textDocument/hover'] =  vim.lsp.with(vim.lsp.handlers.hover, {border = border})
 }
+-- From https://github-wiki-see.page/m/neovim/nvim-lspconfig/wiki/UI-customization
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border or border
+  return orig_util_open_floating_preview(contents, syntax, opts, ...)
+end
 
-local nvim_lsp = require("lspconfig")
+
+local nvim_lsp = require('lspconfig')
+
 for server, settings in pairs(servers) do
     nvim_lsp[server].setup{
     capabilities = capabilities,

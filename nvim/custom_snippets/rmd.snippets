@@ -1,5 +1,26 @@
 extends tex,r
 
+global !p
+
+# Standard RMarkdown header
+header = """---
+title: "$1"
+author: "Ryan Heslin"
+date: "\`r format(Sys.Date(), '%B %e, %Y')\`"
+header-includes:
+  - \setlength{\parindent}{2em}
+  - \setlength{\parskip}{2em}
+output:
+  pdf_document:
+    highlight: "kate"
+    ---
+"""
+def insert_header():
+    snip.cursor.set(1, 1)
+    snip.expand_anon(header)
+
+endglobal
+
 snippet ch "Standard Chunk"
 \`\`\`{${1:r}${2:}}
 $3
@@ -14,4 +35,9 @@ snippet chv "Chunk surround visual"
 ```{r}
 ${VISUAL}
 ```
+endsnippet
+
+post_expand "snip.cursor.set(0, 0); insert_header()"
+snippet header "Insert standard Rmarkdown header"
+`!p snip.rv = ""`
 endsnippet

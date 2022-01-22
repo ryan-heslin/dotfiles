@@ -10,10 +10,12 @@ local lualine = require('lualine').setup {
   },
   sections = {
     lualine_a = {'mode', {'getcwd'}},
-    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_b = {'branch', 'diff', {'diagnostics',
+update_in_insert = true}
+},
     lualine_c = {'filename'},
     lualine_x = {'encoding', 'fileformat', 'filetype'},
-    lualine_y = {'progress'},
+    lualine_y = {{'%L'}, 'progress'},
     lualine_z = {'location'}
   },
   inactive_sections = {
@@ -25,7 +27,10 @@ local lualine = require('lualine').setup {
     lualine_z = {}
   },
   tabline = {
-  lualine_a = {'buffers'},
+  lualine_a = {{'buffers',
+  mode = 2,
+  }
+  },
   lualine_b = {},
   lualine_c = {'filename'},
   lualine_x = {},

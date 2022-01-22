@@ -507,3 +507,17 @@ rebuild(){
 ts(){
     date +"%d-%m-%Y"
 }
+
+delock(){
+    rm -rf "$HOME/$R_USER_LIBRARY0*"
+}
+
+zotid(){
+    zotcli query "$1" | grep -oP "([A-Z0-9]{8})(?=\])"
+}
+
+#TODO pad 0 correctly
+get627(){
+echo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf '%01d' $1).Rmd"
+    curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%01d" "$1").Rmd"
+}

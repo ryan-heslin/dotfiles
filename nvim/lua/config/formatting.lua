@@ -10,9 +10,6 @@ local sources = {
     --prefer_local = '/usr/bin/jsonlint'}),
     null_ls.builtins.diagnostics.luacheck,
     null_ls.builtins.diagnostics.markdownlint,
-    null_ls.builtins.diagnostics.proselint.with({
-    filetypes = text_extensions
-    }),
     null_ls.builtins.diagnostics.vint,
     null_ls.builtins.formatting.black,
     null_ls.builtins.formatting.fixjson,

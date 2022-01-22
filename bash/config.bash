@@ -10,6 +10,8 @@ export INPUTRC="$HOME/.inputrc"
 export R_KEYRING_BACKEND="secret_service"
 export PYTHONIOENCODING=UTF-8
 export VM_NAME="Ubuntu"
+
+export R_USER_LIBRARY="$HOME/R/x86_64-pc-linux-gnu-library/4.1/"
 export FZF_DEFAULT_OPTS="-m --cycle --height 70% --reverse --border --tabstop=4 --ansi --preview 'file {} && [ -f {} ] && bat {} --color=always --style=numbers --line-range :500' --preview-window=right:50%:wrap --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'"
 export VIM_SESSION_DIR="$HOME/.vim/sessions"
 export FZF_DEFAULT_COMMAND="fdfind . $HOME --follow --exclude .git"

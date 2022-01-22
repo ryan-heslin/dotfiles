@@ -11,8 +11,9 @@ end
 
 -- Yank text at end of terminal buffer
 term_yank = function(term_id)
+    term_id = term_id or vim.g.last_terminal_win_id
     local prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
-    if prompt_line == 0 then
+    if prompt_line == '' then
         return
     end
     local text = vim.fn.win_execute(term_id, 'normal ' .. tostring(prompt_line) .. 'gg0f>lvG$y')
@@ -129,10 +130,12 @@ term_exec = function(keys, scroll_down)
     if vim.fn.stridx(keys, [[\]]) ~= -1 then
         command = t(keys)
     end
+    --vim.fn.chansend(vim.g.last_terminal_chan_id, t('<CR>'))
+    print(command)
     for  _ = 1, count do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
+        vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     end
-    vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     -- Scroll down if argument specified, useful for long input
     --if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
 end
@@ -254,13 +257,12 @@ refresh = function(file)
         print('Don\'t know how to handle extension ' .. extension)
         return
     end
-    print(cmd)
     vim.cmd(cmd)
 end
 
 -- Mostly copied from https://vi.stackexchange.com/questions/11310/what-is-a-scratch-window
 -- Makes a scratch buffer
-make_scratch = function(command)
+make_scratch = function(command_fn)
     vim.cmd('split')
     vim.bo.swapfile = false
     vim.cmd('enew')
@@ -268,7 +270,7 @@ make_scratch = function(command)
     vim.bo.bufhidden = 'hide'
     vim.bo.buflisted = false
     vim.cmd('lcd ' .. vim.fn.expand('$HOME'))
-    if command then  vim.cmd(command) end
+    if command_fn then  command_fn() end
 end
 
 -- Dump messages to scratch buffer
@@ -285,7 +287,10 @@ term_edit = function(history_command, syntax)
     history_command = history_command or 'history -w /tmp/history.txt'
     syntax = syntax or 'bash'
     term_exec(history_command)
-    make_scratch([[read /tmp/history.txt | setlocal number syntax=]] .. syntax .. [[ | normal G ]])
+    make_scratch(compose_commands("read /tmp/history.txt",
+    "setlocal number syntax=" .. syntax,
+    "normal G"
+    ))
 end
 
 
@@ -301,30 +306,35 @@ end
 get_char = function(offset, mode)
     --Given an editor mode and offset, returns the character {offset} columns from the current character in the current line in that mode
     local offset = offset or 0
-    local fns = {command = {'getcmdpos', 'getcmdline'}, normal = {'col', 'getline'}}
-    if mode == 'n' then 
+    if mode == 'n' then
         local which = vim.fn.col('.') + offset
         return string.sub(vim.fn.getline('.'), which, which)
-    elseif mode == "c" then 
+    elseif mode == "c" then
         local which = vim.fn.getcmdpos() + offset
         return string.sub(vim.fn.getcmdline(), which, which)
     end
 end
 
+-- Given a a pair-opening character like "(", inserts the character if the next character is alphanumeric
+-- Otherwise, inserts the character and its closing pair, then moves the cursor between them
 expand_pair = function(char, mode)
     --Credit  https://stackoverflow.com/questions/23323747/vim-vimscript-get-exact-character-under-the-cursor
     local next_char= get_char(1, mode)
     local out
     if string.find(next_char, '%w')  then
-        out = char
+        out =  char
     --elseif next_char == ")" then
      --   out = '<Right>'
     else
-        out = char .. get_pair( char )
+        out =  char .. get_pair( char ) .. t('<left>')
     end
-    vim.cmd('echom' .. quote_arg(out))
+    --vim.cmd('echom' .. quote_arg(out))
     return out
-    --vim.fn.feedkeys(t(out), 'nix')
+end
+
+match_pair = function(char, mode)
+    local next_char = get_char(1, mode)
+    return next_char == char and  t('<right>') or char
 end
 
 compose_commands = function(...)
@@ -347,4 +357,12 @@ vec = function()
     compose_commands([[s/\([^ =]\+\)/"\1"/g]],
 [[s/\("[^ =]\+"\)\ze\s\+[^=]/\1,/g]])()
     surround()
+end
+
+
+yank_visual = function(register)
+    register = register or '+'
+    vim.cmd('normal "' .. register .. 'gvy' )
+    out= vim.fn.getreg(register)
+    return out
 end

@@ -7,9 +7,9 @@ DOTFILES_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # Array of dotfiles and symlink targets; create any links no already created
 declare -A link_pairs
 link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME" ["$DOTFILES_PATH/bash/.bash_profile"]="$HOME"
-["$DOTFILES_PATH/bash/.functions.bash"]="$HOME" ["$DOTFILES_PATH/bash/config.bash"]="$HOME"
-["$DOTFILES_PATH/bash/.alias.bash"]="$HOME" ["$DOTFILES_PATH/bash/.inputrc"]="$HOME"
-["$DOTFILES_PATH/bash/autopairs.sh"]="$HOME"
+["$DOTFILES_PATH/bash/functions.bash"]="$HOME" ["$DOTFILES_PATH/bash/config.bash"]="$HOME"
+["$DOTFILES_PATH/bash/alias.bash"]="$HOME" ["$DOTFILES_PATH/bash/.inputrc"]="$HOME"
+["$DOTFILES_PATH/bash/autopairs.bash"]="$HOME"
 ["$DOTFILES_PATH/R/.Rprofile"]="$HOME" ["$DOTFILES_PATH/R/.Renviron"]="$HOME"
 ["$DOTFILES_PATH/misc/.tmux.conf"]="$HOME" ["$DOTFILES_PATH/misc/.vintrc.yaml"]="$HOME"
 ["$DOTFILES_PATH/bat/"]="$HOME/.config/"
