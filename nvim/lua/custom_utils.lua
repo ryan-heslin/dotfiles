@@ -137,7 +137,7 @@ term_exec = function(keys, scroll_down)
         vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     end
     -- Scroll down if argument specified, useful for long input
-    --if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
+    if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
 end
 
 -- Wrap an argument in double quotes; do not change the empty string
@@ -277,7 +277,11 @@ end
 capture_messages = function()
     vim.cmd('redir @z')
     vim.cmd('silent messages')
-    make_scratch('put z')
+    if vim.fn.getreg('z') == '' then
+        print('No messages in buffer')
+        return
+    end
+    make_scratch(function() vim.cmd('put z') end)
     vim.cmd('redir end')
 end
 
@@ -365,4 +369,65 @@ yank_visual = function(register)
     vim.cmd('normal "' .. register .. 'gvy' )
     out= vim.fn.getreg(register)
     return out
+end
+-- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
+make_session = function()
+  vim.b.sessiondir = os.getenv('HOME') .. '/.vim/sessions' .. vim.fn.getcwd()
+  if vim.fn.filewritable(vim.b.sessiondir) ~= 2 then
+    vim.cmd('silent !mkdir -p ' ..  vim.b.sessiondir)
+    vim.cmd('redraw!')
+  end
+  vim.b.filename = vim.b.sessiondir .. '/session.vim'
+  vim.cmd("mksession! " .. vim.b.filename)
+end
+ -- From https://stackoverflow.com/questions/1642611/how-to-save-and-restore-multiple-different-sessions-in-vim, with my modifications
+save_session = function()
+  local session_dir = os.getenv('VIM_SESSION_DIR')
+  if session_dir == nil then
+      print('Session directory not specified')
+      return
+  end
+  local this_session = vim.g.current_session
+  -- If no current session name found, prompt user for one, warning if already
+  if this_session == nil then
+      vim.g.current_session = vim.fn.input('Enter session name (enter to skip): ')
+      if current_session == '' then
+          return
+      end
+  else
+       local current_session = this_session
+  end
+
+  local path = session_dir .. "/" .. current_session .. ".vim"
+  if file_exists(path) and this_session == "" then
+      local choice = vim.fn.input('Session \'' .. current_session .. [[' already exists. Overwrite
+      (y to overwrite, any other key to abort)? ]])
+      if choice ~= "y" then
+          return
+      end
+  end
+  vim.g.current_session = current_session
+  vim.cmd("mksession! " .. path)
+end
+
+load_session = function()
+    local session_dir = os.getenv('VIM_SESSION_DIR')
+    if session_dir == nil then
+        print('Session directory not specified')
+        return
+    end
+    local latest_session = vim.fn.system("lastn " .. session_dir .. " 1 echo")
+    local safe_source = function (file)
+        vim.cmd("source " .. file)
+    end
+    if not pcall(safe_source, latest_session) then
+        print('Session file does not exist or cannot be read')
+        return
+    end
+    print('Loading session ' .. latest_session)
 end

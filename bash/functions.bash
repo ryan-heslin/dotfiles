@@ -487,11 +487,8 @@ get_AoC(){
 # Retrieve secret from secret-tool and copy to clipboard
 secretget(){
     local st="$(which secret-tool)"
-    if [ "$#" -lt 2 ]; then
-        echo 'Password not provided'
-        return
-    fi
-    local secret="$($st lookup $1 $2)"
+    read -s -p 'Password: ' password
+    local secret="$($st lookup $1 $password)"
     [ -n "$secret" ] && cs "$secret" || echo "Secret not found"
 }
 
@@ -518,6 +515,6 @@ zotid(){
 
 #TODO pad 0 correctly
 get627(){
-echo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf '%01d' $1).Rmd"
-    curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%01d" "$1").Rmd"
+local file="week$1.Rmd"
+   [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"
 }

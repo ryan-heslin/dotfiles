@@ -8,7 +8,6 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'kassio/neoterm'
     Plug 'jpalardy/vim-slime', { 'for': 'python' }
     Plug 'sillybun/vim-repl'
-    Plug 'metakirby5/codi.vim'
     Plug 'hanschen/vim-ipython-cell', { 'for': 'python' }
     Plug 'jalvesaq/Nvim-R', {'branch': 'stable'}
     Plug 'jalvesaq/zotcite'

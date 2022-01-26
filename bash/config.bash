@@ -23,6 +23,7 @@ export CDPATH=":~/.config/nvim"
 # For R cli package
 export DOWNLOAD_STATIC_LIBV8=1
 export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
+export HISTCONTROL='ignorespace'
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'
@@ -34,6 +35,9 @@ set +a
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
+
+# Caps lock remap
+[ -f "$HOME/sh_utils/remap_caps.sh" ] && . "$HOME/sh_utils/remap_caps.sh"
 # Customize prompt
 if [ $OSTYPE == "linux-gnu" ]; then
     PS1="\$(new_line_ps1)\[\033[1;34m\]Ubuntu\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]\$(parse_git_branch)\[\033[1;15m\]> \[\033[0m\]"

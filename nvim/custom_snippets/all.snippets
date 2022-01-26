@@ -78,6 +78,7 @@ snippet "mc(\d+)x(\d+)\s*" "'Modify call' - create call to modify object" r
 `!p snip.rv = ""`
 endsnippet
 
+context "re.match(r'^[^a-zA-Z0-9]+\s', snip.buffer[snip.line])"
 pre_expand "flow_comment(snip, down = True)"
 post_expand "snip.rv = ''"
 snippet fc "Flow comment one line down" A
