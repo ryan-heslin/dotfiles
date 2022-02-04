@@ -13,7 +13,7 @@ header-includes:
 output:
   pdf_document:
     highlight: "kate"
-    ---
+---
 """
 def insert_header():
     snip.cursor.set(1, 1)
@@ -32,9 +32,9 @@ snippet RR "R inline chunk" a
 endsnippet
 
 snippet chv "Chunk surround visual"
-```{r}
+\`\`\`{r}
 ${VISUAL}
-```
+\`\`\`
 endsnippet
 
 post_expand "snip.cursor.set(0, 0); insert_header()"

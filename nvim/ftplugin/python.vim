@@ -24,6 +24,7 @@
    nnoremap \pdb Obreakpoint()<Esc>j
    nnoremap \ddb :%s/^\s*breakpoint()\s*$//
    nnoremap <leader>pd ^yWoIprint(f'<C-o>P = {<C-o>P}')<Esc>
+   nnoremap <leader>di Pa["<Esc>ea"]<Esc>B
 
 " Special Python highlighting
 augroup pycolors

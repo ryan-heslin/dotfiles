@@ -3,7 +3,7 @@ runtime! ftplugin/r.vim
 runtime! ftplugin/tex.vim
 runtime! ftplugin/md.vim
 
-nnoremap \kk :call functions#InlineSend()<CR>
+nnoremap \kk :lua inline_send()<CR>
 nnoremap <leader>` I```{r}<CR><CR>```<esc>kI
 nnoremap <Leader>ck :lua jump("^```{", 1, '')<CR>
 nnoremap <Leader>bk :lua jump("^```{", 1, 'b')<CR>

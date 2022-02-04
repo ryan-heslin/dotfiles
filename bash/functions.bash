@@ -8,14 +8,15 @@ get(){
 # Use lock file to copy directories to  Google Drive. Requires rclone setup.
 cplock() {
 
-    if [ "$#" -gt 0]; then
+    if [ "$#" -gt 0 ]; then
         local dirs = "($@)"
     else
         local dirs=(dotfiles gradebook misc R sh_utils .venvs Zotero)
     fi
 
     for dir in "${dirs[@]}"; do
-        flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> $HOME/backup.log
+        echo "$dir"
+        flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> "$HOME/backup.log"
     done
 }
 
@@ -276,10 +277,10 @@ draft2(){
 
   local args=("$@")
   IFS="|"
-  #Split filename and arg list by -, then build and execute command
+  #Split filename and arg list by |, then build and execute command
   for arg in "${args[@]}";do
     read -r -a split <<< "${arg}"
-    argexec 'R -s -e' draft2 "'${split[0]}'" "'notes_text'" "${split[1]}" "open=${split[2]}"
+    argexec 'R -s -e' draft2 "'${split[0]}'" "'${split[1]}'" "${split[2]}" "open=${split[3]:-TRUE}"
   done
 }
 
@@ -488,6 +489,7 @@ get_AoC(){
 secretget(){
     local st="$(which secret-tool)"
     read -s -p 'Password: ' password
+    echo ''
     local secret="$($st lookup $1 $password)"
     [ -n "$secret" ] && cs "$secret" || echo "Secret not found"
 }
@@ -496,7 +498,7 @@ secretget(){
 rebuild(){
     local package="$(basename $(realpath .))"
     [ -d ."/dist" ] && rm -r "./dist"
-    [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info" && echo "okay"
+    [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info"
     python3 -m build || echo "Error building $package"
     python3 -m twine upload --repository testpypi dist/*
 }
@@ -509,11 +511,11 @@ delock(){
     rm -rf "$HOME/$R_USER_LIBRARY0*"
 }
 
+# Get Zotero library IDs corresponding to query
 zotid(){
     zotcli query "$1" | grep -oP "([A-Z0-9]{8})(?=\])"
 }
 
-#TODO pad 0 correctly
 get627(){
 local file="week$1.Rmd"
    [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"

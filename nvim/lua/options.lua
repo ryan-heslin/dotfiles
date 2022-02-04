@@ -1,29 +1,26 @@
-
 vim.cmd('filetype plugin indent on')
 vim.cmd('colorscheme OceanicNext')
+vim.cmd('syntax enable')
+
 vim.g.session_dir="~/.vim/sessions"
 vim.o.termguicolors = true
 vim.o.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc','*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds'})
 -- Error log files
-let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
-let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
 vim.o.background='dark'
-vim.o.mouse='i'   
+vim.o.mouse='i'
 vim.o.breakindent = true
 vim.o.breakindentopt='shift:2'
-vim.o.showbreak='\\\\\'
 
 vim.o.clipboard:append({'unnamedplus'})
 -- Line numbers & indentation
 vim.o.backspace:append({'indent', 'eol', 'start'})
-set ma                          -- To set mark a at current cursor location.
 vim.o.hidden = true
 vim.o.wrapscan = true
-set shortmess+=c
+vim.o.shortmess:append({'c'})
 vim.o.showbreak='>>'
 vim.o.laststatus=2
 vim.o.number = true
-vim.o.sessionoptions:append({'winpos','terminal',globals'})
+vim.o.sessionoptions:append({'winpos','terminal','globals'})
 vim.o.relativenumber = true
 vim.o.expandtab = true
 vim.o.tabstop=4
@@ -53,7 +50,6 @@ vim.o.showmatch = true
 vim.o.mat=2
 vim.o.noerrorbells = true
 
-syntax enable
 vim.o.encoding='utf-8'
 vim.o.fileencoding='utf-8'
 
@@ -64,7 +60,7 @@ vim.o.wildmode:append({'longest', 'list', 'full'})
 vim.o.titlestring='%t'
 
 -- Backups
-vim.o.backupdir= vim.fn.stdpath('data') .. '/backup'
+vim.o.backupdir = vim.fn.stdpath('data') .. '/backup'
 vim.o.undodir=vim.fn.stdpath('data') ..  '/undo'
 vim.o.backup = true
 vim.o.undofile = true

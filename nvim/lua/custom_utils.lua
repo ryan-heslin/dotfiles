@@ -1,3 +1,11 @@
+--Wrap a function so it may be called safely
+safe_call = function(func, ...)
+    local pre_args = {...}
+    return function(...)
+         pcall(func, ...)
+    end
+end
+
 set_term_opts = function()
     vim.cmd("startinsert")
     vim.wo.number = false
@@ -233,13 +241,15 @@ add_abbrev = function(abbrev, expansion)
     print('\nAdded abbreviation ' .. quote_arg(expansion) .. ' for ' .. quote_arg(abbrev))
 end
 
-no_jump = function()
-    local cmd = 'normal ' .. vim.fn.input("Normal command: ")
+no_jump = function(cmd)
+    local cmd = cmd or 'normal ' .. vim.fn.input('Normal command: ')
     print('\n')
-    local pos = vim.fn.getpos('.')
+    local old_pos = vim.fn.getpos('.')
     repeat_cmd(cmd)
-    vim.fn.setpos('.', pos)
+    vim.fn.setpos('.', old_pos)
 end
+no_jump_safe = safe_call(no_jump)
+
 refresh = function(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
     local file = file or vim.fn.expand('%:p')
@@ -299,7 +309,8 @@ end
 
 
 get_pair = function(char)
-    local pairs_mapping = {[ '(' ] = ')', [ '[' ] = ']',
+    local pairs_mapping = {[ '(' ] = ')',
+    [ '[' ] = ']',
     [ '{' ] = '}',
     [ "' "] = "'",
     ['"'] = '"',
@@ -308,15 +319,19 @@ return pairs_mapping[char] or ''
 end
 
 get_char = function(offset, mode)
-    --Given an editor mode and offset, returns the character {offset} columns from the current character in the current line in that mode
-    local offset = offset or 0
+    --Given an editor mode and offset, returns the character {offset}
+    --columns from the current character in the current line in that mode
+    local which = offset or 0
+    local mode = mode or vim.fn.mode()
+    local out
     if mode == 'n' then
-        local which = vim.fn.col('.') + offset
-        return string.sub(vim.fn.getline('.'), which, which)
+         which = which + vim.fn.col('.')
+        out =  string.sub(vim.fn.getline('.'), which, which)
     elseif mode == "c" then
-        local which = vim.fn.getcmdpos() + offset
-        return string.sub(vim.fn.getcmdline(), which, which)
+         which = which + vim.fn.getcmdpos()
+        out =  string.sub(vim.fn.getcmdline(), which, which)
     end
+    return out
 end
 
 -- Given a a pair-opening character like "(", inserts the character if the next character is alphanumeric
@@ -324,20 +339,13 @@ end
 expand_pair = function(char, mode)
     --Credit  https://stackoverflow.com/questions/23323747/vim-vimscript-get-exact-character-under-the-cursor
     local next_char= get_char(1, mode)
-    local out
-    if string.find(next_char, '%w')  then
-        out =  char
-    --elseif next_char == ")" then
-     --   out = '<Right>'
-    else
-        out =  char .. get_pair( char ) .. t('<left>')
-    end
-    --vim.cmd('echom' .. quote_arg(out))
+    out =  string.find(next_char, '%w') and char or char .. get_pair(char) .. t('<left>')
     return out
 end
 
-match_pair = function(char, mode)
-    local next_char = get_char(1, mode)
+--Move cursor one index right if next character matches char position, otherwise put character
+match_pair = function(char)
+    local next_char = get_char(1)
     return next_char == char and  t('<right>') or char
 end
 
@@ -372,8 +380,8 @@ yank_visual = function(register)
 end
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
 function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
+   local f = io.open(name,"r")
+   if f ~= nil then io.close(f) return true else return false end
 end
 
 make_session = function()
@@ -395,8 +403,8 @@ save_session = function()
   local this_session = vim.g.current_session
   -- If no current session name found, prompt user for one, warning if already
   if this_session == nil then
-      vim.g.current_session = vim.fn.input('Enter session name (enter to skip): ')
-      if current_session == '' then
+      local current_session = vim.fn.input('Enter session name (enter to skip): ')
+      if vim.g.current_session == '' then
           return
       end
   else
@@ -430,4 +438,57 @@ load_session = function()
         return
     end
     print('Loading session ' .. latest_session)
+end
+
+-- Knit an Rmarkdown file
+knit = function(file, output_dir, view_result)
+  local file = file or  vim.fn.expand("%:p")
+  --Default true argument
+  local view_result = (view_result == nil and true) or view_result
+  vim.cmd('write')
+  vim.cmd([[!R -e 'rmarkdown::render("]] .. file  .. [[")']])
+    -- Bail out on knit error
+     -- if vim.v:shell_error != 0 then
+         --  print('Error knitting ' . filename)
+         -- return
+     -- end
+    local output_dir = output_dir or vim.fn.expand("%:p:h")
+     --Get full path of output, modifying https://stackoverflow.com/questions/3915040/how-to-obtain-the-absolute-path-of-a-file-via-shell-bash-zsh-sh
+    --local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name "*.pdf" \) | xargs ls -1t | head -n 1']])
+
+    local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name "]] .. file .. [[.pdf" \)]])
+    if new and view_result then vim.cmd("!zathura " .. new) end
+end
+
+-- TODO fix no closing case, slowness, do mapping
+match_paren = function()
+    local char = get_char(0)
+    local remainder = string.sub(vim.fn.getline('.'), vim.fn.col('.'), -1 )
+    local close = get_pair(char)
+    pattern = char .. '.[^' .. char ..']+' .. close
+    if string.find(remainder,  pattern ) then
+        vim.cmd('normal f' .. char .. '%a' .. close)
+    else
+        vim.cmd('normal $a' .. close)
+    end
+end
+--summary(fun(inner(mean(x, y, z)), fun2(y))
+--summary(a, b, c, d, e
+--
+
+dump_args = function()
+    signature = vim.fn.getline('.')
+    --TODO
+end
+
+-- Evaluate inline R code chunk
+inline_send = function()
+    if not os.getenv("NVIM_R_ID") then
+        print("Nvim-R is not running")
+        return
+    end
+    local old_pos = vim.fn.getpos('.')
+    vim.cmd( [[normal F`2w"zyt`]] )
+    vim.cmd(':RSend ' .. vim.fn.getreg('z'))
+    vim.fn.setpos(old_pos)
 end

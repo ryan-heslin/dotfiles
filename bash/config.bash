@@ -24,6 +24,8 @@ export CDPATH=":~/.config/nvim"
 export DOWNLOAD_STATIC_LIBV8=1
 export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
 export HISTCONTROL='ignorespace'
+export NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
+export NVIM_PYTHON_LOG_LEVEL="DEBUG"
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'

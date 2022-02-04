@@ -112,13 +112,10 @@ let g:vimsyn_embed="lP"
 " Nvim-R
 let rout_follow_colorscheme = 1
 let Rout_more_colors = 1
-
 " Disable default assign shortcut
-"let R_esc_term = 0
 let R_buffer_opts = "winfixwidth nonumber"
 let R_editing_mode= "vi"
-"let R_args = ['--no-readline']
-let R_csv_app = 'terminal:wd' "/usr/bin/libreoffice  --calc'
+let R_csv_app = 'terminal:vd'
 let R_clear_line = 1
 let R_assign = 0
 let R_nvimpager="tab"
@@ -262,7 +259,6 @@ let g:slime_paste_file="$HOME/.slime_paste"
 let g:slime_dont_ask_default = 0
 
 "Linting
- "let g:ale_lint_on_text_changed=1
  let g:ale_fix_on_save=1
  let g:ale_lint_on_save=0
  let g:ale_fixers = {
@@ -350,7 +346,7 @@ function! CompleteBufname(ArgLead, CmdLine, CursorPos)
 
 endfunction
 "New regex  "s/\v([a-zA-Z]+)(\d+)/\1 \2/g
-" Delete buffer without closing widow
+" Delete buffer without closing window
 command! BD :bprevious | split | bnext | bdelete
 
 autocmd! User TelescopePreviewerLoaded setlocal wrap
