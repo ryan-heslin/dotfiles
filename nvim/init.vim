@@ -53,8 +53,8 @@ lua <<EOF
   -- Set up nvim-cmp.
   local custom_utils=require("custom_utils")
   --local lspkind = require("lspkind")
+  require('options')
   require('config/lsp')
-
   --Local variable represents module, but also created global for configuration ugh
   require('config/nvim-cmp')
   require('config/lualine')
@@ -79,13 +79,11 @@ lua <<EOF
  autocmd FileType sql,mysql,plsql,sqlite lua require('cmp').setup.buffer { sources = { { name = 'vim-dadbod'} } }
  augroup END
  ]]
-
--- Copied from https://github.com/nvim-lua/kickstart.nvim/blob/master/init.lua
 EOF
 
 colorscheme OceanicNext
 let g:session_dir="~/.vim/sessions"
-set termguicolors
+"set termguicolors
 " Plugin settings
 
 " UltiSnips
@@ -171,9 +169,9 @@ autocmd TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", t
 autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif
 autocmd TermEnter * :lua set_term_opts()
 " Statusline
-set laststatus=2
+"set laststatus=2
 
-set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.RDS,__pycache__,
+"set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.RDS,__pycache__,
 " Error log files
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
@@ -181,73 +179,10 @@ let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 
 " General settings
 filetype plugin indent on
-set background=dark
-set mouse=i                   " Enable mouse support in insert mode.
-set breakindent
-set breakindentopt=shift:2
-set showbreak=\\\\\
-
-set clipboard+=unnamed,unnamedplus
-" Line numbers & indentation
-set backspace=indent,eol,start
-set ma
-set hidden
-set wrapscan
-set shortmess+=c
-let &showbreak=">>"
-set laststatus=2
-set number
-set sessionoptions+=winpos,terminal,globals
-set relativenumber
-set expandtab
-set tabstop=4
-set softtabstop=4
-set shiftwidth=4
-set autoindent
-set cursorcolumn
-set cmdheight=3
-set si "Smart indentation
-set ruler
-set backspace=indent,eol,start
-" Search
-set smartcase
-set hlsearch
-set incsearch
-set magic
-set scrolloff=3
-
-set title
-set titleold="Terminal"
-set titlestring=%F
-set lazyredraw "Faster mappings
-
-" Highlight long lines
-" From https://www.youtube.com/watch?v=aHm36-na4-4
-
-set colorcolumn=80
-set spell spelllang=en_us
-set showmatch
-set mat=2
-set noerrorbells
-
-syntax enable
-set encoding=utf-8
-set fileencoding=utf-8
-
-" Navigation
-set path+=**
-set wildmenu
-set wildmode=longest,list,full
-set titlestring=%t
 
 " Backups
 execute 'set backupdir=' . join([stdpath('data'), 'backup'], "/")
 execute 'set undodir=' . join([stdpath('data'), 'undo'], "/")
-set backup
-set undofile
-set confirm
-set autowrite
-set noswapfile
 
 " fzf
 let g:fzf_tags_command = 'ctags -R'
@@ -325,7 +260,6 @@ autocmd User TelescopePreviewerLoaded setlocal wrap
 command!  -range Embrace <line1>,<line2>s/\v(_|\^)\s*([^{}_\^ \$]+)/\1{\2}/g
 command! -nargs=1 -range=% Sed <line1>,<line2>s/<args>//g
 command! -nargs=1 -range=% Grab <line1>,<line2>g/<args>/yank Z
-"command! -nargs=1 -range
 " Switch window to buffer already open
 "TODO autocomplete something for zotref
 command! -nargs=1 -complete=buffer E edit <args>
