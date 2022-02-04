@@ -54,6 +54,8 @@ lua <<EOF
   local custom_utils=require("custom_utils")
   --local lspkind = require("lspkind")
   require('options')
+  require('autocommands')
+  require('commands')
   require('config/lsp')
   --Local variable represents module, but also created global for configuration ugh
   require('config/nvim-cmp')
@@ -81,10 +83,7 @@ lua <<EOF
  ]]
 EOF
 
-colorscheme OceanicNext
 let g:session_dir="~/.vim/sessions"
-"set termguicolors
-" Plugin settings
 
 " UltiSnips
 let g:UltiSnipsExpandTrigger="<F2>"
@@ -123,7 +122,6 @@ let R_hifun_globenv = 2
 let g:python3_host_prog='/usr/bin/python3'
 let R_set_omnifunc = []
 let R_auto_omni = []
-" let R_external_term = 'xterm -title R -e'
 let R_Rconsole_width = 15
 let R_nvim_wd = 1
 autocmd VimResized * let R_Rconsole_width = winwidth(0) / 4
@@ -137,37 +135,6 @@ let readline_has_bash = 1
 let g:is_bash = 1
 let python_highlight_all = 1
 " Special highlighting for globalenv functions
-augroup Colors
-    autocmd!
-    autocmd ColorScheme * highlight NormalFloat guibg=#1f2335
-    \ | highlight! FloatBorder guifg=white guibg=#1f2335
-    \ | highlight! Pmenu guibg=#1f2335
-    \ | highlight! PmenuSel guibg=#cca300
-    \ | highlight! PmenuSBar guibg=white
-    \ | highlight! PmenuThumb guibg=#cca300
-    \ | highlight! rGlobEnvFun ctermfg=117 guifg=#87d7ff cterm=italic gui=italic
-    \ | highlight! LspReferenceRead guifg=LightGreen guibg=Yellow
-    \ | highlight! LspReferenceWrite guifg=Yellow guibg=Yellow
-    \ | highlight! LspSignatureActiveParameters guifg=Green
-    \ | highlight! ColorColumn  guibg=wheat guifg=wheat
-    \ | highlight! CmpItemAbbr guifg=wheat
-    \ | highlight! CmpItemAbbrMatch guibg=NONE guifg=#569CD6
-    \ | highlight! CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
-    \ | highlight! CmpItemKindFunction guibg=NONE guifg=#C586C0
-    \ | highlight! CmpItemKindMethod guibg=NONE guifg=#C586C0
-    \ | highlight! CmpItemKindVariable guibg=NONE guifg=#9CDCFE
-    \ | highlight! CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
-    \ | highlight! CmpItemMenu guibg=#507b96
-    \ | let g:rainbow_active = 1
-    \ | let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
-    \ | let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
-augroup end
-" Remember cursor position color
-autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-            \| execute "normal! g'\"" | endif
-autocmd TextYankPost * silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150}
-autocmd BufEnter * if &buftype == 'terminal' | :startinsert | endif
-autocmd TermEnter * :lua set_term_opts()
 " Statusline
 "set laststatus=2
 
@@ -181,8 +148,6 @@ let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 filetype plugin indent on
 
 " Backups
-execute 'set backupdir=' . join([stdpath('data'), 'backup'], "/")
-execute 'set undodir=' . join([stdpath('data'), 'undo'], "/")
 
 " fzf
 let g:fzf_tags_command = 'ctags -R'
@@ -223,7 +188,6 @@ let g:slime_dont_ask_default = 0
 highlight ALEErrorSign guifg=Red
 highlight ALEWarningSign guifg=Yellow
 
-autocmd FileType text setlocal textwidth=78
 
 " Cursor configuration
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
@@ -231,41 +195,7 @@ set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
   \,sm:block-blinkwait175-blinkoff150-blinkon175
 
 " From https://github.com/Matt-A-Bennett/linux_config_files/blob/master/minimal_vimrc
-augroup Cursor
-    autocmd!
-    let &t_EI = "\e[2 q"
-    " highlight current line when in insert mode
-    autocmd InsertEnter * set cursorline
-    " turn off current line hightlighting when leaving insert mode
-    autocmd InsertLeave * set nocursorline
-augroup END
 
-augroup R
-    autocmd!
-    autocmd FileType rmarkdown,rmd,r setlocal cinwords=if,else,for,while,repeat,function
-    autocmd FileType rmarkdown,rmd nnoremap \kk :call functions#InlineSend()<CR>
-augroup end
-
-augroup shell
-  autocmd!
-  autocmd FileType shell nnoremap <leader>sh :1normal #!/usr/bin/bash<CR>
-augroup end
-" Remove all trailing whitespace by pressing C-S
-"nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
-autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
-" General macros
-
-autocmd User TelescopePreviewerLoaded setlocal wrap
-
-command!  -range Embrace <line1>,<line2>s/\v(_|\^)\s*([^{}_\^ \$]+)/\1{\2}/g
-command! -nargs=1 -range=% Sed <line1>,<line2>s/<args>//g
-command! -nargs=1 -range=% Grab <line1>,<line2>g/<args>/yank Z
-" Switch window to buffer already open
-"TODO autocomplete something for zotref
-command! -nargs=1 -complete=buffer E edit <args>
-" From https://unix.stackexchange.com/questions/72051/vim-how-to-increase-each-number-in-visual-block
-" Increments all by 1 in visual selection
-command!-range Inc <line1>,<line2>s/\%V\d\+\%V/\=submatch(0)+1/g
 
 " Maybe useful later?
 function! CompleteBufname(ArgLead, CmdLine, CursorPos)
@@ -277,24 +207,13 @@ function! CompleteBufname(ArgLead, CmdLine, CursorPos)
         let joiner = '\n'
     endfor
     return complete
-
 endfunction
 "New regex  "s/\v([a-zA-Z]+)(\d+)/\1 \2/g
-" Delete buffer without closing window
-command! BD :bprevious | split | bnext | bdelete
-
-autocmd! User TelescopePreviewerLoaded setlocal wrap
-autocmd! BufWritePost * if ( get(b:, 'source_on_save') == 1 )
-            \| execute 'lua refresh(vim.fn.expand("%:p"))'
-            \| endif
-autocmd! FileType anki_vim let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories
 
 if(argc() == 0)
 	autocmd! VimEnter * nested :call functions#LoadSession()
 endif
 
 " From https://superuser.com/questions/345520/vim-number-of-total-buffers
-autocmd VimLeavePre * if (luaeval("count_bufs_by_type(true)['normal']") > 1) && (luaeval("summarize_option('ft')['anki_vim'] == nil") == 1) | :call functions#SaveSession() | endif
-
-" Disable dangerous setting if turned on
-autocmd VimLeave let g:UltiSnipsDebugServerEnable = 0
+" Remove all trailing whitespace by pressing C-S
+"nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>

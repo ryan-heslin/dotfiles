@@ -91,3 +91,10 @@ post_expand "snip.rv = ''"
 snippet fC "Flow comment one line up" A
 `!p snip.rv = ""`
 endsnippet
+
+snippet sv "Arbitrary surrounding for visual selection"
+${1:prefix}
+${VISUAL}
+${2:postfix}
+$0
+endsnippet
