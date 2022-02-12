@@ -1,5 +1,5 @@
 "call functions#CheckLoaded("b:did_ftplugin")
-runtime! ftplugin/r.vim
+runtime! ftplugin/r.lua
 runtime! ftplugin/tex.vim
 runtime! ftplugin/md.vim
 

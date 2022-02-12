@@ -24,6 +24,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'hrsh7th/cmp-path'
     Plug 'hrsh7th/cmp-cmdline'
     Plug 'hrsh7th/cmp-nvim-lua'
+    Plug 'ray-x/lsp_signature.nvim'
     Plug 'f3fora/cmp-spell'
     Plug 'kdheepak/cmp-latex-symbols'
     Plug 'windwp/nvim-autopairs'
@@ -51,9 +52,9 @@ call plug#end()
 
 lua <<EOF
   -- Set up nvim-cmp.
+  require('options')
   local custom_utils=require("custom_utils")
   --local lspkind = require("lspkind")
-  require('options')
   require('autocommands')
   require('commands')
   require('config/lsp')
@@ -62,6 +63,10 @@ lua <<EOF
   require('config/lualine')
   require('config/autopairs')
   require('config/formatting')
+  require('config/lsp_signature')
+  require('config/Nvim-R')
+  require('config/UltiSnips')
+  require('config/vim-slime')
   require('abbrev')
   require('mappings')
 
@@ -83,17 +88,15 @@ lua <<EOF
  ]]
 EOF
 
-let g:session_dir="~/.vim/sessions"
-
 " UltiSnips
-let g:UltiSnipsExpandTrigger="<F2>"
-let g:UltiSnipsJumpForwardTrigger="<Tab>"
-let g:UltiSnipsJumpBackwardTrigger="<S-Tab>"
-let g:UltiSnipsSnippetDirectories=["UltiSnips", "custom_snippets"]
-let g:UliSnipsListSnippets="<F2>"
-let g:UltiSnipsRemoveSelectModeMappings = 0
-let g:UltiSnipsEditSplit="context"
-let g:UltiSnipsSnipperStorageDirectoryForUltiSnipsEdit=stdpath("config") . "/custom_snippets"
+"let g:UltiSnipsExpandTrigger="<F2>"
+"let g:UltiSnipsJumpForwardTrigger="<Tab>"
+"let g:UltiSnipsJumpBackwardTrigger="<S-Tab>"
+"let g:UltiSnipsSnippetDirectories=["UltiSnips", "custom_snippets"]
+"let g:UliSnipsListSnippets="<F2>"
+"let g:UltiSnipsRemoveSelectModeMappings = 0
+"let g:UltiSnipsEditSplit="context"
+"let g:UltiSnipsSnipperStorageDirectoryForUltiSnipsEdit=stdpath("config") . "/custom_snippets"
 
 " From https://gist.github.com/TheCedarPrince/7b9b51af4c146880f17c39407815b594
 inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
@@ -105,27 +108,25 @@ let g:fzf_action = {
   \ 'ctrl-o': ':r !echo',
   \ 'ctrl-c': '!bat'
   \ }
-let g:vimsyn_embed="lP"
 " Nvim-R
-let rout_follow_colorscheme = 1
-let Rout_more_colors = 1
-" Disable default assign shortcut
-let R_buffer_opts = "winfixwidth nonumber"
-let R_editing_mode= "vi"
-let R_csv_app = 'terminal:vd'
-let R_clear_line = 1
-let R_assign = 0
-let R_nvimpager="tab"
-let R_rmdchunk=0
-let R_objbr_openlist = 1
-let R_hifun_globenv = 2
-let g:python3_host_prog='/usr/bin/python3'
-let R_set_omnifunc = []
-let R_auto_omni = []
-let R_Rconsole_width = 15
-let R_nvim_wd = 1
-autocmd VimResized * let R_Rconsole_width = winwidth(0) / 4
-let R_min_editor_width = 25
+"let rout_follow_colorscheme = 1
+"let Rout_more_colors = 1
+"" Disable default assign shortcut
+"let R_buffer_opts = "winfixwidth nonumber"
+"let R_editing_mode= "vi"
+"let R_csv_app = 'terminal:vd'
+"let R_clear_line = 1
+"let R_assign = 0
+"let R_nvimpager="tab"
+"let R_rmdchunk=0
+"let R_objbr_openlist = 1
+"let R_hifun_globenv = 2
+"let g:python3_host_prog='/usr/bin/python3'
+"let R_set_omnifunc = []
+"let R_auto_omni = []
+"let R_Rconsole_width = 15
+"let R_nvim_wd = 1
+"let R_min_editor_width = 25
 
 " Syntax options
 " NB vim assumes Oracle SQL

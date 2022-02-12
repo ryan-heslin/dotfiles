@@ -483,12 +483,12 @@ end
 
 -- Evaluate inline R code chunk
 inline_send = function()
-    if not os.getenv("NVIM_R_ID") then
+    if not os.getenv("NVIMR_ID") then
         print("Nvim-R is not running")
         return
     end
     local old_pos = vim.fn.getpos('.')
     vim.cmd( [[normal F`2w"zyt`]] )
     vim.cmd(':RSend ' .. vim.fn.getreg('z'))
-    vim.fn.setpos(old_pos)
+    vim.fn.setpos(".", old_pos)
 end

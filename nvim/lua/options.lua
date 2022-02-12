@@ -4,7 +4,7 @@ vim.cmd('syntax enable')
 
 vim.g.session_dir="~/.vim/sessions"
 vim.o.termguicolors = true
-vim.opt.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc','*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds'})
+vim.opt.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc','*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds', '__pycache__'})
 -- Error log files
 vim.o.background='dark'
 vim.o.mouse='i'
@@ -68,6 +68,8 @@ vim.o.undofile = true
 vim.o.confirm = true
 vim.o.autowrite = true
 vim.o.swapfile = false
+vim.g.python3_host_prog = [[/usr/bin/python3]]
 --vim.o.guicursor=[[n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
---  ,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
---  ,sm:block-blinkwait175-blinkoff150-blinkon175]]
+ -- ,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
+  --,sm:block-blinkwait175-blinkoff150-blinkon175]]
+vim.g.vimsyn_embed ='lP'

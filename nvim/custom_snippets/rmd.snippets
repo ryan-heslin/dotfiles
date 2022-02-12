@@ -2,23 +2,6 @@ extends tex,r
 
 global !p
 
-# Standard RMarkdown header
-header = """---
-title: "$1"
-author: "Ryan Heslin"
-date: "\`r format(Sys.Date(), '%B %e, %Y')\`"
-header-includes:
-  - \setlength{\parindent}{2em}
-  - \setlength{\parskip}{2em}
-output:
-  pdf_document:
-    highlight: "kate"
----
-"""
-def insert_header():
-    snip.cursor.set(1, 1)
-    snip.expand_anon(header)
-
 endglobal
 
 snippet ch "Standard Chunk"
@@ -37,7 +20,18 @@ ${VISUAL}
 \`\`\`
 endsnippet
 
-post_expand "snip.cursor.set(0, 0); insert_header()"
+pre_expand "snip.buffer[snip.line] = re.sub('header', '', snip.buffer[snip.line]); snip.cursor.set(0, 0)"
 snippet header "Insert standard Rmarkdown header"
-`!p snip.rv = ""`
+---
+title: "$1"
+author: "Ryan Heslin"
+date: "\`r format(Sys.Date(), '%B %e, %Y')\`"
+header-includes:
+  - \setlength{\parindent}{2em}
+  - \setlength{\parskip}{2em}
+output:
+  ${2:pdf_document}:
+    highlight: "kate"
+---
+
 endsnippet

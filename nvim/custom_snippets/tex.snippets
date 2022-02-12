@@ -53,6 +53,14 @@ def embiggen(snip, pat, modifier = "\\Bigg"):
 		vim.command("echo 'No match for tag '" + tag +"'")
 		return
 	snip.expand_anon(modifier + tag +  "${1}" +  modifier + close + "${0}")
+
+def left_right(snip):
+	pat =".*?lr([\[({<_]).*"
+	char = re.match(pat,snip.buffer[snip.line]).group(1)
+	snip.buffer[snip.line] = re.sub(pat, "", snip.buffer[snip.line])
+	close = delimiters.get(char, ")")
+	text = r"\left ${1:" + char + r"}${2:\right ${1:" + close + "}}$0"
+	snip.expand_anon(text)
 endglobal
 
 post_jump "embiggen(snip,  pat = 'tag([(\[{<]).?')"
@@ -63,13 +71,12 @@ snippet frac "Fraction" w
 \frac {${1:num}}{${2:denom}}
 endsnippet
 
-# From https://castel.dev/post/lecture-notes-1/
-snippet il "$ delimiter" wA
-$${1}$`!p if t[2] and t[2][0] not in [",", ".", "?", "-"]:
-	snip.rv = ""
-else:
-	snip.rv = ""
-`${2}
+snippet ii "$ without space" wA
+$$1$$0
+endsnippet
+
+snippet jj "$ with space" wA
+$$1$ $0
 endsnippet
 
 snippet enum
@@ -78,7 +85,9 @@ snippet enum
 \end{enumerate}
 endsnippet
 
-snippet lr "Left-right pair"
+
+post_expand "left_right(snip)"
+snippet "lr[\[({<_]" "Left-right pair" rA
 \left ${1:(}${2:\right ${1:)}}$0
 endsnippet
 
@@ -106,9 +115,9 @@ snippet "t(\d+)x(\d+)" "Create table of given dimensions" ir
 endsnippet
 
 snippet env "Expand environment" A
-\begin{${1:tabular}
-    ${VISUAL}$1
-\end{${1:tabular}}
+\begin{${1:tabular}}
+    ${VISUAL}$2
+\end{$1}
 endsnippet
 
 snippet \ "Math mode" b

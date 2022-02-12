@@ -208,5 +208,6 @@ vim.api.nvim_set_keymap('n', '<Leader>tP', 'bdwmzF,b"ydww', {noremap = true, sil
 vim.api.nvim_set_keymap('n', '<Leader>em', ':Embrace<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>ss', 'Ea)<C-o>B(<left>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('i', '<C-(>', ':normal i( | lua match_paren()', {noremap = true, silent = true})
--- Replacement for all these
--- '<,'>s/\v^([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', '\2', '\3', {noremap = true, silent = true})/
+--
+-- Translate Vimscript mapping to lua
+vim.api.nvim_set_keymap('n', '<leader>ll',  [[s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2%]%], [[\3%]%], {noremap = true, silent = true} ]], {noremap = true, silent = true})

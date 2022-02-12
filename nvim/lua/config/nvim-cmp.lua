@@ -4,6 +4,7 @@ local cmp_buffer = require('cmp_buffer')
     { name = 'nvim_lsp',
         max_item_count = 10,
         keyword_length = 2},
+    { name = 'nvim_lsp_signature_help'},
     { name = 'buffer',
         max_item_count = 10,
         keyword_length = 3},
