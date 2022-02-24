@@ -1,8 +1,19 @@
+-- Wrapper that checks and restores the current register and type.
+-- Cleans up after functions that alter registers
+with_register = function(func)
+    return function(...)
+        old_register = vim.fn.getreg('"')
+        old_regtype = vim.fn.getregtype('"')
+        out = func(...)
+        vim.fn.setreg('"', old_register, old_regtype)
+        return out
+    end
+end
 --Wrap a function so it may be called safely
 safe_call = function(func, ...)
     local pre_args = {...}
     return function(...)
-         pcall(func, ...)
+         return pcall(func, ...)
     end
 end
 
@@ -256,7 +267,7 @@ refresh = function(file)
     local extension = vim.bo.filetype
     local cmd = ""
     if extension == 'R' or extension == 'r' then
-        cmd = 'Rsend source("' ..file .. '")'
+        cmd = 'RSend source("' ..file .. '")'
     elseif extension == 'python' then
         cmd = 'IPythonCellRun'
     elseif extension == 'bash' or extension == 'sh' then
@@ -373,11 +384,25 @@ end
 
 
 yank_visual = function(register)
-    register = register or '+'
-    vim.cmd('normal "' .. register .. 'gvy' )
-    out= vim.fn.getreg(register)
-    return out
+    register = register or '"'
+    -- Only use " notation if not using unnamed register
+    sub = register ~= '"' and '"' .. register or ''
+    vim.cmd('normal ' .. sub .. 'gvy' )
+    return vim.fn.getreg(register)
 end
+yank_visual = with_register(yank_visual)
+
+-- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
+visual_search = function(target)
+    target = target or '/'
+    text = vim.fn.substitute(yank_visual(),
+         [[\_s\+]],
+         " ", 'g')
+    pcall(function()vim.fn.setreg(target, text)
+    vim.cmd('normal n')
+end,print("No matches"))
+end
+
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
 function file_exists(name)
    local f = io.open(name,"r")

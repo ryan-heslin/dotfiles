@@ -41,3 +41,5 @@ inoremap ;enum \begin{enumerate}<cr><cr>\end{enumerate}<esc>ki<tab>\item
 inoremap ;ta \begin{tabular}{<++>}<CR><CR>\end{tabular}<Esc>ki
 inoremap ;ca \begin{cases}<CR><CR>\end{cases}<Esc>ki
 inoremap ;ce \begin{center}<CR><CR>\end{center}<Esc>ki
+
+vim.g.surround_102 = '\\1command: \1{\r}'

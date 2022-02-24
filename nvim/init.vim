@@ -69,6 +69,7 @@ lua <<EOF
   require('config/vim-slime')
   require('abbrev')
   require('mappings')
+  require('syntax')
 
   vim.cmd [[
   autocmd FileType md,rmd,anki_vim,txt lua cmp_config.setup.buffer {
@@ -88,16 +89,6 @@ lua <<EOF
  ]]
 EOF
 
-" UltiSnips
-"let g:UltiSnipsExpandTrigger="<F2>"
-"let g:UltiSnipsJumpForwardTrigger="<Tab>"
-"let g:UltiSnipsJumpBackwardTrigger="<S-Tab>"
-"let g:UltiSnipsSnippetDirectories=["UltiSnips", "custom_snippets"]
-"let g:UliSnipsListSnippets="<F2>"
-"let g:UltiSnipsRemoveSelectModeMappings = 0
-"let g:UltiSnipsEditSplit="context"
-"let g:UltiSnipsSnipperStorageDirectoryForUltiSnipsEdit=stdpath("config") . "/custom_snippets"
-
 " From https://gist.github.com/TheCedarPrince/7b9b51af4c146880f17c39407815b594
 inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
 cnoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
@@ -108,39 +99,6 @@ let g:fzf_action = {
   \ 'ctrl-o': ':r !echo',
   \ 'ctrl-c': '!bat'
   \ }
-" Nvim-R
-"let rout_follow_colorscheme = 1
-"let Rout_more_colors = 1
-"" Disable default assign shortcut
-"let R_buffer_opts = "winfixwidth nonumber"
-"let R_editing_mode= "vi"
-"let R_csv_app = 'terminal:vd'
-"let R_clear_line = 1
-"let R_assign = 0
-"let R_nvimpager="tab"
-"let R_rmdchunk=0
-"let R_objbr_openlist = 1
-"let R_hifun_globenv = 2
-"let g:python3_host_prog='/usr/bin/python3'
-"let R_set_omnifunc = []
-"let R_auto_omni = []
-"let R_Rconsole_width = 15
-"let R_nvim_wd = 1
-"let R_min_editor_width = 25
-
-" Syntax options
-" NB vim assumes Oracle SQL
-let rmd_syn_hl_chunk = 1
-let rrst_syn_hl_chunk = 1
-let readline_has_bash = 1
-let g:is_bash = 1
-let python_highlight_all = 1
-" Special highlighting for globalenv functions
-" Statusline
-"set laststatus=2
-
-"set wildignore+=*/tmp/*,*.so,*.swp,*.zip,*.pyc,*.db,*.sqlite,.Rdata,*.git,.Rhistory,*.RDS,__pycache__,
-" Error log files
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
 let $BASH_ENV="~/dotfiles/bash/.bash_profile"
@@ -154,10 +112,10 @@ filetype plugin indent on
 let g:fzf_tags_command = 'ctags -R'
 
 " vi-slime settings
-let g:slime_target="neovim"
-let g:slime_paste_file="$HOME/.slime_paste"
-"let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
-let g:slime_dont_ask_default = 0
+"let g:slime_target="neovim"
+"let g:slime_paste_file="$HOME/.slime_paste"
+""let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
+"let g:slime_dont_ask_default = 1
 
 "Linting
  let g:ale_fix_on_save=1

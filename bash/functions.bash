@@ -520,3 +520,13 @@ get627(){
 local file="week$1.Rmd"
    [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"
 }
+
+# Window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
+opac(){
+    local level="$(echo "${1:-0.8}" | bc -l)"
+    if [ "${level}" -lt 0 || "${level}" -gt 1 ]; then
+        echo "Invalid opacity value ${level}; must be between 0 and 1"
+        return
+    fi
+    sh -c 'xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * $level)))'
+}

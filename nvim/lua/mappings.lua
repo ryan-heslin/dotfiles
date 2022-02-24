@@ -196,6 +196,8 @@ vim.api.nvim_set_keymap('n', '<leader>ab', [[<cmd>lua add_abbrev(vim.fn.expand('
 vim.api.nvim_set_keymap('v', 'J',  ":m '>+1<CR>gv=gv", {noremap = true, silent = true})
 vim.api.nvim_set_keymap('v', 'J',  ":m '<-2<CR>gv=gv", {noremap = true, silent = true})
 
+vim.api.nvim_set_keymap('v', '*',  ':lua visual_search("/")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('v', '#',  ':lua visual_search("?")<CR>', {noremap = true, silent = true})
 --Pairs
 -- Tranpose function arguments
 -- These complex mappings copied from https://vim.fandom.com/wiki/Swapping_characters,_words_and_lines
@@ -209,5 +211,5 @@ vim.api.nvim_set_keymap('n', '<Leader>em', ':Embrace<CR>', {noremap = true, sile
 vim.api.nvim_set_keymap('n', '<Leader>ss', 'Ea)<C-o>B(<left>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('i', '<C-(>', ':normal i( | lua match_paren()', {noremap = true, silent = true})
 --
--- Translate Vimscript mapping to lua
-vim.api.nvim_set_keymap('n', '<leader>ll',  [[s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2%]%], [[\3%]%], {noremap = true, silent = true} ]], {noremap = true, silent = true})
+-- Translate Vimscript mapping to vim
+vim.api.nvim_set_keymap('n', '<leader>ll',  [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=], {noremap = true, silent = true})
