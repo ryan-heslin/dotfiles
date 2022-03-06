@@ -22,10 +22,10 @@
 
    " Set or remove breakpoints
    nnoremap \pdb Obreakpoint()<Esc>j
-   nnoremap \ddb :%s/^\s*breakpoint()\s*$//
+   nnoremap \ddb :%s/^\s*breakpoint()\s*$//<CR>
    nnoremap <leader>pd ^yWoIprint(f'<C-o>P = {<C-o>P}')<Esc>
    nnoremap <leader>di Pa["<Esc>ea"]<Esc>B
-
+   inoremap <C-l> <Esc>A:<CR>
 " Special Python highlighting
 augroup pycolors
   autocmd!

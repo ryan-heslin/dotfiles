@@ -1,7 +1,15 @@
 extends tex,r
 
 global !p
+from all_snippet_helpers import *
 
+def split_chunk(snip):
+	snip.buffer[snip.line] = re.sub("chs", "", snip.buffer[snip.line])
+	top = "\`\`\`{r}\n"
+	bottom = "\n\`\`\`"
+	above = ""  if re.match("^\s*\`\`\`\{r", snip.buffer[snip.line - 1]) else bottom + "\n\n" + top
+	below = "" if re.match("\`\`\`", snip.buffer[snip.line + 1]) else bottom + "\n\n" + top
+	snip.expand_anon(above + snip.visual_content + below)
 endglobal
 
 snippet ch "Standard Chunk"
@@ -34,4 +42,13 @@ output:
     highlight: "kate"
 ---
 
+endsnippet
+
+#post_expand "surround_visual(snip, '<!--', '-->')"
+#snippet co "Surround comment tags"
+#endsnippet
+
+#TODO rewrite as function
+pre_expand "split_chunk(snip)"
+snippet chs "Split chunk" i
 endsnippet

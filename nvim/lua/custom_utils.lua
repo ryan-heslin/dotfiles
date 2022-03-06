@@ -9,6 +9,16 @@ with_register = function(func)
         return out
     end
 end
+
+-- Make coroutine?
+repeat_action = function(func, args, interval)
+    local interval = interval or 10
+    local cmd = "sleep " .. interval
+    while true do
+        func(unpack(args))
+        vim.cmd(cmd)
+    end
+end
 --Wrap a function so it may be called safely
 safe_call = function(func, ...)
     local pre_args = {...}
@@ -471,18 +481,18 @@ knit = function(file, output_dir, view_result)
   --Default true argument
   local view_result = (view_result == nil and true) or view_result
   vim.cmd('write')
-  vim.cmd([[!R -e 'rmarkdown::render("]] .. file  .. [[")']])
+  local outfile = vim.fn.system([[R -e 'cat(rmarkdown::render("]] .. file  .. [[", quiet = TRUE))']])
     -- Bail out on knit error
      -- if vim.v:shell_error != 0 then
          --  print('Error knitting ' . filename)
          -- return
      -- end
-    local output_dir = output_dir or vim.fn.expand("%:p:h")
+    --ocal output_dir = output_dir or vim.fn.expand("%:p:h")
      --Get full path of output, modifying https://stackoverflow.com/questions/3915040/how-to-obtain-the-absolute-path-of-a-file-via-shell-bash-zsh-sh
     --local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name "*.pdf" \) | xargs ls -1t | head -n 1']])
 
-    local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name "]] .. file .. [[.pdf" \)]])
-    if new and view_result then vim.cmd("!zathura " .. new) end
+    --local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name ']] .. file .. [[.pdf' \)]])
+    if outfile and view_result then vim.cmd("!zathura " .. outfile) end
 end
 
 -- TODO fix no closing case, slowness, do mapping
@@ -499,13 +509,57 @@ match_paren = function()
 end
 --summary(fun(inner(mean(x, y, z)), fun2(y))
 --summary(a, b, c, d, e
---
 
 dump_args = function()
     signature = vim.fn.getline('.')
     --TODO
 end
 
+--
+grep_output = function(cmd, ...)
+    local patterns = {...}
+    local output = vim.fn.execute(cmd)
+    --output = str_split(output)
+    local out = {}
+    -- From https://stackoverflow.com/questions/45143191/lua-gmatch-multi-line-string
+    for line in string.gmatch(output, '[^\r\n]+') do
+        for _, pat in ipairs(patterns) do
+            if string.find(line, pat) then
+                table.insert(out,line)
+                break
+            end
+        end
+    end
+    print_table(out)
+end
+
+-- TODO recursively print tables
+inspect = function(fn)
+    print(vim.inspect(fn))
+end
+
+print_table = function(table)
+
+    for i, val in ipairs(table) do
+        if type(val) ~= 'table' then
+            print(val)
+        else
+            print_table(val)
+        end
+    end
+end
+
+
+-- Standard string split. Credit https://stackoverflow.com/questions/1426954/split-string-in-lua
+str_split = function(string, sep)
+local sep = sep or ' '
+
+local out = {}
+    for str in string.gmatch(string, sep) do
+        table.insert(out, str)
+    end
+return out
+end
 -- Evaluate inline R code chunk
 inline_send = function()
     if not os.getenv("NVIMR_ID") then

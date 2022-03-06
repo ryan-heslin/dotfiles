@@ -31,7 +31,9 @@ local({
 .my_funs$q2 <- function() quit(save = "no")
 
 .my_funs$my_theme <- function() {
-  theme_standard <- ggplot2::theme(
+  library(ggplot2)
+  local({
+  theme_standard <- theme(
     panel.background = element_blank(),
     panel.border = element_rect(color = "black", fill = NA),
     panel.grid = element_blank(),
@@ -61,6 +63,7 @@ local({
     strip.text.y = element_text(color = "white")
   )
   ggplot2::theme_set(theme_standard)
+  })
 }
 
 .my_funs$knit2dir <-
@@ -863,7 +866,7 @@ registerS3method("print", "debuggerclass", .my_funs$print.debuggerclass)
 .my_funs$setwd2 <-function(dir){
     home  <- Sys.getenv("HOME")
     setwd(dir)
-    options(prompt = paste0(gsub(paste0(home, "/"), "", getwd(), dir), "> "))
+    options(prompt = paste0(file.path(basename(home), dir), "> "))
 }
 tryCatch({repeat detach(.my_funs)}, error = function(e) invisible(NULL))
 attach(.my_funs)

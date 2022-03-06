@@ -1,5 +1,12 @@
+local format_diagnostic = function(diagnostic)
+        -- I think this should work ...?
+        local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
+        local format = diagnostic.severity--lookup[diagnostic.severity] or ''
+        return string.format(format .. ': %s', diagnostic.message)
+end
+
 lspkind = require('lspkind')
- on_attach = function(_, bufnr)
+ on_attach = function(client, bufnr)
   --if  vim.b.zotcite_omnifunc then
        --vim.api.nvim_buf_set_option(bufnr, 'omnifunc', [[zotcite#CompleteBib]])
   --else
@@ -20,10 +27,10 @@ lspkind = require('lspkind')
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'v', '<leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic})<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
   vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
   -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
@@ -31,26 +38,30 @@ lspkind = require('lspkind')
       if client.resolved_capabilities.document_formatting then
       vim.cmd [[
           augroup Format
-            au! * <buffer>
-            au BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)
+            autocmd! * <buffer>
+            autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()
           augroup END
           ]]
       end
         if client.resolved_capabilities.document_highlight then
+              --
               vim.cmd [[
-                highlight LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
-                highlight LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
-                highlight LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+                autocmd!
+                autocmd ColorScheme *
+                \ | highlight! default LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=yellow guibg=purple4
+                \ | highlight! default LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
+                \ | highlight! default LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
                 augroup lsp_document_highlight
                   autocmd! * <buffer>
                   autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
                   autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+                  autocmd CursorMovedI <buffer> lua vim.lsp.buf.clear_references()
                 augroup END
               ]]
-          end
     end
 end
 
+end
 
 local lua_dir = vim.fn.expand('$HOME') .. '/.local/bin/lua-language-server'
 local path = vim.fn.split(package.path, ';')
@@ -95,6 +106,7 @@ local border = {
       {'🭼', 'FloatBorder'},
       {'▏', 'FloatBorder'},
 }
+vim.diagnostic.config({format = format_diagnostic, update_in_insert = true, severity_sort = true})
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
  --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
@@ -108,12 +120,7 @@ local handlers = { ['textDocument/signatureHelp'] = vim.lsp.with(
 vim.lsp.diagnostic.on_publish_diagnostics, {
     virtual_text = {
         source = 'if_many',
-    format = function(diagnostic)
-        local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
-        local format = lookup[diagnostic.severity] or ''
-        return string.format(format .. ': %s', diagnostic.message)
-    end
-    },
+    format = format_diagnostic},
     update_in_insert = true,
     underline = true,
     severity_sort = true

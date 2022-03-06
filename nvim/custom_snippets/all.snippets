@@ -1,4 +1,5 @@
 global !p
+from all_snippet_helpers import *
 delimiters = {
 "(" : ")",
 "[" : "]",
@@ -97,4 +98,8 @@ ${1:prefix}
 ${VISUAL}
 ${2:postfix}
 $0
+endsnippet
+
+snippet co "Comment surround for visual selection"
+`!p snip.rv = comments[snip.ft]["prefix"] + snip.v.text + comments[snip.ft]["suffix"]`
 endsnippet

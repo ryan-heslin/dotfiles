@@ -15,6 +15,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'junegunn/fzf.vim'
     Plug 'lervag/vimtex'
     Plug 'nvim-lua/lsp-status.nvim'
+    "Plug 'lukas-reineke/lsp-format.nvim'
     Plug 'neovim/nvim-lspconfig'
     Plug 'REditorSupport/languageserver'
     Plug 'hrsh7th/nvim-cmp'

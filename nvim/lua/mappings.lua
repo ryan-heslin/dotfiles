@@ -109,7 +109,7 @@ vim.api.nvim_set_keymap('n', '<Leader>ld', '<cmd>lua require("telescope.builtin"
 vim.api.nvim_set_keymap('n', '<Leader>T', ':Telescope ', {noremap = true, silent = true})
 --
 --Knit rmarkdown - ugly as sin but works
-vim.api.nvim_set_keymap('n', '<Leader>kn', ':call functions#Knit()<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>kn', ':lua knit()<CR>', {noremap = true, silent = true})
 -- For easier copy-paste
 vim.api.nvim_set_keymap('n', '<Leader>y', '"+y', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>p', '"+p', {noremap = true, silent = true})
@@ -137,6 +137,9 @@ vim.api.nvim_set_keymap('n', '<Leader>ds', 'B/(<CR>bdiw%x``xi', {noremap = true,
 -- Delete next or previous occurrence of string
 vim.api.nvim_set_keymap('n', '<Leader>zz', ':<C-U>lua jump_delete("")<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>ZZ', ':<C-U>lua jump_delete("b")<CR>', {noremap = true, silent = true})
+
+vim.api.nvim_set_keymap('n', '<leader>fl', [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], {noremap = true, silent = true})
+vim.api.nvim_set_keymap('v', '<leader>fl', [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], {noremap = true, silent = true})
 
 -- Yank from terminal
 vim.api.nvim_set_keymap('n', '<Leader>ty', ':lua vim.fn.win_execute(vim.g.last_terminal_win_id, "normal 0ElvGy")<CR>', {noremap = true, silent = true})
@@ -213,3 +216,4 @@ vim.api.nvim_set_keymap('i', '<C-(>', ':normal i( | lua match_paren()', {noremap
 --
 -- Translate Vimscript mapping to vim
 vim.api.nvim_set_keymap('n', '<leader>ll',  [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=], {noremap = true, silent = true})
+vim.api.nvim_set_keymap('v', '<leader>ll',  [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=], {noremap = true, silent = true})

@@ -19,7 +19,7 @@ local sources = {
     null_ls.builtins.formatting.shellharden,
     null_ls.builtins.formatting.sqlformat,
     null_ls.builtins.formatting.styler,
-    null_ls.builtins.formatting.stylua,
+    --null_ls.builtins.formatting.stylua,
     null_ls.builtins.formatting.trim_newlines,
     null_ls.builtins.formatting.trim_whitespace,
     null_ls.builtins.diagnostics.write_good,
