@@ -1,11 +1,14 @@
 local format_diagnostic = function(diagnostic)
         -- I think this should work ...?
         local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
-        local format = diagnostic.severity--lookup[diagnostic.severity] or ''
+        local format = lookup[diagnostic.severity] or ''
         return string.format(format .. ': %s', diagnostic.message)
 end
 
-lspkind = require('lspkind')
+--if not vim.g.lsp_done then
+
+--TODO store global LSP settings in L table like a civilized person
+ lspkind = require('lspkind')
  on_attach = function(client, bufnr)
   --if  vim.b.zotcite_omnifunc then
        --vim.api.nvim_buf_set_option(bufnr, 'omnifunc', [[zotcite#CompleteBib]])
@@ -34,33 +37,36 @@ lspkind = require('lspkind')
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>so', [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]], opts)
   vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
   -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
-  if client then
-      if client.resolved_capabilities.document_formatting then
-      vim.cmd [[
-          augroup Format
-            autocmd! * <buffer>
-            autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()
-          augroup END
-          ]]
-      end
-        if client.resolved_capabilities.document_highlight then
-              --
-              vim.cmd [[
-                autocmd!
-                autocmd ColorScheme *
-                \ | highlight! default LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=yellow guibg=purple4
-                \ | highlight! default LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
-                \ | highlight! default LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
-                augroup lsp_document_highlight
-                  autocmd! * <buffer>
-                  autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-                  autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-                  autocmd CursorMovedI <buffer> lua vim.lsp.buf.clear_references()
-                augroup END
-              ]]
-    end
-end
+  --Highlight group here screwing up syntax somehow
+  --if client then
+      --if client.name ~= 'null-ls' and client.resolved_capabilities.document_formatting then
 
+      --vim.cmd [[
+          ----augroup Format
+            ----autocmd! * <buffer>
+            ----autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()
+          ----augroup END
+          --]]
+      --end
+        --if client.resolved_capabilities.document_highlight then
+              ----
+              --vim.cmd [[
+                --autocmd!
+                --autocmd ColorScheme *
+                --\ | highlight! default LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=yellow guibg=purple4
+                --\ | highlight! default LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
+                --\ | highlight! default LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
+                --augroup lsp_document_highlight
+                  --autocmd! * <buffer>
+                  --autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+                  --autocmd CursorHoldI  <buffer> lua vim.lsp.buf.document_highlight()
+                  --autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+                  --autocmd CursorMovedI <buffer> lua vim.lsp.buf.clear_references()
+                --augroup END
+              --]]
+    --end
+--end
+--
 end
 
 local lua_dir = vim.fn.expand('$HOME') .. '/.local/bin/lua-language-server'
@@ -144,6 +150,12 @@ for server, settings in pairs(servers) do
     capabilities = capabilities,
     handlers = handlers,
     on_attach = on_attach,
-    settings = settings
+    settings = settings,
+    flags = {
+        debounc_text_changes = 150
+    }
     }
 end
+vim.g.lsp_done = true
+--vim.lsp.set_log_level('debug')
+--end

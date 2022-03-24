@@ -53,10 +53,10 @@ call plug#end()
 
 lua <<EOF
   -- Set up nvim-cmp.
-  require('options')
-  local custom_utils=require("custom_utils")
-  --local lspkind = require("lspkind")
   require('autocommands')
+  require('options')
+  require("custom_utils")
+  --local lspkind = require("lspkind")
   require('commands')
   require('config/lsp')
   --Local variable represents module, but also created global for configuration ugh
@@ -108,7 +108,6 @@ let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 filetype plugin indent on
 
 " Backups
-
 " fzf
 let g:fzf_tags_command = 'ctags -R'
 
@@ -177,3 +176,4 @@ endif
 " From https://superuser.com/questions/345520/vim-number-of-total-buffers
 " Remove all trailing whitespace by pressing C-S
 "nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+"autocmd TermEnter * :lua set_term_opts()

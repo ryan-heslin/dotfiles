@@ -4,7 +4,9 @@ vim.cmd('syntax enable')
 
 vim.g.session_dir="~/.vim/sessions"
 vim.o.termguicolors = true
-vim.opt.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc','*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds', '__pycache__'})
+vim.opt.wildignore:append({'*/tmp/*','*.so','*.swp','*.zip','*.pyc',
+'*.db','*.sqlite','.Rdata','*.git','.Rhistory','*.rds', '__pycache__'})
+
 -- Error log files
 vim.o.background='dark'
 vim.o.mouse='i'

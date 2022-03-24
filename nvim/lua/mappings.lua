@@ -1,7 +1,7 @@
 vim.g.mapleader = ","
 
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
-vim.api.nvim_set_keymap('n', '<Leader>!!', [[<C-U>:lua term_exec("\x1b\x5b\x41")<CR>]], { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>!!', [[:<C-U>lua term_exec("\x1b\x5b\x41")<CR>]], { noremap = true, silent = true })
 -- Send line under cursor to terminal
 vim.api.nvim_set_keymap('n', '<Leader>sl', [[:lua term_exec(vim.fn.getline('.'))<CR>]], { noremap = true, silent = true })
 -- Interact with terminal buffer
@@ -89,6 +89,7 @@ vim.api.nvim_set_keymap('n', '<Leader>ev', ':split $MYVIMRC<CR>', {noremap = tru
 --:silent! try | write $MYVIMRC | catch  |  finally  |
 vim.api.nvim_set_keymap('n', '<Leader>sv', ':source $MYVIMRC<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', '<space>', '<space> <c-^>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<leader>tt', ':lua switch_to_buffer("term")<CR>', {noremap = true, silent = true})
 
 -- Default Telescope
 vim.api.nvim_set_keymap('n', '<Leader>ff', '<cmd>lua require("telescope.builtin").find_files()<cr>', {noremap = true, silent = true})
@@ -130,13 +131,19 @@ vim.api.nvim_set_keymap('n', '\\cq', ':RSend Q<CR>', {noremap = true, silent = t
 vim.api.nvim_set_keymap('n', '\\ck', ':RSend .. t("<C-c>") <CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>s', ':w <bar> source %<CR>', {noremap = true, silent = true})
 
+-- Give info on R objects
+vim.api.nvim_set_keymap('n', '\ra', ':lua r_exec("args")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '\rt', ':lua r_exec("str")<CR>', {noremap = true, silent = true})
+
 vim.api.nvim_set_keymap('n', '<Leader>cv', '<cmd> lua vim.cmd[[%normal I<Space><Space><Space><Space> | normal ggG$y<Esc>]]', { noremap = true, silent = true})
 
 -- Strip surrounding function call
 vim.api.nvim_set_keymap('n', '<Leader>ds', 'B/(<CR>bdiw%x``xi', {noremap = true, silent = true})
 -- Delete next or previous occurrence of string
-vim.api.nvim_set_keymap('n', '<Leader>zz', ':<C-U>lua jump_delete("")<CR>', {noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<Leader>ZZ', ':<C-U>lua jump_delete("b")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>zz', ':<C-U>lua alter_closest("")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>ZZ', ':<C-U>lua alter_closest("b")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>zr', ':<C-U>lua alter_closest("", true)<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '<Leader>Zr', ':<C-U>lua alter_closest("b", true)<CR>', {noremap = true, silent = true})
 
 vim.api.nvim_set_keymap('n', '<leader>fl', [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], {noremap = true, silent = true})
 vim.api.nvim_set_keymap('v', '<leader>fl', [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], {noremap = true, silent = true})
@@ -185,6 +192,7 @@ vim.api.nvim_set_keymap('c', '<-A-l>', '&cedit . "l" . "<C-c>"', {noremap = true
 --vim.api.nvim_set_keymap('t', '(', '()<left>', {noremap = true, silent = true})
 --vim.api.nvim_set_keymap("c", "'", "\'\'<left>", {noremap = true, silent = true})
 
+--Terminal yanking
 vim.api.nvim_set_keymap('n', ',ty', ':lua term_exec(vim.fn.getreg("+"))<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('v', ',ty', ':lua term_exec(yank_visual("+"))<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('t', '++', '<Space><bar>><Space>', {noremap = true, silent = true})

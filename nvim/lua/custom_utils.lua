@@ -1,5 +1,6 @@
 -- Wrapper that checks and restores the current register and type.
 -- Cleans up after functions that alter registers
+-- TODO fix
 with_register = function(func)
     return function(...)
         old_register = vim.fn.getreg('"')
@@ -19,6 +20,18 @@ repeat_action = function(func, args, interval)
         vim.cmd(cmd)
     end
 end
+
+-- Using NVim-R plugin, call R function on word beneath cursor
+r_exec = function(cmd, clear_output)
+    if not os.getenv("NVIMR_ID") then
+        print("Nvim-R is not running")
+        return
+    end
+    local clear_output = clear_output or true
+    vim.call("RAction", cmd)
+    if clear_output then vim.cmd("silent RSend 0") end
+end
+
 --Wrap a function so it may be called safely
 safe_call = function(func, ...)
     local pre_args = {...}
@@ -70,11 +83,13 @@ toggle_var = function(...)
     end
 end
 
-jump_delete = function(flags)
+alter_closest = function(flags, replace)
     local string = vim.fn.input('Enter pattern: ')
     if string.len(string) == 0 then
         return
     end
+    local replacement = ''
+    if replace then replacement = vim.fn.input('Enter replacement: ') end
     local count = vim.v.count1
     local start = vim.fn.getpos('.')
     local flags = 'wz' .. (flags or '')
@@ -86,9 +101,10 @@ jump_delete = function(flags)
     local stop = math.min(matches, count)
 
     -- Search for next match {count} times
+    local cmd = replacement and 'normal gns' .. replacement or 'normal gnx'
     for _  = 0, stop - 1 do
         vim.cmd('normal ' .. step)
-        vim.cmd( 'normal gnx' )
+        vim.cmd(cmd)
     end
 
     vim.fn.setpos('.', start)
@@ -109,6 +125,14 @@ count_bufs_by_type = function(loaded_only)
         end
     end
     return count
+end
+
+switch_to_buffer = function(pattern)
+    local bufs = grep_output('ls', false, pattern)
+    if bufs == nil then print('No active buffers matched ' .. pattern) return end
+    print(vim.inspect(bufs))
+    local buf_number = string.sub(bufs[1], string.find(bufs[1],'^%s*%d+'))
+    vim.cmd('b' .. buf_number)
 end
 
 
@@ -142,6 +166,7 @@ win_exec = function(keys, dir)
     if reverse == nil then
         vim.fn.win_execute(dir, command)
     else
+        -- Switch to window, execute command, switch back
         vim.cmd("wincmd " .. dir)
         vim.cmd(command)
         vim.cmd("wincmd " .. reverse)
@@ -160,11 +185,10 @@ term_exec = function(keys, scroll_down)
         command = t(keys)
     end
     --vim.fn.chansend(vim.g.last_terminal_chan_id, t('<CR>'))
-    print(command)
-    for  _ = 1, count do
+    for  _ = 1,count,1 do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
-        vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     end
+    vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
     -- Scroll down if argument specified, useful for long input
     if scroll_down then vim.fn.win_execute( vim.g.last_terminal_win_id, ' normal G') end
 end
@@ -293,7 +317,8 @@ end
 
 -- Mostly copied from https://vi.stackexchange.com/questions/11310/what-is-a-scratch-window
 -- Makes a scratch buffer
-make_scratch = function(command_fn)
+make_scratch = function(command_fn, ...)
+    local args = {...}
     vim.cmd('split')
     vim.bo.swapfile = false
     vim.cmd('enew')
@@ -304,17 +329,14 @@ make_scratch = function(command_fn)
     if command_fn then  command_fn() end
 end
 
--- Dump messages to scratch buffer
-capture_messages = function()
-    vim.cmd('redir @z')
-    vim.cmd('silent messages')
-    if vim.fn.getreg('z') == '' then
-        print('No messages in buffer')
-        return
-    end
-    make_scratch(function() vim.cmd('put z') end)
-    vim.cmd('redir end')
+-- Dump command output to scratch buffer
+capture_output = function(cmd)
+    local output = vim.fn.execute(cmd)
+    vim.fn.setreg('z', output)
+    func = function() vim.cmd('put z') end
+    make_scratch(func)
 end
+capture_output = with_register(capture_output)
 
 -- Open scratch buffer containing terminal history so you can browse and rerun commands
 -- TODO fix syntax highlighting in scratch
@@ -324,7 +346,8 @@ term_edit = function(history_command, syntax)
     term_exec(history_command)
     make_scratch(compose_commands("read /tmp/history.txt",
     "setlocal number syntax=" .. syntax,
-    "normal G"
+    "normal G",
+    "autocmd "
     ))
 end
 
@@ -479,9 +502,9 @@ end
 knit = function(file, output_dir, view_result)
   local file = file or  vim.fn.expand("%:p")
   --Default true argument
-  local view_result = (view_result == nil and true) or view_result
+  local view_result = (view_result == nil) or view_result
   vim.cmd('write')
-  local outfile = vim.fn.system([[R -e 'cat(rmarkdown::render("]] .. file  .. [[", quiet = TRUE))']])
+  local outfile = vim.fn.system([[R --silent -e 'cat(rmarkdown::render("]] .. file  .. [[", quiet = TRUE), "\n")']])
     -- Bail out on knit error
      -- if vim.v:shell_error != 0 then
          --  print('Error knitting ' . filename)
@@ -492,7 +515,8 @@ knit = function(file, output_dir, view_result)
     --local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name "*.pdf" \) | xargs ls -1t | head -n 1']])
 
     --local new = vim.fn.system('find ' .. output_dir .. [[ -type f \( -name ']] .. file .. [[.pdf' \)]])
-    if outfile and view_result then vim.cmd("!zathura " .. outfile) end
+   print(outfile)
+    if outfile and view_result then vim.cmd('!zathura ' .. vim.fn.shellescape(outfile)) end
 end
 
 -- TODO fix no closing case, slowness, do mapping
@@ -516,7 +540,7 @@ dump_args = function()
 end
 
 --
-grep_output = function(cmd, ...)
+grep_output = function(cmd, print_output, ...)
     local patterns = {...}
     local output = vim.fn.execute(cmd)
     --output = str_split(output)
@@ -530,7 +554,7 @@ grep_output = function(cmd, ...)
             end
         end
     end
-    print_table(out)
+    if print_output or print_output == nil then print_table(out) else return out end
 end
 
 -- TODO recursively print tables

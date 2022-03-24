@@ -530,3 +530,14 @@ opac(){
     fi
     sh -c 'xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * $level)))'
 }
+
+# Rename file in directory by different name in same directory
+rn(){
+    mv "${1}" "$(dirname ${1})/${2}"
+}
+
+
+# Quietly run job and disown
+qz(){
+    nohup zathura "$HOME/R/Resources/${1}" &> /dev/null &
+}

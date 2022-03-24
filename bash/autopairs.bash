@@ -4,7 +4,7 @@
 # Show where the matching open paren is when inserting a closing one. Disabling
 # as it hijacks the `)`, `]` and `}` characters to enable blinking.
 if [ -t 1 ]; then
-    bind "set blink-matching-paren off"
+    bind "set blink-matching-paren off" 1> /dev/null 2>& 1
 
     function __autopair() {
       local typed_char="$1"
@@ -101,18 +101,18 @@ if [ -t 1 ]; then
     )
 
     for pair in "${__pairs[@]}"; do
-      bind -x "\"${pair:0:1}\": __autopair \\${pair:0:1} \\${pair:0:1} \\${pair:1:1}"
-      bind -x "\"${pair:1:1}\": __autopair \\${pair:1:1} \\${pair:0:1} \\${pair:1:1}"
+      bind -x "\"${pair:0:1}\": __autopair \\${pair:0:1} \\${pair:0:1} \\${pair:1:1}" 1> /dev/null 2>& 1
+      bind -x "\"${pair:1:1}\": __autopair \\${pair:1:1} \\${pair:0:1} \\${pair:1:1}" 1> /dev/null 2>& 1
     done
 
     # `"` needs to be done separately
-    bind -x "\"\\\"\": __autopair \\\" \\\" \\\""
+    bind -x "\"\\\"\": __autopair \\\" \\\" \\\"" 1> /dev/null 2>& 1
 
-    bind -x '"\C-h": __autopair_remove'
+    bind -x '"\C-h": __autopair_remove' 1> /dev/null 2>& 1
 
     if [[ -v BASH_AUTOPAIR_BACKSPACE ]]; then
       # https://lists.gnu.org/archive/html/bug-bash/2019-11/msg00129.html
-      bind 'set bind-tty-special-chars off'
+      bind 'set bind-tty-special-chars off' 1> /dev/null 2>& 1
       bind -x '"\C-?": __autopair_remove'
     fi
 
