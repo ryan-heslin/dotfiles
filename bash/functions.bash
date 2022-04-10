@@ -541,3 +541,8 @@ rn(){
 qz(){
     nohup zathura "$HOME/R/Resources/${1}" &> /dev/null &
 }
+
+# "With bat"
+wbat(){
+ "$1" | bat
+}

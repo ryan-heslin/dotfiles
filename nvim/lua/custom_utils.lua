@@ -1,15 +1,53 @@
+-- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
 -- Cleans up after functions that alter registers
 -- TODO fix
 with_register = function(func)
     return function(...)
-        old_register = vim.fn.getreg('"')
-        old_regtype = vim.fn.getregtype('"')
+        local old_register = vim.v.register
+        local old_register_value = vim.fn.getreg(vim.v.register)
+        local old_register_type = vim.fn.getregtype(vim.v.register)
         out = func(...)
-        vim.fn.setreg('"', old_register, old_regtype)
+        vim.fn.setreg(old_register, old_register_value, old_register_type)
         return out
     end
 end
+
+-- Returns function that retrieves table element keyed to filetype, then calls another function with that value
+switch_filetype = function(mapping, default)
+   return function(func)
+       local mapping = mapping
+    return function(...)
+        local value = mapping[vim.bo.filetype]
+        local default = default_arg(default, nil)
+        value = default_arg(value, default)
+        return func(value, ...)
+    end
+   end
+end
+
+-- TODO make named tables, for matched indexing
+invert_logical = switch_filetype({r = {'TRUE', 'FALSE'},
+rmd = {'TRUE', 'FALSE'},
+python = {'True', 'False'},
+lua = {'true', 'false'}
+})
+
+swap_word = function(mapping)
+    vim.cmd('normal yiw')
+    local word = vim.fn.getreg('+')
+    print(word)
+    local swap = nil
+    if word == mapping[1] then
+        swap = mapping[2]
+    elseif  word == mapping[2] then
+        swap =  mapping[1]
+    end
+    if swap ~= nil then vim.cmd('normal ciw' .. swap) end
+end
+
+swap_logical = invert_logical(swap_word)
+-- false
 
 -- Make coroutine?
 repeat_action = function(func, args, interval)
@@ -128,6 +166,7 @@ count_bufs_by_type = function(loaded_only)
 end
 
 switch_to_buffer = function(pattern)
+    -- TODO rewrite with nvim_list_bufs
     local bufs = grep_output('ls', false, pattern)
     if bufs == nil then print('No active buffers matched ' .. pattern) return end
     print(vim.inspect(bufs))
@@ -195,8 +234,27 @@ end
 
 -- Wrap an argument in double quotes; do not change the empty string
 
-quote_arg = function(string)
-    return string ~= '' and ('"' .. string .. '"') or string
+default_arg = function(arg, default)
+    return arg ~= nil and arg or default
+end
+
+-- double controls whether to concatenate if string already has prefix/suffix
+surround_string = function(string, prefix, postfix, double)
+    local prefix = default_arg(prefix, "'")
+    local postfix = default_arg(postfix, "'")
+    local double = default_arg(double, false)
+    prefix = (double or  string.sub(string, 1, 1) ~= prefix) and prefix or ''
+    postfix = (double or  string.sub(string, -1, -1) ~= postfix) and postfix or ''
+    return string ~= '' and (prefix .. string .. postfix) or string
+end
+
+-- Modify register with function
+modify_register = function(func, register, ...)
+    local register = default_arg(register, '+')
+    local current = vim.fn.getreg(register)
+    local new = func(current, ...)
+    vim.fn.setreg(register, new)
+    return new
 end
 
 jump = function(pattern, offset, flags)
@@ -262,7 +320,7 @@ repeat_cmd = function(...)
 end
 
 reinstall = function(plug)
-    local line = vim.fn.search(quote_args(plug))
+    local line = vim.fn.search(surrounds(plug))
     if line == 0 then
         print('Could not find plugin' .. plug)
         return
@@ -277,13 +335,13 @@ end
 -- Append abbreviation to abbreviations file
 add_abbrev = function(abbrev, expansion)
     if expansion == nil then
-        local expansion = vim.fn.input('Enter expansion for abbreviation ' .. quote_arg(abbrev) .. ": ")
+        local expansion = vim.fn.input('Enter expansion for abbreviation ' .. surround_string(abbrev, '"', '"') .. ": ")
     end
     -- vim command to sub in new abbreviation at end of abbreviation chunk
     local cmd = [[$-1 s/$/\rinoreabbrev ]] .. abbrev .. ' ' .. expansion  .. '/'
     local cmd = ("nvim -c '" .. cmd .. "' -c 'wq' /home/rheslin/dotfiles/nvim/lua/abbrev.lua")
     vim.fn.system(cmd)
-    print('\nAdded abbreviation ' .. quote_arg(expansion) .. ' for ' .. quote_arg(abbrev))
+    print('\nAdded abbreviation ' .. surround_string(expansion, '"', '"') .. ' for ' .. surround_string(abbrev, '"', '"'))
 end
 
 no_jump = function(cmd)
@@ -594,4 +652,48 @@ inline_send = function()
     vim.cmd( [[normal F`2w"zyt`]] )
     vim.cmd(':RSend ' .. vim.fn.getreg('z'))
     vim.fn.setpos(".", old_pos)
+end
+
+open_in_hidden = function(pattern)
+
+    local current_file = vim.fn.expand('%')
+    -- Default to matching current file extension
+    local pattern = default_arg(pattern,
+    '*' .. string.sub(current_file, string.find(current_file, "%.[^.]+$")))
+    local files = vim.fn.systemlist('ls ' .. pattern)
+    -- Shell-quote and add all files matched, except current
+    local cmd = 'argadd'
+    local current_buffer = vim.api.nvim_buf_get_number(0)
+    print(cmd)
+    for i, _ in ipairs(files) do
+        cmd = cmd ..   (files[i] ~= current_file and surround_string(files[i]," ","")) or ''
+    end
+
+    -- Return if only current file detected
+    if string.match(cmd, '%s$') then return end
+    n_buffers = table.getn(files)
+    arg_idx = vim.fn.argidx()
+    print(cmd)
+    -- Add files to arglist
+    vim.cmd(cmd)
+    -- Special-case single file?
+    local range = arg_idx + 1 .. ',' .. arg_idx + n_buffers
+    print(range)
+    --let b:bufhidden="hide"
+    vim.cmd(range .. 'argdo let b:bufhidden="hide" | bdelete')
+    -- Maybe use nvim_buf_call with nvim_buf_delete, but hard to translate arglist to buffers
+    --range current to number added
+    --argdo b:bufhidden=1
+    vim.api.nvim_win_set_buf(0, current_buffer)
+end
+
+-- Delete lingering scratch buffers
+clean_buffers = function()
+for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if true or not vim.api.nvim_buf_is_loaded(bufnr) then
+        local buf_name = vim.api.nvim_buf_get_name(bufnr)
+        print(buf_name)
+        if buf_name == "" or buf_name == '[Scratch]' or buf_name == '[No Name]' then vim.api.nvim_buf_delete(bufnr, {force = true}) end
+    end
+end
 end

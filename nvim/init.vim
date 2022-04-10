@@ -1,4 +1,5 @@
 " Plugins
+" TODO install uga-rosa/cmp-dictionary
 call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-unimpaired'
@@ -20,6 +21,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'REditorSupport/languageserver'
     Plug 'hrsh7th/nvim-cmp'
     Plug 'hrsh7th/cmp-nvim-lsp'
+    Plug 'hrsh7th/cmp-calc'
     Plug 'wsdjeg/luarefvim'
     Plug 'hrsh7th/cmp-buffer'
     Plug 'hrsh7th/cmp-path'
@@ -71,16 +73,7 @@ lua <<EOF
   require('abbrev')
   require('mappings')
   require('syntax')
-
-  vim.cmd [[
-  autocmd FileType md,rmd,anki_vim,txt lua cmp_config.setup.buffer {
-      \ sources = table.insert(sources,
-          \ {name = 'spell',
-          \ max_item_count = 5,
-          \ keyword_length = 3}
-          \)
-  \}
-  ]]
+-- pandoc is markdown
 
  vim.cmd[[
  augroup sql

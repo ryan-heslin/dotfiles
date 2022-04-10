@@ -1,20 +1,50 @@
+local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
+    local max_size = default_arg(max_size, 1024 * 1024)
+    local ignore_hidden = default_arg(hidden, true)
+    local filetype = default_arg(vim.bo.filetype)
+    return (not ignore_hidden or vim.api.nvim_buf_is_loaded(bufnr)) and vim.api.nvim_buf_get_offset(bufnr, vim.api.nvim_buf_line_count(bufnr)) <= max_size and vim.api.nvim_buf_get_option(bufnr, 'filetype') == filetype
+end
+
+-- From documentation: complete from all visible buffers
+-- Not working
+get_bufnrs = function(ignore_hidden)
+ local megabyte = 1024 * 1024
+ local buffers = {}
+ for  _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+   buffers[bufnr] = validate_buffer(bufnr, megabyte, ignore_hidden)
+ end
+ return vim.tbl_keys(buffers)
+end
+
 cmp_config = require('cmp')
 local cmp_buffer = require('cmp_buffer')
-   sources = {
-    { name = 'nvim_lsp',
-        max_item_count = 10,
-        keyword_length = 2},
-    { name = 'nvim_lsp_signature_help'},
-    { name = 'buffer',
-        max_item_count = 10,
-        keyword_length = 3},
-    { name = 'path',
+sources = {
+{ name = 'nvim_lsp',
+    max_item_count = 10,
     keyword_length = 2},
-      {name = 'latex_symbols'},
-      {name = 'nvim_lua'},
-    { name = 'ultisnips' }
-  }
+{ name = 'nvim_lsp_signature_help'},
+{ name = 'buffer',
+    max_item_count = 10,
+    keyword_length = 3},
+{ name = 'path',
+keyword_length = 2},
+  {name = 'latex_symbols'},
+  {name = 'nvim_lua'},
+{ name = 'ultisnips' },
+comparators = {
+    function(...) return cmp_buffer:compare_locality(...) end
+},
+--get_bufnrs = {function() return get_bufnrs() end}
+}
   --require('telescope').load_extension('fzf')
+  local spell_filetypes = {'rmd', 'txt', 'pandoc', 'text'}
+  local spell_sources =  table.insert(sources,
+           {name = 'spell',
+           max_item_count = 5,
+           keyword_length = 3})
+for ft, _ in ipairs(spell_filetypes) do
+    cmp_config.setup.filetype(ft, {sources = spell_sources})
+end
 
     local check_back_space = function()
       local col = vim.fn.col('.') - 1
@@ -43,16 +73,18 @@ local cmp_buffer = require('cmp_buffer')
   function M.jump_backwards(fallback)
     M.compose({ 'jump_backwards', 'select_prev_item' })(fallback)
   end
-  cmp_config.setup({
+cmp_config.setup({
     completion = {
         completeopt = 'menu,menuone,preview,noselect',
         get_trigger_characters = function(trigger_characters)
             if vim.bo.filetype == 'r' or vim.bo.filetype == 'rmd' then
-                table.insert(trigger_characters, '$')
+                --table.insert(trigger_characters, '$')
+                trigger_characters['$'] = 1
             end
             --bibliography completion
             if vim.bo.filetype == 'tex' or vim.bo.filetype == 'rmd' then
-                table.insert(trigger_characters, '@')
+                --table.insert(trigger_characters, '@')
+                trigger_characters['@'] = 1
             end
             return trigger_characters
         end,
@@ -141,7 +173,8 @@ local cmp_buffer = require('cmp_buffer')
 
   cmp_config.setup.cmdline(':', {
     sources = {
-      { name = 'cmdline' }
+      { name = 'cmdline'},
+      {name = 'path'}
     }
   })
 

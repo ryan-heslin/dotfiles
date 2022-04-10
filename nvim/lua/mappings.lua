@@ -134,8 +134,11 @@ vim.api.nvim_set_keymap('n', '<Leader>s', ':w <bar> source %<CR>', {noremap = tr
 -- Give info on R objects
 vim.api.nvim_set_keymap('n', '\ra', ':lua r_exec("args")<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '\rt', ':lua r_exec("str")<CR>', {noremap = true, silent = true})
+vim.api.nvim_set_keymap('n', '\re', ':lua vim.cmd("RSend " .. surround_string(vim.fn.getline("."), "(", ")"))<CR>', {noremap = true, silent = true})
 
 vim.api.nvim_set_keymap('n', '<Leader>cv', '<cmd> lua vim.cmd[[%normal I<Space><Space><Space><Space> | normal ggG$y<Esc>]]', { noremap = true, silent = true})
+-- Surround register with quotes
+vim.api.nvim_set_keymap('n', '<leader>"', [[:lua modify_register(surround_string, '+', '"', '"')<CR>]] , {noremap = true, silent = true})
 
 -- Strip surrounding function call
 vim.api.nvim_set_keymap('n', '<Leader>ds', 'B/(<CR>bdiw%x``xi', {noremap = true, silent = true})

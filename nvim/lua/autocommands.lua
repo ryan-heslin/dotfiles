@@ -12,7 +12,7 @@ augroup Colors
     \ | highlight LspReferenceRead guifg=LightGreen guibg=Yellow
     \ | highlight LspReferenceWrite guifg=Yellow guibg=Yellow
     \ | highlight LspSignatureActiveParameters guifg=Green
-    \ | highlight ColorColumn guibg=wheat guifg=wheat
+    \ | highlight ColorColumn guibg=wheat
     \ | highlight CmpItemAbbr guifg=wheat
     \ | highlight CmpItemAbbrMatch guibg=NONE guifg=#569CD6
     \ | highlight CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
@@ -21,6 +21,10 @@ augroup Colors
     \ | highlight CmpItemKindVariable guibg=NONE guifg=#9CDCFE
     \ | highlight CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
     \ | highlight CmpItemMenu guibg=#507b96
+    \ | highlight LineNR guifg=#cca300
+    \ | highlight CursorLineNR gui=bold guifg=#cca300 guibg=RoyalBlue1
+    \ | highlight LineNRBelow guifg= #ccffcc
+    \ | highlight LineNRAbove guifg=#ff8080
     \ | let g:rainbow_active = 1
     \ | let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
     \ | let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']

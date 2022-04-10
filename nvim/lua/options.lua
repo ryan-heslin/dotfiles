@@ -33,6 +33,7 @@ vim.o.cursorcolumn = true
 vim.o.cmdheight=3
 vim.o.si = true  --Smart indentation
 vim.o.ruler = true
+vim.o.updatetime = 2000 --Milliseconds, for cursor hold events
 vim.opt.backspace:append({'indent' ,'eol','start'})
 -- Search
 vim.o.smartcase = true

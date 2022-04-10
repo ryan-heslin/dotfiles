@@ -14,8 +14,10 @@ apairs.add_rules({
     Rule("$$","$$","rmd")
         :replace_endpair(end_middle('$$')),
     Rule("`", "`", "rmd")
-        :with_pair(cond.not_after_regex("%`")),
+        :with_pair(cond.not_after_regex("`+")),
     Rule("\\[","\\]","rmd"),
+    Rule("'", "'", 'r')
+        :with_pair(cond.not_after_regex("[#]")),
     Rule('(', ')', '')
         :with_pair(function() return vim.bo.buftype == '' and cond.not_before_regex('%w') end),
       -- Rule([[%\begin%{%w+%}]], '', 'rmd')
@@ -24,7 +26,4 @@ apairs.add_rules({
              -- return [[F}yi{o<enter>\end{<c-o>P}<up>]]
              -- end
              -- )
-
-    Rule("'", "'", 'r')
-        :with_pair(cond.not_after_regex('%#'))
         })

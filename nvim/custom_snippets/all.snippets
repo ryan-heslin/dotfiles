@@ -34,6 +34,7 @@ def move_cursor(snip, pattern = "[^;]*;(-?\d+)"):
     snip.buffer[snip.line] = re.sub(";" + matched.group(1),  "", snip.buffer[snip.line])
     snip.cursor.set(shift, 0)
 
+
 """Produces a call to a function, with empty tabstops in all but
 the argument corresponding to the position of an object."""
 def modify_call(snip):

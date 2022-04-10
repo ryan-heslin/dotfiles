@@ -38,7 +38,7 @@ end
   vim.cmd [[ command! Format execute 'lua vim.lsp.buf.formatting()' ]]
   -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
   --Highlight group here screwing up syntax somehow
-  --if client then
+  if client then
       --if client.name ~= 'null-ls' and client.resolved_capabilities.document_formatting then
 
       --vim.cmd [[
@@ -48,24 +48,23 @@ end
           ----augroup END
           --]]
       --end
-        --if client.resolved_capabilities.document_highlight then
-              ----
-              --vim.cmd [[
-                --autocmd!
-                --autocmd ColorScheme *
-                --\ | highlight! default LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=yellow guibg=purple4
-                --\ | highlight! default LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
-                --\ | highlight! default LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
-                --augroup lsp_document_highlight
-                  --autocmd! * <buffer>
-                  --autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
-                  --autocmd CursorHoldI  <buffer> lua vim.lsp.buf.document_highlight()
-                  --autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-                  --autocmd CursorMovedI <buffer> lua vim.lsp.buf.clear_references()
-                --augroup END
-              --]]
-    --end
---end
+        if client.resolved_capabilities.document_highlight then
+              vim.cmd ([[
+                "autocmd!
+                "autocmd ColorScheme *
+                 highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
+                 highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
+                 highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
+                augroup lsp_document_highlight
+                  autocmd! * <buffer>
+                  autocmd CursorHold  <buffer> lua vim.lsp.buf.document_highlight()
+                  autocmd CursorHoldI  <buffer> lua vim.lsp.buf.document_highlight()
+                  autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+                  autocmd CursorMovedI <buffer> lua vim.lsp.buf.clear_references()
+                augroup END
+              ]])
+    end
+end
 --
 end
 
@@ -152,10 +151,40 @@ for server, settings in pairs(servers) do
     on_attach = on_attach,
     settings = settings,
     flags = {
-        debounc_text_changes = 150
+        debounce_text_changes = 150
     }
     }
 end
 vim.g.lsp_done = true
 --vim.lsp.set_log_level('debug')
 --end
+--
+
+--Actual capabilities
+ --{
+   --disable = <function 1>,
+   --enable = <function 2>,
+   --get = <function 3>,
+   --get_all = <function 4>,
+   --get_count = <function 5>,
+   --get_line_diagnostics = <function 6>,
+   --get_namespace = <function 7>,
+   --get_next = <function 8>,
+   --get_next_pos = <function 9>,
+   --get_prev = <function 10>,
+   --get_prev_pos = <function 11>,
+   --get_virtual_text_chunks_for_line = <function 12>,
+   --goto_next = <function 13>,
+   --goto_prev = <function 14>,
+   --on_publish_diagnostics = <function 15>,
+   --redraw = <function 16>,
+   --reset = <function 17>,
+   --save = <function 18>,
+   --set_loclist = <function 19>,
+   --set_qflist = <function 20>,
+   --set_signs = <function 21>,
+   --set_underline = <function 22>,
+   --set_virtual_text = <function 23>,
+   --show_line_diagnostics = <function 24>,
+   --show_position_diagnostics = <function 25>
+ --}

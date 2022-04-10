@@ -1,7 +1,11 @@
 
 # Set options
 local({
-  default_packages <- c("my.templates")
+  default_packages <- character()
+  if(!"renv" %in% list.dirs(base::.libPaths()[1],
+                            recursive=FALSE, full.names = FALSE) || is.null(renv::project())){
+   default_packages <- "my.templates"
+  }
   # Add Nvim-R completion if started with Nvim
   if (Sys.getenv("OS") != "Windows_NT") {
     default_packages <- c(default_packages, "nvimcom")
@@ -31,38 +35,42 @@ local({
 .my_funs$q2 <- function() quit(save = "no")
 
 .my_funs$my_theme <- function() {
-  library(ggplot2)
   local({
-  theme_standard <- theme(
-    panel.background = element_blank(),
-    panel.border = element_rect(color = "black", fill = NA),
-    panel.grid = element_blank(),
-    panel.grid.major.x = element_line(color = "gray93"),
-    legend.background = element_rect(fill = "gray93"),
-    plot.title = element_text(
+  if("ggplot2" %in% list.dirs(base::.libPaths()[1],
+                            recursive=FALSE, full.names = FALSE)){
+  theme_standard <- ggplot2::theme(
+    panel.background = ggplot2::element_blank(),
+    panel.border = ggplot2::element_rect(color = "black", fill = NA),
+    panel.grid = ggplot2::element_blank(),
+    panel.grid.major.x = ggplot2::element_line(color = "gray93"),
+    legend.background = ggplot2::element_rect(fill = "gray93"),
+    plot.title = ggplot2::element_text(
       size = 15,
       family = "sans",
       face = "bold",
       vjust = 1.3
     ),
     plot.title.position = "plot",
-    plot.subtitle = element_text(size = 10, family = "sans"),
-    legend.title = element_text(
+    plot.subtitle = ggplot2::element_text(size = 10, family = "sans"),
+    legend.title = ggplot2::element_text(
       size = 10,
       family = "sans",
       face = "bold"
     ),
-    axis.title = element_text(
+    axis.title = ggplot2::element_text(
       size = 9,
       family = "sans",
       face = "bold"
     ),
-    axis.text = element_text(size = 8, family = "sans"),
-    strip.background = element_rect(color = "black", fill = "black"),
-    strip.text.x = element_text(color = "white"),
-    strip.text.y = element_text(color = "white")
+    axis.text = ggplot2::element_text(size = 8, family = "sans"),
+    strip.background = ggplot2::element_rect(color = "black", fill = "black"),
+    strip.text.x = ggplot2::element_text(color = "white"),
+    strip.text.y = ggplot2::element_text(color = "white")
   )
   ggplot2::theme_set(theme_standard)
+  }else{
+      message("ggplot2 not installed")
+  }
   })
 }
 
@@ -143,238 +151,11 @@ local({
     as.function(c(fun_args, fun_body), envir = .env)
 }
 
-.my_funs$unload_all <- function(pkg = loadedNamespaces()) {
-  srcpkg <-
-    c(
-      "base",
-      "compiler",
-      "datasets",
-      "graphics",
-      "grDevices",
-      "methods",
-      "parallel",
-      "splines",
-      "stats",
-      "stats4",
-      "tcltk",
-      "tools",
-      "translations",
-      "utils"
-    )
-  
-  # Join vector of loaded namespaces to information on imports and clean by regex
-  lookup <-
-    merge(data.frame(Package = loadedNamespaces()),
-          as.data.frame(available.packages()),
-          by = "Package")
-  lookup <-
-    subset(lookup, !(Package %in% srcpkg) & Package %in% pkg)
-  
-  # Create list of loaded namespaces, with each element a vector of packages that package imports from
-  imports <-
-    sapply(gsub("(?:\\s|\n)\\([^)]+\\)|\n", "", lookup$Imports), function(x) {
-      x <- setdiff(unlist(strsplit(x, ",\\s?")), srcpkg)
-    }
-    , USE.NAMES = FALSE)
-  
-  names(imports) <- lookup$Package
-  
-  
-  # Each iteration, unload namespaces not imported by others, then remove those namespaces from list, until all unloaded
-  counter <- 0
-  while (length(imports) > 0) {
-    not_imported <- setdiff(names(imports), unique(unlist(imports)))
-    sapply(not_imported, unloadNamespace)
-    imports[intersect(names(imports), not_imported)] <- NULL
-    counter <- counter + 1
-  }
-  cat(
-    "It took",
-    counter,
-    "iterations to unload every indicated namespace. Is this truly necessary?"
-  )
-}
-
-.my_funs$autolab_plot <- function(call, mapping, ...) {
-  call <- rlang::enexpr(call)
-  label_plots(
-    plot = eval(call, envir = parent.frame()),
-    mapping = mapping,
-    eval = TRUE,
-    ...
-  )
-}
-
-.my_funs$label_plots <-
-  function(plot, mapping, eval = TRUE, ...) {
-    ## TODO improve with modifyList
-    
-    if (!"ggplot" %in% class(plot)) {
-      stop("Not a ggplot object")
-    }
-    vars <- plot$labels
-    params <-
-      mapping[names(mapping) %in% vars] #filter mapping for layers present in plot
-    vars <-
-      setNames(params[match(vars, names(params))], names(plot$labels)) %>%
-      compact()
-    
-    out <- make_labels(mapping = vars, ...)
-    if (eval) {
-      return(plot + out())
-    }
-    out
-  }
-
-.my_funs$make_labels <- function(mapping = NULL, ...) {
-  force(mapping)
-  partial(labs, !!!mapping, ..., ... =)
-}
-
-.my_funs$make_tests <- function(..., eval = FALSE, desc = "") {
-  dots <- rlang::enexprs(...)
-  
-  if (!all(names(dots) %in% ls(
-    "package:testthat",
-    all.names = TRUE,
-    pattern = "^expect_"
-  ))) {
-    stop("Unknown function")
-  }
-  args <- purrr::imap(dots, function(args, fun) {
-    fun <- ensym(fun)
-    subs <- purrr::map_depth(args[-1], 2, ~ rlang::expr(!!.x)) %>%
-      map( ~ expr((!!fun)(!!!.x[-1]))) #Convert each arg list to appropriate call
-    subs
-  }) %>%
-    rlang::flatten()
-  names(args) <- NULL
-  print(args)
-  out <- rlang::expr(test_that(!!desc, {
-    !!!args
-  }))
-  
-  if (eval) {
-    eval(out, envir = parent.frame())
-  }
-  out
-}
-
-#' Extract the Example Code from Documentation
-#'
-#' @description Given a help page's name, extracts the code in the Examples section and
-#' optionally runs it.
-#' @param fun The name of a function, or other object with a help page
-#' @param ns Namespace to search in. Defaults to base.
-#' @param eval Logical. Whether to evaluate the extracted code.
-#' @details This funciton first searches for the named onbject in help files for the indicated package, base by defualt.
-#' If it fails to find any, it then searches all namespaces for the function. If multiple hlp pages exist across loaded packages,
-#' the first wins.
-#' @return If eval is FALSE, a langauge object containing the extracted code. If
-#' eval is TRUE, nothing.
-#' @export
-#'
-#' @examples
-
-.my_funs$get_examples <-
-  function(fun, ns = "base", eval = FALSE) {
-    if (fun %in% union(ls(paste0("package:", ns)), names(tools::Rd_db(ns)))) {
-      path <-
-        help(fun,
-             package = eval(bquote(.(ns))),
-             try.all.packages = FALSE)
-    } else{
-      path <- help(fun, try.all.packages = TRUE)
-      if (length(path) == 0) {
-        return("No documentation for",
-               fun,
-               "found in any loaded namespace")
-      }
-      ns <- str_extract(path, "[^/]+(?=/help)")
-    }
-    
-    db <- tools::Rd_db(ns)
-    
-    #Check all packages if not found
-    # Get help page
-    #
-    regex <-
-      paste0("^", stringr::str_extract(path, "[^/]+$"), ".Rd") #avoid partial matching
-    man <-
-      db[stringr::str_detect(names(db), regex)][[1]] %>%
-      purrr::keep(~ "\\examples" %in% attributes(.x)) %>%
-      unlist() %>%
-      purrr::keep(~ !str_detect(.x, "^(%|#)"))# %>%
-    #str_remove#(""\\\\(?=\\{)")
-    
-    #Extract code
-    code <- man %>%
-      paste(collapse = " ") %>%
-      rlang::parse_exprs() %>%
-      {
-        rlang::expr({
-          !!!{
-            .
-          }
-        })
-      }
-    
-    if (eval) {
-      eval(code, envir = rlang::caller_env())
-    } else{
-      return(code)
-    }
-  }
-
-#' Capture a FUnction Definition as Text
-#'
-#' @param fun
-#' @param ns
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$fun_text <- function(fun, ns = -1) {
-  get(as.character(fun), pos = ifelse(ns != -1, as.character(ns), ns)) %>%
-    dput() %>%
-    capture.output() %>%
-    paste(collapse = "\n") %>%
-    paste(as.character(fun), "<-", .)
-  
-}
 
 .my_funs$source2 <- function(...) {
   source(..., echo = TRUE)
 }
 
-#' Specify Inner List Lengths for a Nested List of Objects
-#'
-#' @param lens Numeric vector of lengths for each sublist, starting from the
-#' left. Must consist of natural numbers whose sum is a multiple of the number
-#' of argument passed to @param ...
-#' @param ... Any R objects
-#'
-#' @return A nested list of the objects passed to @param ..., of the lengths
-#' specified by @param lens.
-#' @export
-#'
-#' @examples
-.my_funs$spec_sublists <- function(lens = 1, ...) {
-  dots <- list(...)
-  stopifnot(length(dots) %% sum(lens) == 0 &
-              all(lens >= 1) & all(lens %% 1 == 0))
-  
-  splits <-
-    purrr::map2(1:length(lens), lens, ~ rep(.x, each = .y)) %>%
-    unlist() %>%
-    interaction(., rep(1:(length(dots) %/% sum(lens)), each = sum(lens))) %>%
-    unclass()
-  
-  dots %>% split(splits) %>%
-    unname()
-  
-}
 
 .my_funs$clear <- function(envir = parent.frame()) rm(list = ls(envir = envir))
 .my_funs$dput2assign <- function(dat, name) {
@@ -382,7 +163,6 @@ local({
   bquote(.(name) <- .(dput(dat)))
 }
 
-.my_funs$dummy_name <- function(x) if(is.null(names(x))) rep("", length(x)) else names(x)
 
 .my_funs$rm2 <- function(file){
   system2("rm", args = file)
@@ -521,24 +301,6 @@ local({
   invisible(file)
 }
 
-# Creates a new environment consisting of of the caller environment and objects passed using ...
-#' Title
-#'
-#' @param
-#' @param ... Objects in the caller environment. If unnamed, they are named for themselves.
-#'
-#' @return An environemnt whose parent is the caller environment, with objects passed throguh .. added.
-#' @export
-#'
-#' @examples
-.my_funs$env_expand <- function(...) {
-  dots <-
-    make_selfnamed_list(...) #this unquotes by default - will break if objects passed to make_selfnamed_list aren't in globalenv (parent of the caller env)
-  e <- new.env(parent = parent.frame())
-  list2env(dots, envir = e)
-  e
-  on.exit(rm(e)) #clean up
-}
 
 #' Borrowed from Advanced R
 #'
@@ -564,30 +326,6 @@ local({
   on.exit(setwd(old))
 }
 
-#' Generate Non-Distinct Permutations of a Vector
-#' https://stackoverflow.com/questions/11095992/generating-all-distinct-permutations-of-a-list-in-r
-#' @param vec
-#' @param m
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$permute_m <- function(m, ..., distinct = FALSE) {
-  args <-
-    unlist(lapply(list(...), function(x)
-      replicate(m, x, simplify = FALSE)),
-      recursive = FALSE)
-  out <- do.call("expand.grid", args)
-  
-  if (distinct) {
-    out[apply(out, 1, function(x) {
-      length(unique(x)) == length(args)
-    }), ]
-  } else{
-    out
-  }
-}
 
 
 #allowConsole = FALSE
@@ -678,8 +416,21 @@ local({
 }
 # Google most recent error message
 .my_funs$search_error <- function(){
-  error <- capture.output(cat(geterrmessage()))[1]
+  error <- capture.output(cat(geterrmessage()))[[1]]
   google(query)
+}
+
+# These next copied from Advanced R
+.my_funs$dump_and_quit <- function() {
+  # Save debugging info to file last.dump.rda
+  dump.frames(to.file = TRUE)
+  # Quit R with error status
+  q(status = 1)
+}
+
+.my_funs$rmarkdown_error <- function(){
+  sink()
+  recover()
 }
 
 # Prints names and values of its arguments
@@ -691,49 +442,6 @@ local({
   print(x)
   },
   dots, arg_names)
-}
-#' Remove an Outer List
-#'
-#' @param l
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$strip_list <- function(l) {
-  if (is.list(l[[1]]) & length(l) == 1) {
-    return(l[[1]])
-  } else{
-    return(l)
-  }
-}
-#' Convert an Expression to a Function, with Default Argument Support
-#'
-#' @param expr
-#' @param defaults
-#'
-#' @return
-#' @export
-#'
-#' @examples
-#' Consulted https://stackoverflow.com/questions/17751862/create-a-variable-length-alist
-.my_funs$gen_expr <- function(expr, ...) {
-  expr <- substitute(expr)
-  defaults <- list(...)
-  syms <- all.names(expr, functions = FALSE, unique = TRUE)
-  if (length(setdiff(names(defaults), syms))) {
-    stop("Cannot assign default values to arguments not present in function")
-  }
-  args <-
-    setNames(c(rep(list(bquote(
-      
-    )),
-    length(syms)), expr), c(syms, ""))
-  args[match(names(defaults), names(args))] <- defaults
-  out <- as.function(args)
-  environment(out) <- globalenv()
-  out
-  
 }
 
 
@@ -806,26 +514,6 @@ local({
   )
 }
 
-#' Generate a
-#'
-#' @param df Name of a dataframe.
-#' @param ... Named arguments to `fun`
-#' @param fun Function to use. Defualts to `summarize`.
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$gen_summarize <- function(df, ..., fun = summarize) {
-  df <- rlang::ensym(df)
-  fun <- rlang::enexpr(fun)
-  args <- rlang::enexprs(...)
-  rlang::new_function(
-    args = rlang::pairlist2(df = df),
-    body = rlang::expr(df %>% (!!fun)(!!!args)),
-    env = rlang::global_env()
-  )
-}
 
 .my_funs$install.packages2 <-function(package){
   install.packages(package, dependencies = TRUE, INSTALL_opts = "--no-lock")
