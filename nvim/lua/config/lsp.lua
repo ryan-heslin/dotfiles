@@ -48,10 +48,8 @@ end
           ----augroup END
           --]]
       --end
-        if client.resolved_capabilities.document_highlight then
+        if client.name ~= 'null-ls' and client.resolved_capabilities.document_highlight then
               vim.cmd ([[
-                "autocmd!
-                "autocmd ColorScheme *
                  highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
                  highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
                  highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose

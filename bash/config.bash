@@ -26,6 +26,7 @@ export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
 export HISTCONTROL='ignorespace'
 export NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 export NVIM_PYTHON_LOG_LEVEL="DEBUG"
+export GIT_CEILING_DIRECTORIES="$(dirname $HOME)"
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'

@@ -16,8 +16,10 @@ get_bufnrs = function(ignore_hidden)
  return vim.tbl_keys(buffers)
 end
 
+
 cmp_config = require('cmp')
 local cmp_buffer = require('cmp_buffer')
+
 sources = {
 { name = 'nvim_lsp',
     max_item_count = 10,
@@ -31,21 +33,13 @@ keyword_length = 2},
   {name = 'latex_symbols'},
   {name = 'nvim_lua'},
 { name = 'ultisnips' },
-comparators = {
-    function(...) return cmp_buffer:compare_locality(...) end
-},
+{ name = 'calc' },
+ --comparators = {
+     --function(...) return cmp_buffer:compare_locality(...) end
+ --},
 --get_bufnrs = {function() return get_bufnrs() end}
 }
   --require('telescope').load_extension('fzf')
-  local spell_filetypes = {'rmd', 'txt', 'pandoc', 'text'}
-  local spell_sources =  table.insert(sources,
-           {name = 'spell',
-           max_item_count = 5,
-           keyword_length = 3})
-for ft, _ in ipairs(spell_filetypes) do
-    cmp_config.setup.filetype(ft, {sources = spell_sources})
-end
-
     local check_back_space = function()
       local col = vim.fn.col('.') - 1
       return col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') ~= nil
@@ -77,12 +71,11 @@ cmp_config.setup({
     completion = {
         completeopt = 'menu,menuone,preview,noselect',
         get_trigger_characters = function(trigger_characters)
-            if vim.bo.filetype == 'r' or vim.bo.filetype == 'rmd' then
+            if false or vim.bo.filetype == 'r' or vim.bo.filetype == 'rmd' then
                 --table.insert(trigger_characters, '$')
                 trigger_characters['$'] = 1
             end
-            --bibliography completion
-            if vim.bo.filetype == 'tex' or vim.bo.filetype == 'rmd' then
+            if false or vim.bo.filetype == 'tex' or vim.bo.filetype == 'rmd' then
                 --table.insert(trigger_characters, '@')
                 trigger_characters['@'] = 1
             end
@@ -90,15 +83,14 @@ cmp_config.setup({
         end,
 
         },
-    documentation = {
-        maxwidth = 80,
-        --winhighlight=,
-        maxheight = 60
-    },
-    experimental = {
-        ghost_text = true
+        window = {
+            completion = cmp_config.config.window.bordered(),
+            documentation = cmp_config.config.window.bordered()
         },
-    --documentation.winhighlight=,
+    experimental = {
+        ghost_text = true,
+        },
+    --view = {entries = 'native'},
     formatting = {
         format = lspkind.cmp_format({
         maxwidth = 50,
@@ -114,16 +106,16 @@ cmp_config.setup({
     })
 },
     sorting= {
-        comparators ={
-           function(...) return cmp_buffer:compare_locality(...) end
-        },
+        --comparators ={
+         --  function(...) return cmp_buffer:compare_locality(...) end
+       -- },
         priority_weight = 3},
     snippet = {
       expand = function(args)
         vim.fn['UltiSnips#Anon'](args.body)
       end,
     },
-    mapping = {
+    mapping = cmp_config.mapping.preset.insert{
       ['<C-d>'] = cmp_config.mapping.scroll_docs(-4),
       ['<C-f>'] = cmp_config.mapping.scroll_docs(4),
       ['<C-n>'] = cmp_config.mapping.select_next_item(),
@@ -166,7 +158,7 @@ cmp_config.setup({
           'c'
         }),
       },
-    sources = sources
+    sources = cmp_config.config.sources(sources)
   })
 
   --Extra completion sources
@@ -195,3 +187,12 @@ cmp_config.setup({
       { name = 'buffer' }
     }
   })
+
+--local spell_filetypes = {'rmd', 'txt', 'pandoc', 'txt'}
+--local spell_sources = {name = 'spell',
+           --max_item_count = 5,
+           --keyword_length = 3}
+--table.insert(sources, spell_sources)
+--for _, ft in ipairs(spell_filetypes) do
+    --cmp_config.setup.filetype(ft, {sources = cmp_config.config.sources(sources)})
+--end

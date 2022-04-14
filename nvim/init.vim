@@ -54,7 +54,6 @@ call plug#begin(stdpath('data') . '/plugged')
 call plug#end()
 
 lua <<EOF
-  -- Set up nvim-cmp.
   require('autocommands')
   require('options')
   require("custom_utils")

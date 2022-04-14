@@ -21,6 +21,7 @@ augroup Colors
     \ | highlight CmpItemKindVariable guibg=NONE guifg=#9CDCFE
     \ | highlight CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
     \ | highlight CmpItemMenu guibg=#507b96
+    \ | highlight SignColumn guibg=#cca300
     \ | highlight LineNR guifg=#cca300
     \ | highlight CursorLineNR gui=bold guifg=#cca300 guibg=RoyalBlue1
     \ | highlight LineNRBelow guifg= #ccffcc
