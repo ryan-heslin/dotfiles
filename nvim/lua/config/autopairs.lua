@@ -9,15 +9,15 @@ local Rule = require('nvim-autopairs.rule')
 local cond = require('nvim-autopairs.conds')
 
 -- Factory for function to put cursor on line between pair chars
-local end_middle = function(chars) return function() return '-enter><enter>' ..chars ..'<up>' end end
+local end_middle = function(chars) return function() return '<enter><enter>' ..chars ..'<up>' end end
 apairs.add_rules({
     Rule("$$","$$","rmd")
         :replace_endpair(end_middle('$$')),
     Rule("`", "`", "rmd")
-        :with_pair(cond.not_after_regex("`+")),
+        :with_pair(cond.not_after_regex("%`")),
     Rule("\\[","\\]","rmd"),
     Rule("'", "'", 'r')
-        :with_pair(cond.not_after_regex("[#]")),
+        :with_pair(cond.not_after_regex("%#")),
     Rule('(', ')', '')
         :with_pair(function() return vim.bo.buftype == '' and cond.not_before_regex('%w') end),
       -- Rule([[%\begin%{%w+%}]], '', 'rmd')

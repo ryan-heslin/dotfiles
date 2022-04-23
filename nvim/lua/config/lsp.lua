@@ -1,8 +1,9 @@
 local format_diagnostic = function(diagnostic)
-        -- I think this should work ...?
-        local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
-        local format = lookup[diagnostic.severity] or ''
-        return string.format(format .. ': %s', diagnostic.message)
+        --print(diagnostic)
+        --local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
+        --local format = lookup[diagnostic.severity] or ''
+        --return string.format(format .. ': %s', diagnostic.message)
+        return diagnostic
 end
 
 --if not vim.g.lsp_done then
@@ -30,7 +31,7 @@ end
   vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'v', '<leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
-  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic})<CR>', opts)
+  vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>e', '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   vim.api.nvim_buf_set_keymap(bufnr, 'n', '<leader>q', '<cmd>lua vim.diagnostic.set_loclist()<CR>', opts)
@@ -109,7 +110,9 @@ local border = {
       {'🭼', 'FloatBorder'},
       {'▏', 'FloatBorder'},
 }
-vim.diagnostic.config({format = format_diagnostic, update_in_insert = true, severity_sort = true})
+vim.diagnostic.config({format = format_diagnostic, update_in_insert = true, severity_sort = true,
+signs = true, virtual_text = true, underline = true, source = true,
+float = { source = true, severity_sort = true, update_in_insert = true} })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
  --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/

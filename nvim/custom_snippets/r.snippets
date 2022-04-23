@@ -43,3 +43,20 @@ $0
 
 #print(paste("Answer 2:", answer2))
 endsnippet
+
+snippet sub "Column subscript" b
+${1:df}[["${2:col}"]]$0
+endsnippet
+
+snippet el "else"
+ else {
+   ${1:expr}
+ }
+ $0
+endsnippet
+
+snippet eli "else if"
+`!p if not re.match("\}\s*", snip.buffer[snip.line]) "}"else ''`  else if (${1:cond}){
+  ${2:expr}
+ }$0
+endsnippet

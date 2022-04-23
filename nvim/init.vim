@@ -1,5 +1,4 @@
 " Plugins
-" TODO install uga-rosa/cmp-dictionary
 call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-surround'
     Plug 'tpope/vim-unimpaired'
@@ -15,6 +14,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
     Plug 'junegunn/fzf.vim'
     Plug 'lervag/vimtex'
+    Plug 'uga-rosa/cmp-dictionary'
     Plug 'nvim-lua/lsp-status.nvim'
     "Plug 'lukas-reineke/lsp-format.nvim'
     Plug 'neovim/nvim-lspconfig'

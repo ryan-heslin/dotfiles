@@ -546,3 +546,14 @@ qz(){
 wbat(){
  "$1" | bat
 }
+
+# Kill last job(s) by search
+kl() {
+pgrep "$1" | tail -n "${2:1}" | kill
+}
+
+setdiff(){
+    # TODO parse two set arguments
+    declare local -A x
+    declare local -A y
+}

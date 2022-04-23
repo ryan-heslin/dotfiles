@@ -121,8 +121,8 @@ vim.api.nvim_set_keymap('n', '<Leader>P', '"_d$P', {noremap = true, silent = tru
 vim.api.nvim_set_keymap('n', '<Leader>ao', '$yl[pI', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>aO', '$yl]pI', {noremap = true, silent = true})
 
-vim.api.nvim_set_keymap('n', '<Leader>cd', ':cd %:p:h<CR>', {noremap = true})
-vim.api.nvim_set_keymap('n', '<Leader>lcd', ':lcd %:p:h<CR>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>cd', ':silent cd %:p:h | pwd<CR>', {noremap = true})
+vim.api.nvim_set_keymap('n', '<Leader>lcd', ':silent lcd %:p:h | pwd<CR>', {noremap = true})
 vim.api.nvim_set_keymap('n', 'c', '"_c', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', 'C', '"_C', {noremap = true, silent = true})
 -- Clear R console after failure
@@ -176,6 +176,10 @@ vim.api.nvim_set_keymap('i', ';O', '<Esc>O', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', {noremap = true, silent = true})
 --vim.api.nvim_set_keymap('t',  '<C-r>', "'<C-\\><C-n>' . nr2char(getchar()) . 'pi'", {noremap = true, silent = true, expr = true})
 vim.api.nvim_set_keymap('t', '<C-p>', '<C-\\><C-n>pi', {noremap = true, silent = true})
+-- Terminal paste most recent filename
+vim.api.nvim_set_keymap('t', '<C-t>', [["'" . expand("#:p" . v:count1) . "'"]], {noremap = true, silent = true, expr = true})
+-- Put text in next free register
+vim.api.nvim_set_keymap('n', '<leader>sr', ':lua next_free_register(nil, nil)<CR>', {noremap = true, silent = true})
 
 -- https://vim.fandom.com/wiki/Keystroke_Saving_Substituting_and_Searching
 --vim.api.nvim_set_keymap('v', '/ y:execute', '"/".escape(@",'[]/\.*')<CR>', {noremap = true, silent = true})
@@ -183,6 +187,9 @@ vim.api.nvim_set_keymap('t', '<C-p>', '<C-\\><C-n>pi', {noremap = true, silent =
 -- Buffer switch
 vim.api.nvim_set_keymap('n', '<Leader>bn', ':bnext<CR>', {noremap = true, silent = true})
 vim.api.nvim_set_keymap('n', '<Leader>bp', ':bprevious<CR>', {noremap = true, silent = true})
+-- Replace
+-- TODO fix
+vim.api.nvim_set_keymap('n', '<Leader>rw', ':call execute("%s/" . expand("<cword>") . "/" . input("Replacement: ") . "/g")<CR>', {noremap = true, silent = true})
 
 -- <-A-k> remap represents current best attempt at using window for paren matching
 vim.api.nvim_set_keymap('c', '<-A-h>', '&cedit . "h<C-c>"', {noremap = true, silent = true, expr = true})

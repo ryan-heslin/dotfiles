@@ -1,3 +1,4 @@
+local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
     local max_size = default_arg(max_size, 1024 * 1024)
     local ignore_hidden = default_arg(hidden, true)
@@ -23,17 +24,19 @@ local cmp_buffer = require('cmp_buffer')
 sources = {
 { name = 'nvim_lsp',
     max_item_count = 10,
-    keyword_length = 2},
+    keyword_length = 2,
+priority = 8},
 { name = 'nvim_lsp_signature_help'},
 { name = 'buffer',
     max_item_count = 10,
-    keyword_length = 3},
+    keyword_length = 3,
+priority = 7},
 { name = 'path',
-keyword_length = 2},
-  {name = 'latex_symbols'},
+keyword_length = 2, priority = 7},
   {name = 'nvim_lua'},
 { name = 'ultisnips' },
 { name = 'calc' },
+{name = 'latex_symbols'},
  --comparators = {
      --function(...) return cmp_buffer:compare_locality(...) end
  --},
@@ -105,11 +108,23 @@ cmp_config.setup({
         }
     })
 },
+    -- Order suggested by https://www.reddit.com/r/neovim/comments/u3c3kw/how_do_you_sorting_cmp_completions_items/
     sorting= {
-        --comparators ={
-         --  function(...) return cmp_buffer:compare_locality(...) end
-       -- },
-        priority_weight = 3},
+        comparators = {
+          -- cmp_config.config.compare.score_offset,
+          cmp_config.config.compare.locality,
+          cmp_config.config.compare.recently_used,
+          cmp_config.config.compare.score, -- based on :  score = score + ((#sources - (source_index - 1)) * sorting.priority_weight)
+          --require("cmp-under-comparator").under,
+          cmp_config.config.compare.offset,
+          cmp_config.config.compare.order
+          -- cmp_config.config.compare.scopes, -- what?
+          -- cmp_config.config.compare.sort_text,
+          -- cmp_config.config.compare.exact,
+          -- cmp_config.config.compare.kind,
+          -- cmp_config.config.compare.length, -- useless
+        },
+        priority_weight = 1},
     snippet = {
       expand = function(args)
         vim.fn['UltiSnips#Anon'](args.body)
@@ -188,11 +203,14 @@ cmp_config.setup({
     }
   })
 
---local spell_filetypes = {'rmd', 'txt', 'pandoc', 'txt'}
---local spell_sources = {name = 'spell',
-           --max_item_count = 5,
-           --keyword_length = 3}
---table.insert(sources, spell_sources)
---for _, ft in ipairs(spell_filetypes) do
-    --cmp_config.setup.filetype(ft, {sources = cmp_config.config.sources(sources)})
---end
+local spell_filetypes = {'rmd', 'txt', 'pandoc', 'txt'}
+local spell_sources = {name = 'spell',
+         max_item_count = 5,
+         keyword_length = 3,
+     priority = 5,
+ keyword_pattern = word_regex }
+ --TODO add dictionary
+table.insert(sources, spell_sources)
+for _, ft in ipairs(spell_filetypes) do
+  cmp_config.setup.filetype(ft, {sources = cmp_config.config.sources(sources)})
+end

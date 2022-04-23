@@ -697,3 +697,36 @@ for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
     end
 end
 end
+
+-- Based on https://stackoverflow.com/questions/23120266/lua-advancing-to-the-next-letter-of-the-alphabet
+-- Finds next free register and saves string in it
+next_free_register = function(content, start_register)
+    local alphabet = 'abcdefghijklmnopqrstuvwxyz'
+    local content = default_arg(content, vim.fn.getreg('"'))
+    local start_register = default_arg(start_register, 'a')
+    local start_index = string.find(alphabet, start_register)
+    local end_index = 26
+    if start_index < 1 or start_index > 26 then print("Invalid start register") return end
+    for num=start_index,end_index,1 do
+        local cur = string.sub(alphabet,num,num)
+        if vim.fn.getreg(cur) == '' then
+            vim.fn.setreg(cur, content)
+            print (surround_string(content,"'","'") .. ' written to @' .. cur)
+            return content
+        end
+    end
+    print('All registers full')
+end
+
+-- Open window to edit ftplugin file for current filetype
+edit_filetype = function(filetype, extension)
+    local filetype = default_arg(filetype, vim.bo.filetype)
+    local extension = default_arg(extension, 'lua')
+    if filetype == '' then print('Invalid filetype') return end
+
+    local ftplugin = vim.api.nvim_get_runtime_file('ftplugin' , false)
+    if table.getn(ftplugin) == 0 then print( surround_string(ftplugin) .. ' does not exist') return end
+    local file = ftplugin[1] .. '/' .. filetype .. '.' .. extension
+    -- Works whether or not file exists
+    vim.cmd('split ' .. file)
+end
