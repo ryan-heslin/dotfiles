@@ -31,7 +31,6 @@ local({
 .my_funs <- new.env()
 
 # Convert R function to UltiSnips snippet
-
 .my_funs$q2 <- function() quit(save = "no")
 
 .my_funs$my_theme <- function() {

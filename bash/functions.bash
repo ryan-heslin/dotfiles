@@ -50,8 +50,11 @@ lsempty(){
     find "${1:-.}" -name "${2:-*}" -type f -empty
 }
 nvimsess(){
+#TODO parse args, including extra for command
+local session="$1"
 local path="$VIM_SESSION_DIR/$1.vim"
-[ -f $path ] && nvim "$path" "+source %" || echo "No session named $1"
+
+[ -f $path ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
 }
 # Test Shiny app. From https://www.r-bloggers.com/2018/09/4-ways-to-be-more-productive-using-rstudios-terminal/
 testapp() {
@@ -395,13 +398,23 @@ testPyPi(){
     python3 -m pip install --force-reinstall --user --index-url https://test.pypi.org/simple/ --upgrade --no-deps "${1}"
 }
 
+date_before(){
+    local target="$1"
+    local now="$(date '+%Y-%m-%d')"
+    if [ "$now" < "$target" ]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
 get_AoC(){
 
     # Adapted from
     local verbose=false
     local AoC_dir="$HOME/misc/AoC"
-    local last_valid_year=$(date +"%-Y")
+    local current_year=$(date +"%-Y")
     while [ "$#" -gt 0 ]; do
         key="$1"
         case $key in
@@ -419,11 +432,11 @@ get_AoC(){
                 # Confirm specified year is this year (if the month is December), or last year (otherwise)
                 local year="$2"
                 if [ $(date +"%-m") -lt 12 ]; then
-                    local last_valid_year=$(( last_valid_year - 1 ))
+                    local current_year=$(( current_year - 1 ))
                 fi
                 #Confirm year is valid
-                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $last_valid_year ] );  then
-                    echo "$year is not a valid Advent of Code year. Valid: 2015-$last_valid_year"
+                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $current_year ] );  then
+                    echo "$year is not a valid Advent of Code year. Valid: 2015-$current_year"
                     return 1
                 fi
                 shift
@@ -439,7 +452,7 @@ get_AoC(){
                 shift
                 ;;
             -f|--aoc_dir)
-                local aoc_dir="$2"
+                local AoC_dir="$2"
                 shift
                 shift
                 ;;
@@ -461,12 +474,26 @@ get_AoC(){
         fi
     fi
 
+    # Not zero-padded
     if [ -z "${day+x}" ]; then
         local day=$(date +"%-e")
     fi
 
     if [ -z "${year+x}" ]; then
-        local year=$last_valid_year
+        local target="$(date -d $current_year-12-01 '+%Y-%m-%d')"
+        local now="$(date '+%Y-%m-%d')"
+        local year="$current_year"
+        # If before December, default to previous year
+        if [ "$now" < "$target" ]; then
+            local year=$(( "$year" - 1 ))
+        else
+            # TODO default to latest valid day if day omitted, either in December or not
+            local today=$(date +"%-e")
+            if [ "$today" -le 25 && "$today" -l  "$day" ]; then
+                echo "Invalid day"
+                return
+            fi
+        fi
     fi
 
     local file="$AoC_dir/$year/inputs"
@@ -482,7 +509,7 @@ get_AoC(){
          echo "Getting input for Day $day of $year"
     fi
 
-    curl -sS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
 # Retrieve secret from secret-tool and copy to clipboard
@@ -556,4 +583,9 @@ setdiff(){
     # TODO parse two set arguments
     declare local -A x
     declare local -A y
+}
+
+# Git status that excludes output by a regex; useful for filenames
+gse(){
+    git -c color.status=always status | grep --color=always -vE $1
 }

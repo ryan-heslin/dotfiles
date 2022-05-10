@@ -1,6 +1,7 @@
 vim.cmd('filetype plugin indent on')
 vim.cmd('colorscheme OceanicNext')
 vim.cmd('syntax enable')
+vim.g.text_extensions =  {'rmd', 'tex', 'txt', 'pandoc', ''}
 
 vim.g.session_dir="~/.vim/sessions"
 vim.o.termguicolors = true

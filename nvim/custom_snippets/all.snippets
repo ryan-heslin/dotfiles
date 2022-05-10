@@ -54,6 +54,22 @@ def modify_call(snip):
             args.insert(position - 1, obj)
         args = ", ".join(args)
     snip.expand_anon("$1(" + args + ")")
+
+"""Return snippet of n tabstops separated by collapsing string"""
+def collapse(snip, collapse = None, pad_space = True):
+	matched = re.match(r".*?col(\d+)([^ ]+)?", snip.buffer[snip.line] ).groups()
+	snip.buffer[snip.line] = re.sub(r"col\d+[^ ]+?", "", snip.buffer[snip.line])
+	if matched is None:
+		return
+	n = int(matched[0])
+	if n < 1 or n % 2 != 0:
+		print("Invalid n " + str(n))
+		return
+	if collapse is None:
+		collapse = "" if len(matched) == 1 else matched[1]
+	collapse = " " + collapse + " " if pad_space else collapse
+	snip.expand_anon(collapse.join(("$" + str(i) for i in range(1, n + 1))))
+
 endglobal
 
 snippet "(\w+\s+)\.([<$(\[{]).?" "Enclosing postfix: single word" rA
@@ -103,4 +119,9 @@ endsnippet
 
 snippet co "Comment surround for visual selection"
 `!p snip.rv = comments[snip.ft]["prefix"] + snip.v.text + comments[snip.ft]["suffix"]`
+endsnippet
+
+pre_expand "collapse(snip)"
+snippet "col\d+[^ ]*" "Collapse string" br
+`!p snip.rv = ""`
 endsnippet

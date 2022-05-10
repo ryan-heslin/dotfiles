@@ -4,6 +4,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-unimpaired'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-fugitive'
+    Plug 'nvim-lua/plenary.nvim'
     Plug 'kkoomen/vim-doge', { 'do': { -> doge#install() } }
     Plug 'kassio/neoterm'
     Plug 'jpalardy/vim-slime', { 'for': 'python' }
@@ -57,8 +58,8 @@ lua <<EOF
   require('autocommands')
   require('options')
   require("custom_utils")
-  --local lspkind = require("lspkind")
   require('commands')
+  require('config/cmp_dictionary')
   require('config/lsp')
   --Local variable represents module, but also created global for configuration ugh
   require('config/nvim-cmp')
@@ -122,10 +123,11 @@ let g:fzf_tags_command = 'ctags -R'
  let g:ale_linters = {
    \ 'sh': ['shell'],
     \ 'bash':  ['language_server'],
-   \ 'python': ['pylint'],
-   \ 'r': ['lintr'],
-   \  'rmd': ['lintr', 'tex'],
- \}
+    \ 'python': ['pylint']
+    \}
+   "\ 'r': ['lintr'],
+   "\  'rmd': ['lintr', 'tex'],
+ "\}
  let g:ale_warn_about_trailing_whitespace=0
  let g:ale_warn_about_trailing_blank_lines=0
  "let g:ale_r_lintr_options='lintr::with_defaults(absolute_path_linter = absolute_path_linter(lax = FALSE),
@@ -136,6 +138,7 @@ let g:fzf_tags_command = 'ctags -R'
                               "\ spaces_left_parentheses_linter = spaces_left_parentheses_linter(),
                               "\ unneeded_concatenation_linter = unneeded_concatenation_linter()
                             "\ )'
+let g:ale_r_lintr_options='lintr::with_defaults()'
 highlight ALEErrorSign guifg=Red
 highlight ALEWarningSign guifg=Yellow
 

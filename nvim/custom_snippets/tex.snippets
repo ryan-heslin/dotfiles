@@ -114,7 +114,7 @@ snippet "t(\d+)x(\d+)" "Create table of given dimensions" ir
 `!p snip.rv = ""`
 endsnippet
 
-snippet env "Expand environment" A
+snippet env "Expand environment"
 \begin{${1:tabular}}
     ${VISUAL}$2
 \end{$1}
@@ -158,6 +158,6 @@ snippet lim "Limit"
 \lim_{${1:x \to ${2:c^{${3:}}}}${4:f(${5:x})}}
 endsnippet
 
-snippet lc "Logistic response function"
+snippet lc "Logistic response function" b
 \left ( \frac{\hat \pi_i}{1 - \hat \pi_i} \right) = \frac{ \exp (\beta_0 + \beta_1 \`r $1\`)}{\exp(1 + \beta_0 + \beta_1 `r $1`)}
 endsnippet

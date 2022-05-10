@@ -2,7 +2,6 @@
 local null_ls = require("null-ls")
 
 --
-local text_extensions = {'rmd', 'tex', 'txt', 'markdown'}
 -- TODO tweak source options, diagnostic options
 local sources = {
 
@@ -19,7 +18,9 @@ local sources = {
     null_ls.builtins.formatting.shellharden,
     null_ls.builtins.formatting.sqlformat,
     null_ls.builtins.formatting.styler,
-    null_ls.builtins.formatting.stylua,
+    null_ls.builtins.formatting.stylua.with({
+        extra_args = { "--config-path", vim.fn.expand('$HOME/stylua.toml')}
+    }),
     null_ls.builtins.formatting.trim_newlines,
     null_ls.builtins.formatting.trim_whitespace,
     null_ls.builtins.diagnostics.write_good,

@@ -19,3 +19,5 @@ set skip-completed-text on
 set visible-stats on
 
 # Macros
+# ALT-R
+"\er": "~/R-4.1.0/bin/R"

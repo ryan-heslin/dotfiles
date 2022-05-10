@@ -13,7 +13,9 @@ link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME" ["$DOTFILES_PATH/bash/.bash
 ["$DOTFILES_PATH/R/.Rprofile"]="$HOME" ["$DOTFILES_PATH/R/.Renviron"]="$HOME"
 ["$DOTFILES_PATH/misc/.tmux.conf"]="$HOME" ["$DOTFILES_PATH/misc/.vintrc.yaml"]="$HOME"
 ["$DOTFILES_PATH/bat/"]="$HOME/.config/"
-["$DOTFILES_PATH/nvim"]="$HOME/.config/")
+["$DOTFILES_PATH/nvim"]="$HOME/.config/"
+["$DOTFILES_PATH/linters/stylua.toml"]="$HOME/stylua.toml"
+["$DOTFILES_PATH/linters/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py")
 
 link () {
 for target in "${!link_pairs[@]}"; do
