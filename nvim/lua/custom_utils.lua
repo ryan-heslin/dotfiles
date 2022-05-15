@@ -1,4 +1,4 @@
-local a = require('plenary.async')
+local a = require("plenary.async")
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
 -- TODO fix
@@ -99,7 +99,7 @@ term_yank = function(term_id)
     local term_id = default_arg(term_id, vim.g.last_terminal_win_id)
     local prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
     if prompt_line == "" then
-        return
+        return ""
     end
     local text = vim.fn.win_execute(
         term_id,
@@ -220,18 +220,25 @@ get_opposite_window = function(dir)
 end
 
 win_exec = function(keys, dir)
-    local count = vim.v.count1
-    local reverse = get_opposite_window(dir)
-    local command = "normal " .. tostring(count) .. t(keys)
-    -- then window id supplied, not direction
-    if reverse == nil then
-        vim.fn.win_execute(dir, command)
-    else
-        -- Switch to window, execute command, switch back
-        vim.cmd("wincmd " .. dir)
-        vim.cmd(command)
-        vim.cmd("wincmd " .. reverse)
+    local keys = keys
+    if keys == nil then
+        keys = vim.fn.input("Window command: ")
     end
+    local count = vim.v.count1
+    local command = string.gsub(
+        t(keys),
+        "^normal%s",
+        "normal " .. tostring(count),
+        1
+    )
+    -- If window targeted by number instead of relative direction, just execute command
+    if type(dir) == "number" then vim.fn.win_execute(dir, command) return end
+    -- Switch to window, execute command, switch back
+    local this_window = vim.api.nvim_win_get_number(0)
+    vim.cmd("wincmd " .. dir)
+    print(command)
+    vim.cmd(command)
+    vim.cmd(this_window .. "wincmd w")
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
@@ -555,7 +562,9 @@ end
 
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
 function file_exists(name)
-    if name == nil then return false end
+    if name == nil then
+        return false
+    end
     local f = io.open(name, "r")
     if f ~= nil then
         io.close(f)
@@ -585,13 +594,14 @@ save_session = function()
     local this_session = vim.g.current_session
         or (vim.v.this_session ~= "" and vim.fn.systemlist(
             'basename -s ".vim" ' .. surround_string(vim.v.this_session)
-        )[1]) or nil
+        )[1])
+        or nil
     -- If no current session name found, prompt user for one, warning if already in use
     local name_provided = false
     if this_session == nil then
-        this_session = vim.fn.input("Enter session name (enter to skip): ")
+        this_session = pcall(vim.fn.input("Enter session name (enter to skip): "))
         if this_session == "" then
-            print("Invalid session name")
+            print("\nInvalid session name")
             return
         end
         name_provided = true
@@ -653,11 +663,15 @@ knit = function(file, quiet, view_result)
     end
     local view_result = default_arg(view_result, true)
     vim.cmd("wa")
-    print('Knitting ' .. file)
-    local args = '-e'
-    args = quiet and '--silent ' .. args or args
+    print("Knitting " .. file)
+    local args = "-e"
+    args = quiet and "--silent " .. args or args
     local outfile = vim.fn.system(
-        [[R ]] .. args .. [[ 'cat(rmarkdown::render("]] .. file .. [["), "\n") &']]
+        [[R ]]
+            .. args
+            .. [[ 'cat(rmarkdown::render("]]
+            .. file
+            .. [["), "\n") &']]
     )
     -- Bail out on knit error
     -- if vim.v:shell_error != 0 then
@@ -688,10 +702,8 @@ count_pairs = function(str, char, close)
         end
         --TODO find correct stopping condition
         if
-            open < 1 and not string.find(
-                string.sub(str, i + 1, -1),
-                "%" .. close
-            )
+            open < 1
+            and not string.find(string.sub(str, i + 1, -1), "%" .. close)
         then
             return i
         end
@@ -807,11 +819,8 @@ open_in_hidden = function(pattern)
     for i, _ in ipairs(files) do
         cmd = cmd
                 .. (
-                    files[i] ~= current_file and surround_string(
-                        files[i],
-                        " ",
-                        ""
-                    )
+                    files[i] ~= current_file
+                    and surround_string(files[i], " ", "")
                 )
             or ""
     end
@@ -906,3 +915,36 @@ do_save_session = function(min_buffers)
         save_session()
     end
 end
+
+--From Reddit user vonheikemen
+--load = function(mod)
+  --package.loaded[mod] = nil
+  --return require(mod)
+--end
+
+--Reddit user Rafat913
+function open_uri_under_cursor()
+  local function open_uri(uri)
+    if type(uri) ~= 'nil' then
+      uri = string.gsub(uri, "#", "\\#") --double escapes any # signs
+      uri = '"'..uri..'"'
+      vim.cmd('!xdg-open '..uri..' > /dev/null')
+      vim.cmd('mode')
+      -- print(uri)
+      return true
+    else
+      return false
+    end
+  end
+
+  local word_under_cursor = vim.fn.expand("<cWORD>")
+
+  -- any uri with a protocol segment
+  local regex_protocol_uri = "%a*:%/%/[%a%d%#%[%]%-%%+:;!$@/?&=_.,~*()]*"
+  if (open_uri(string.match(word_under_cursor, regex_protocol_uri))) then return end
+
+  -- consider anything that looks like string/string a github link
+  local regex_plugin_url = "[%a%d%-%.%_]*%/[%a%d%-%.%_]*"
+  if (open_uri('https://github.com/'..string.match(word_under_cursor, regex_plugin_url))) then return end
+end
+--vim.api.nvim_create_user_command('open_uri_under_cursor', open_uri_under_cursor, {})

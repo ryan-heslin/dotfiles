@@ -409,6 +409,7 @@ date_before(){
 }
 
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
+# Broken for unclear reasons; Eric may be on to us
 get_AoC(){
 
     # Adapted from
@@ -474,28 +475,41 @@ get_AoC(){
         fi
     fi
 
-    # Not zero-padded
-    if [ -z "${day+x}" ]; then
-        local day=$(date +"%-e")
-    fi
 
-    if [ -z "${year+x}" ]; then
-        local target="$(date -d $current_year-12-01 '+%Y-%m-%d')"
+    #TODO fix year substitution
+    if [ -z "${year+x}" ] || [ -z "${day+x}" ]; then
+        local target="$(date -d ${current_year}-12-01 '+%Y-%m-%d')"
         local now="$(date '+%Y-%m-%d')"
-        local year="$current_year"
+        if [ -z "${year+x}" ]; then
+            local year="$current_year"
         # If before December, default to previous year
-        if [ "$now" < "$target" ]; then
-            local year=$(( "$year" - 1 ))
-        else
-            # TODO default to latest valid day if day omitted, either in December or not
-            local today=$(date +"%-e")
-            if [ "$today" -le 25 && "$today" -l  "$day" ]; then
-                echo "Invalid day"
-                return
+            if [ "$now" < "$target" ]; then
+                local year=$(( "$year" - 1 ))
+                echo $year
             fi
+        fi
+        if [ -z "${day+x}" ]; then
+            local month="$(date '+%m')"
+            if [ "month" -ne 12]; then
+                echo "Date automatically supplied only in December"
+                return 1
+            fi
+            # Not zero-padded
+            local day=$(date +"%-e")
+            if [ "$day" -gt 25 ]; then
+                echo "Advent time is past; day is not automatically supplied"
+                return 1
+            fi
+            # Clamp to 25
+            #local day=$(( "$date" > 25 ? 25 : date))
+            # Error on day in advent period ahead of current day
         fi
     fi
 
+    #if [ "$today" -le 25 && "$year" -eq "$current_year" && "$today" -l  "$day" ]; then
+        #echo "Invalid day $day"
+        #return 1
+    #fi
     local file="$AoC_dir/$year/inputs"
     # Make AoC directory if it doesn't already exist
     if ! [ -d  "$file" ]; then
@@ -508,8 +522,9 @@ get_AoC(){
     if [ "$verbose" = true ]; then
          echo "Getting input for Day $day of $year"
     fi
+    echo "https://adventofcode.com/${year}/day/${day}/input"
 
-    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/${year}/day/${day}/input"
 }
 
 # Retrieve secret from secret-tool and copy to clipboard

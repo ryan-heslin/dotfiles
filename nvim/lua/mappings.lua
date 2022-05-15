@@ -46,13 +46,13 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<C-PageDown>",
-    ':lua win_exec("3j", vim.g.last_terminal_win_id)<CR>',
+    ':lua win_exec("normal 3j", vim.g.last_terminal_win_id)<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<C-PageUp>",
-    ':lua win_exec("3k", vim.g.last_terminal_win_id)<CR>',
+    ':lua win_exec("normal 3k", vim.g.last_terminal_win_id)<CR>',
     { noremap = true, silent = true }
 )
 
@@ -60,51 +60,72 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>kk",
-    ':lua win_exec("1k", "k")<CR>',
+    ':lua win_exec("normal k", "k")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>kj",
-    ':lua win_exec("1j", "k")<CR>',
+    ':lua win_exec("normal j", "k")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>lk",
-    ':lua win_exec("1k", "l")<CR>',
+    ':lua win_exec("normal k", "l")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>lj",
-    ':lua win_exec("1j", "l")<CR>',
+    ':lua win_exec("normal j", "l")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>jk",
-    ':lua win_exec("1k", "j")<CR>',
+    ':lua win_exec("normal k", "j")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>jj",
-    ':lua win_exec("1j", "j")<CR>',
+    ':lua win_exec("normal j", "j")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>hk",
-    ':lua win_exec("1k", "h")<CR>',
+    ':lua win_exec("normal k", "h")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>hj",
-    ':lua win_exec("1j", "h")<CR>',
+    ':lua win_exec("normal j", "h")<CR>',
     { noremap = true, silent = true }
 )
+
+vim.keymap.set({'n', 'v'},
+"<Leader>kq", ":lua win_exec('q', 'k')<CR>",
+{ noremap = true, silent = true })
+
+vim.keymap.set({'n', 'v'},
+"<Leader>hq", ":lua win_exec('q', 'h')<CR>",
+{ noremap = true, silent = true })
+
+vim.keymap.set({'n', 'v'},
+"<Leader>lq", ":lua win_exec('q', 'l')<CR>",
+{ noremap = true, silent = true })
+
+vim.keymap.set({'n', 'v'},
+"<Leader>jq", ":lua win_exec('q', 'j')<CR>",
+{ noremap = true, silent = true })
+
+
+vim.keymap.set({'n', 'v'},
+"<Leader>wc", ":lua win_exec('normal ' .. vim.fn.input('Command: '), vim.fn.input('Window: '))<CR>",
+{ noremap = true, silent = true })
 
 vim.api.nvim_set_keymap(
     "n",

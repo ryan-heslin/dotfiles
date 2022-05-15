@@ -4,6 +4,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'tpope/vim-unimpaired'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-fugitive'
+    Plug 'puremourning/vimspector'
     Plug 'nvim-lua/plenary.nvim'
     Plug 'kkoomen/vim-doge', { 'do': { -> doge#install() } }
     Plug 'kassio/neoterm'
@@ -55,9 +56,9 @@ call plug#begin(stdpath('data') . '/plugged')
 call plug#end()
 
 lua <<EOF
+  require("custom_utils")
   require('autocommands')
   require('options')
-  require("custom_utils")
   require('commands')
   require('config/cmp_dictionary')
   require('config/lsp')
@@ -73,7 +74,7 @@ lua <<EOF
   require('abbrev')
   require('mappings')
   require('syntax')
--- pandoc is markdown
+-- pandoc filetype is markdown
 
  vim.cmd[[
  augroup sql

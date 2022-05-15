@@ -129,6 +129,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
     end,
 })
 --autocmd! FileChangedShell *.pdf v:fcs_choice]]})
+--Maybe utils not sourced at this point?
 vim.api.nvim_create_autocmd("VimEnter", {
     pattern = "*",
     callback = function()
