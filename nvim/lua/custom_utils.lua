@@ -1,8 +1,9 @@
+M = {}
 local a = require("plenary.async")
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
 -- TODO fix
-with_register = function(func)
+M.with_register = function(func)
     return function(...)
         local old_register = vim.v.register
         local old_register_value = vim.fn.getreg(old_register)
@@ -14,27 +15,27 @@ with_register = function(func)
 end
 
 -- Returns function that retrieves table element keyed to filetype, then calls another function with that value
-switch_filetype = function(mapping, default)
+M.switch_filetype = function(mapping, default)
     return function(func)
         local mapping = mapping
         return function(...)
             local value = mapping[vim.bo.filetype]
-            local default = default_arg(default, nil)
-            value = default_arg(value, default)
+            local default = M.default_arg(default, nil)
+            value = M.default_arg(value, default)
             return func(value, ...)
         end
     end
 end
 
 -- TODO make named tables, for matched indexing
-invert_logical = switch_filetype({
+M.invert_logical = M.switch_filetype({
     r = { "TRUE", "FALSE" },
     rmd = { "TRUE", "FALSE" },
     python = { "True", "False" },
     lua = { "true", "false" },
 })
 
-swap_word = function(mapping)
+M.swap_word = function(mapping)
     vim.cmd("normal yiw")
     local word = vim.fn.getreg("+")
     print(word)
@@ -49,11 +50,11 @@ swap_word = function(mapping)
     end
 end
 
-swap_logical = invert_logical(swap_word)
+M.swap_logical = M.invert_logical(swap_word)
 -- false
 
 -- Make coroutine?
-repeat_action = function(func, args, interval)
+M.repeat_action = function(func, args, interval)
     local interval = interval or 10
     local cmd = "sleep " .. interval
     while true do
@@ -63,12 +64,12 @@ repeat_action = function(func, args, interval)
 end
 
 -- Using NVim-R plugin, call R function on word beneath cursor
-r_exec = function(cmd, clear_output)
+M.r_exec = function(cmd, clear_output)
     if not os.getenv("NVIMR_ID") then
         print("Nvim-R is not running")
         return
     end
-    local clear_output = clear_output or true
+    local clear_output = M.default_arg(clear_output, true)
     vim.call("RAction", cmd)
     if clear_output then
         vim.cmd("silent RSend 0")
@@ -76,14 +77,14 @@ r_exec = function(cmd, clear_output)
 end
 
 --Wrap a function so it may be called safely
-safe_call = function(func, ...)
+M.safe_call = function(func, ...)
     local pre_args = { ... }
     return function(...)
         return pcall(func, ...)
     end
 end
 
-set_term_opts = function()
+M.set_term_opts = function()
     vim.cmd("startinsert")
     vim.wo.number = false
     vim.wo.relativenumber = false
@@ -95,8 +96,8 @@ set_term_opts = function()
 end
 
 -- Yank text at end of terminal buffer
-term_yank = function(term_id)
-    local term_id = default_arg(term_id, vim.g.last_terminal_win_id)
+M.term_yank = function(term_id)
+    local term_id = M.default_arg(term_id, vim.g.last_terminal_win_id)
     local prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
     if prompt_line == "" then
         return ""
@@ -111,7 +112,7 @@ end
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
 
 -- TODO handle different scopes (vim['g']), etc.)
-toggle_var = function(...)
+M.toggle_var = function(...)
     local arg = { ... }
     for _, var in ipairs(arg) do
         local old = vim.g[var]
@@ -129,7 +130,7 @@ toggle_var = function(...)
     end
 end
 
-alter_closest = function(flags, replace)
+M.alter_closest = function(flags, replace)
     local string = vim.fn.input("Enter pattern: ")
     if string.len(string) == 0 then
         return
@@ -160,7 +161,7 @@ alter_closest = function(flags, replace)
     print("Removed " .. stop .. " match(es)")
 end
 
-count_bufs_by_type = function(loaded_only)
+M.count_bufs_by_type = function(loaded_only)
     local loaded_only = (loaded_only == nil and true or loaded_only)
     local count = {
         normal = 0,
@@ -185,9 +186,9 @@ count_bufs_by_type = function(loaded_only)
     return count
 end
 
-switch_to_buffer = function(pattern)
+M.switch_to_buffer = function(pattern)
     -- TODO rewrite with nvim_list_bufs
-    local bufs = grep_output("ls", false, pattern)
+    local bufs = M.grep_output("ls", false, pattern)
     if bufs == nil then
         print("No active buffers matched " .. pattern)
         return
@@ -197,7 +198,7 @@ switch_to_buffer = function(pattern)
     vim.cmd("b" .. buf_number)
 end
 
-close_bufs_by_type = function(buftype)
+M.close_bufs_by_type = function(buftype)
     for _, bufname in pairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_get_option(bufname, "buftype") == buftype then
             vim.cmd("bdelete " .. bufname)
@@ -207,32 +208,35 @@ end
 
 -- suggested by official guide to automatically escape terminal codes
 
-t = function(str)
+M.t = function(str)
     --last arg is "special"
     return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
 -- Takes a key sequence, executes it in first window in specified
 -- direction, then returns to original window
-get_opposite_window = function(dir)
+M.get_opposite_window = function(dir)
     local dir_pairs = { h = "l", l = "h", j = "k", k = "j" }
     return dir_pairs[dir]
 end
 
-win_exec = function(keys, dir)
+M.win_exec = function(keys, dir)
     local keys = keys
     if keys == nil then
         keys = vim.fn.input("Window command: ")
     end
     local count = vim.v.count1
     local command = string.gsub(
-        t(keys),
+        M.t(keys),
         "^normal%s",
         "normal " .. tostring(count),
         1
     )
     -- If window targeted by number instead of relative direction, just execute command
-    if type(dir) == "number" then vim.fn.win_execute(dir, command) return end
+    if type(dir) == "number" then
+        vim.fn.win_execute(dir, command)
+        return
+    end
     -- Switch to window, execute command, switch back
     local this_window = vim.api.nvim_win_get_number(0)
     vim.cmd("wincmd " .. dir)
@@ -242,7 +246,7 @@ win_exec = function(keys, dir)
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
-term_exec = function(keys, scroll_down)
+M.term_exec = function(keys, scroll_down)
     if vim.g.last_terminal_chan_id == nil then
         return false
     end
@@ -250,30 +254,28 @@ term_exec = function(keys, scroll_down)
     local command = keys
     scroll_down = scroll_down or true
     if vim.fn.stridx(keys, [[\]]) ~= -1 then
-        command = t(keys)
+        command = M.t(keys)
     end
-    --vim.fn.chansend(vim.g.last_terminal_chan_id, t('<CR>'))
+    --vim.fn.chansend(vim.g.last_terminal_chan_id, M.t('<CR>'))
     for _ = 1, count, 1 do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
     end
-    vim.fn.chansend(vim.g.last_terminal_chan_id, t("<CR>"))
+    vim.fn.chansend(vim.g.last_terminal_chan_id, M.t("<CR>"))
     -- Scroll down if argument specified, useful for long input
     if scroll_down then
         vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
     end
 end
 
--- Wrap an argument in double quotes; do not change the empty string
-
-default_arg = function(arg, default)
+M.default_arg = function(arg, default)
     return arg ~= nil and arg or default
 end
 
 -- double controls whether to concatenate if string already has prefix/suffix
-surround_string = function(string, prefix, postfix, double)
-    local prefix = default_arg(prefix, "'")
-    local postfix = default_arg(postfix, "'")
-    local double = default_arg(double, false)
+M.surround_string = function(string, prefix, postfix, double)
+    local prefix = M.default_arg(prefix, "'")
+    local postfix = M.default_arg(postfix, "'")
+    local double = M.default_arg(double, false)
     prefix = (double or string.sub(string, 1, 1) ~= prefix) and prefix or ""
     postfix = (double or string.sub(string, -1, -1) ~= postfix) and postfix
         or ""
@@ -281,15 +283,15 @@ surround_string = function(string, prefix, postfix, double)
 end
 
 -- Modify register with function
-modify_register = function(func, register, ...)
-    local register = default_arg(register, "+")
+M.modify_register = function(func, register, ...)
+    local register = M.default_arg(register, "+")
     local current = vim.fn.getreg(register)
     local new = func(current, ...)
     vim.fn.setreg(register, new)
     return new
 end
 
-jump = function(pattern, offset, flags)
+M.jump = function(pattern, offset, flags)
     local newpos = vim.fn.search(pattern, flags)
     if newpos == 0 then
         return
@@ -306,7 +308,7 @@ end
 -- end
 --
 -- Toggle option limited to one of two values.
-toggle_opt = function(opt, val1, val2)
+M.toggle_opt = function(opt, val1, val2)
     if vim.o[opt] == val1 then
         vim.o[opt] = val2
     elseif vim.o[opt] == val1 then
@@ -321,7 +323,7 @@ toggle_opt = function(opt, val1, val2)
     end
 end
 -- Count each value of a given option across all buffers
-summarize_option = function(opt)
+M.summarize_option = function(opt)
     if
         not pcall(function()
             vim.api.nvim_buf_get_option(0, opt)
@@ -344,7 +346,7 @@ summarize_option = function(opt)
     return summary
 end
 
-repeat_cmd = function(...)
+M.repeat_cmd = function(...)
     --Window commands glitch command editing window
     --if vim.fn.bufexists('[Command Line]') then return end
     local arg = { ... }
@@ -360,7 +362,7 @@ repeat_cmd = function(...)
     vim.cmd(cmd)
 end
 
-reinstall = function(plug)
+M.reinstall = function(plug)
     local line = vim.fn.search(surrounds(plug))
     if line == 0 then
         print("Could not find plugin" .. plug)
@@ -369,16 +371,16 @@ reinstall = function(plug)
     vim.cmd("normal I")
 end
 
-get_input = function(str)
+M.get_input = function(str)
     local input = vim.fn.input("Enter expansion for " .. str)
 end
 
 -- Append abbreviation to abbreviations file
-add_abbrev = function(abbrev, expansion)
+M.add_abbrev = function(abbrev, expansion)
     if expansion == nil then
         local expansion = vim.fn.input(
             "Enter expansion for abbreviation "
-                .. surround_string(abbrev, '"', '"')
+                .. M.surround_string(abbrev, '"', '"')
                 .. ": "
         )
     end
@@ -392,22 +394,22 @@ add_abbrev = function(abbrev, expansion)
     vim.fn.system(cmd)
     print(
         "\nAdded abbreviation "
-            .. surround_string(expansion, '"', '"')
+            .. M.surround_string(expansion, '"', '"')
             .. " for "
-            .. surround_string(abbrev, '"', '"')
+            .. M.surround_string(abbrev, '"', '"')
     )
 end
 
-no_jump = function(cmd)
+M.no_jump = function(cmd)
     local cmd = cmd or "normal " .. vim.fn.input("Normal command: ")
     print("\n")
     local old_pos = vim.fn.getpos(".")
-    repeat_cmd(cmd)
+    M.repeat_cmd(cmd)
     vim.fn.setpos(".", old_pos)
 end
-no_jump_safe = safe_call(no_jump)
+M.no_jump_safe = M.safe_call(no_jump)
 
-refresh = function(file)
+M.refresh = function(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
     local file = file or vim.fn.expand("%:p")
     local extension = vim.bo.filetype
@@ -429,7 +431,7 @@ end
 
 -- Mostly copied from https://vi.stackexchange.com/questions/11310/what-is-a-scratch-window
 -- Makes a scratch buffer
-make_scratch = function(command_fn, ...)
+M.make_scratch = function(command_fn, ...)
     local args = { ... }
     vim.cmd("split")
     vim.bo.swapfile = false
@@ -444,23 +446,23 @@ make_scratch = function(command_fn, ...)
 end
 
 -- Dump command output to scratch buffer
-capture_output = function(cmd)
+M.capture_output = function(cmd)
     local output = vim.fn.execute(cmd)
     vim.fn.setreg("z", output)
     func = function()
         vim.cmd("put z")
     end
-    make_scratch(func)
+    M.make_scratch(func)
 end
-capture_output = with_register(capture_output)
+capture_output = M.with_register(capture_output)
 
 -- Open scratch buffer containing terminal history so you can browse and rerun commands
 -- TODO fix syntax highlighting in scratch
-term_edit = function(history_command, syntax)
+M.term_edit = function(history_command, syntax)
     history_command = history_command or "history -w /tmp/history.txt"
     syntax = syntax or "bash"
-    term_exec(history_command)
-    make_scratch(
+    M.term_exec(history_command)
+    M.make_scratch(
         compose_commands(
             "read /tmp/history.txt",
             "setlocal number syntax=" .. syntax,
@@ -470,7 +472,7 @@ term_edit = function(history_command, syntax)
     )
 end
 
-get_pair = function(char)
+M.get_pair = function(char)
     local pairs_mapping = {
         ["("] = ")",
         ["["] = "]",
@@ -482,7 +484,7 @@ get_pair = function(char)
     return pairs_mapping[char] or ""
 end
 
-get_char = function(offset, mode)
+M.get_char = function(offset, mode)
     --Given an editor mode and offset, returns the character {offset}
     --columns from the current character in the current line in that mode
     local which = offset or 0
@@ -498,23 +500,23 @@ get_char = function(offset, mode)
     return out
 end
 
--- Given a a pair-opening character like "(", inserts the character if the next character is alphanumeric
+-- Given a pair-opening character like "(", inserts the character if the next character is alphanumeric
 -- Otherwise, inserts the character and its closing pair, then moves the cursor between them
-expand_pair = function(char, mode)
+M.expand_pair = function(char, mode)
     --Credit  https://stackoverflow.com/questions/23323747/vim-vimscript-get-exact-character-under-the-cursor
-    local next_char = get_char(1, mode)
+    local next_char = M.get_char(1, mode)
     out = string.find(next_char, "%w") and char
-        or char .. get_pair(char) .. t("<left>")
+        or char .. M.get_pair(char) .. M.t("<left>")
     return out
 end
 
 --Move cursor one index right if next character matches char position, otherwise put character
-match_pair = function(char)
+M.match_pair = function(char)
     local next_char = get_char(1)
-    return next_char == char and t("<right>") or char
+    return next_char == char and M.t("<right>") or char
 end
 
-compose_commands = function(...)
+M.compose_commands = function(...)
     local args = { ... }
     return function(...)
         for _, cmd in ipairs(args) do
@@ -523,7 +525,7 @@ compose_commands = function(...)
     end
 end
 
-surround = function()
+M.surround = function()
     vim.fn.setline(
         ".",
         vim.fn.input("function: ") .. "(" .. vim.fn.getline(".") .. ")"
@@ -533,25 +535,25 @@ end
 --TODO put input function name
 -- Build an R character vector or list from optionally named, unquoted arguments,
 -- quoting automatically
-vec = function()
-    compose_commands(
+M.vec = function()
+    M.compose_commands(
         [[s/\([^ =]\+\)/"\1"/g]],
         [[s/\("[^ =]\+"\)\ze\s\+[^=]/\1,/g]]
     )()
-    surround()
+    M.surround()
 end
 
-yank_visual = function(register)
+M.yank_visual = function(register)
     register = register or '"'
     -- Only use quote mark notation if not using unnamed register
     sub = register ~= '"' and '"' .. register or ""
     vim.cmd("normal " .. sub .. "gvy")
     return vim.fn.getreg(register)
 end
-yank_visual = with_register(yank_visual)
+yank_visual = M.with_register(yank_visual)
 
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
-visual_search = function(target)
+M.visual_search = function(target)
     target = target or "/"
     text = vim.fn.substitute(yank_visual(), [[\_s\+]], " ", "g")
     pcall(function()
@@ -561,7 +563,7 @@ visual_search = function(target)
 end
 
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
-function file_exists(name)
+M.file_exists = function(name)
     if name == nil then
         return false
     end
@@ -574,7 +576,7 @@ function file_exists(name)
     end
 end
 
-make_session = function()
+M.make_session = function()
     vim.b.sessiondir = os.getenv("HOME") .. "/.vim/sessions" .. vim.fn.getcwd()
     if vim.fn.filewritable(vim.b.sessiondir) ~= 2 then
         vim.cmd("silent !mkdir -p " .. vim.b.sessiondir)
@@ -585,22 +587,27 @@ make_session = function()
 end
 
 -- From https://stackoverflow.com/questions/1642611/how-to-save-and-restore-multiple-different-sessions-in-vim, with my modifications
-save_session = function()
+M.save_session = function()
     local session_dir = os.getenv("VIM_SESSION_DIR")
     if session_dir == nil then
         print("Session directory not specified")
         return
     end
     local this_session = vim.g.current_session
-        or (vim.v.this_session ~= "" and vim.fn.systemlist(
-            'basename -s ".vim" ' .. surround_string(vim.v.this_session)
+        or (vim.v.this_session ~= "" and vim.fn.systemlist( --Check if session file exists with current session name
+            'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
         )[1])
         or nil
     -- If no current session name found, prompt user for one, warning if already in use
     local name_provided = false
     if this_session == nil then
-        this_session = pcall(vim.fn.input("Enter session name (enter to skip): "))
-        if this_session == "" then
+        local ok, this_session = pcall(
+            vim.fn.input("Enter session name (enter to skip): ")
+        )
+        if not ok then
+            print("\n Error saving session")
+            return
+        elseif this_session == "" then
             print("\nInvalid session name")
             return
         end
@@ -612,7 +619,7 @@ save_session = function()
     if name_provided and file_exists(path) then
         local choice = vim.fn.input(
             "Session "
-                .. surround_string(current_session)
+                .. M.surround_string(current_session)
                 .. " already exists. Overwrite (y to overwrite, any other key to abort)? "
         )
         if choice ~= "y" then
@@ -623,7 +630,7 @@ save_session = function()
     vim.cmd("mksession! " .. path)
 end
 
-load_session = function()
+M.load_session = function()
     local session_dir = os.getenv("VIM_SESSION_DIR")
     if session_dir == nil then
         print("Session directory not specified")
@@ -634,16 +641,16 @@ load_session = function()
         "lastn " .. session_dir .. " 1 echo"
     )[1]
     local session_name = vim.fn.systemlist(
-        "basename -s '.vim' " .. surround_string(latest_session)
+        "basename -s '.vim' " .. M.surround_string(latest_session)
     )[1]
     local safe_source = function(file)
         vim.cmd("source " .. file)
     end
     print(session_name)
-    if not pcall(safe_source, surround_string(latest_session)) then
+    if not pcall(safe_source, M.surround_string(latest_session)) then
         print(
             "Session file "
-                .. surround_string(latest_session)
+                .. M.surround_string(latest_session)
                 .. " does not exist or cannot be read"
         )
         return
@@ -653,15 +660,15 @@ load_session = function()
 end
 
 -- Knit an Rmarkdown file
-knit = function(file, quiet, view_result)
+M.knit = function(file, quiet, view_result)
     -- We have to get the full path of the output in case the YAML specifies a different output directory
 
-    local file = default_arg(file, vim.g.last_rmd)
-    if not file_exists(file) then
-        print(surround_string(file) .. " does not exist")
+    local file = M.default_arg(file, vim.g.last_rmd)
+    if not M.file_exists(file) then
+        print(M.surround_string(file) .. " does not exist")
         return
     end
-    local view_result = default_arg(view_result, true)
+    local view_result = M.default_arg(view_result, true)
     vim.cmd("wa")
     print("Knitting " .. file)
     local args = "-e"
@@ -680,18 +687,18 @@ knit = function(file, quiet, view_result)
     -- end
     outfile = string.match(
         outfile,
-        surround_string(os.getenv("HOME") .. "/.*%.pdf", "\n(", ")")
+        M.surround_string(os.getenv("HOME") .. "/.*%.pdf", "\n(", ")")
     )
 
     if file_exists(outfile) then
-        print("Rendered " .. surround_string(outfile))
+        print("Rendered " .. M.surround_string(outfile))
         if view_result then
             vim.cmd("!zathura " .. vim.fn.shellescape(outfile) .. " &")
         end
     end
 end
 
-count_pairs = function(str, char, close)
+M.count_pairs = function(str, char, close)
     local open = 0
     for i = 1, string.len(str) do
         cur = string.sub(str, i, i)
@@ -711,7 +718,7 @@ count_pairs = function(str, char, close)
     return string.len(str)
 end
 -- TODO fix no closing case, slowness, do mapping
-match_paren = function()
+M.match_paren = function()
     local char = get_char(0)
     local line = vim.fn.getline(".")
     local remainder = string.sub(line, vim.fn.col("."), -1)
@@ -721,7 +728,7 @@ match_paren = function()
         vim.fn.setline(".", line .. close)
         return
     end
-    local i = count_pairs(string.sub(remainder, 2, -1), char, close) + 1
+    local i = M.count_pairs(string.sub(remainder, 2, -1), char, close) + 1
 
     --Insert closing character at appropriate position
     vim.fn.setline(
@@ -741,13 +748,13 @@ end
 --summary(fun(inner(mean(x, y, z)), fun2(y))
 --summary(a, b, c, d, e
 
-dump_args = function()
+M.dump_args = function()
     signature = vim.fn.getline(".")
     --TODO
 end
 
 -- Display lines of command output (e.g., autocmd) matching pattern
-grep_output = function(cmd, print_output, ...)
+M.grep_output = function(cmd, print_output, ...)
     local patterns = { ... }
     local output = vim.fn.execute(cmd)
     --output = str_split(output)
@@ -762,31 +769,30 @@ grep_output = function(cmd, print_output, ...)
         end
     end
     if print_output or print_output == nil then
-        print_table(out)
+        M.print_table(out)
     else
         return out
     end
 end
 
 -- TODO recursively print tables
-inspect = function(x)
+M.inspect = function(x)
     print(vim.inspect(x))
 end
 
-print_table = function(table)
+M.print_table = function(table)
     for i, val in ipairs(table) do
         if type(val) ~= "table" then
             print(val)
         else
-            print_table(val)
+            M.print_table(val)
         end
     end
 end
 
 -- Standard string split. Credit https://stackoverflow.com/questions/1426954/split-string-in-lua
-str_split = function(string, sep)
+M.str_split = function(string, sep)
     local sep = sep or " "
-
     local out = {}
     for str in string.gmatch(string, sep) do
         table.insert(out, str)
@@ -794,21 +800,21 @@ str_split = function(string, sep)
     return out
 end
 -- Evaluate inline R code chunk
-inline_send = function()
+M.inline_send = function()
     if not os.getenv("NVIMR_ID") then
         print("Nvim-R is not running")
         return
     end
     local old_pos = vim.fn.getpos(".")
-    vim.cmd([[normal F`2w"zyt`]])
+    vim.cmd([[normal F`2w"zyt`]]) -- "just to fix syntax highlighting
     vim.cmd("RSend " .. vim.fn.getreg("z"))
     vim.fn.setpos(".", old_pos)
 end
 
-open_in_hidden = function(pattern)
+M.open_in_hidden = function(pattern)
     local current_file = vim.fn.expand("%")
     -- Default to matching current file extension
-    local pattern = default_arg(
+    local pattern = M.default_arg(
         pattern,
         "*" .. string.sub(current_file, string.find(current_file, "%.[^.]+$"))
     )
@@ -820,7 +826,7 @@ open_in_hidden = function(pattern)
         cmd = cmd
                 .. (
                     files[i] ~= current_file
-                    and surround_string(files[i], " ", "")
+                    and M.surround_string(files[i], " ", "")
                 )
             or ""
     end
@@ -846,8 +852,8 @@ open_in_hidden = function(pattern)
 end
 
 -- Delete lingering scratch buffers
-clean_buffers = function(remove_nonempty)
-    local ignore_nonempty = default_arg(ignore_nonempty, false)
+M.clean_buffers = function(remove_nonempty)
+    local ignore_nonempty = M.default_arg(ignore_nonempty, false)
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         if not vim.api.nvim_buf_is_loaded(bufnr) then
             local buf_name = vim.api.nvim_buf_get_name(bufnr)
@@ -865,10 +871,10 @@ end
 
 -- Based on https://stackoverflow.com/questions/23120266/lua-advancing-to-the-next-letter-of-the-alphabet
 -- Finds next free register and saves string in it
-next_free_register = function(content, start_register)
+M.next_free_register = function(content, start_register)
     local alphabet = "abcdefghijklmnopqrstuvwxyz"
-    local content = default_arg(content, vim.fn.getreg('"'))
-    local start_register = default_arg(start_register, "a")
+    local content = M.default_arg(content, vim.fn.getreg('"'))
+    local start_register = M.default_arg(start_register, "a")
     local start_index = string.find(alphabet, start_register)
     local end_index = 26
     if start_index < 1 or start_index > 26 then
@@ -879,7 +885,9 @@ next_free_register = function(content, start_register)
         local cur = string.sub(alphabet, num, num)
         if vim.fn.getreg(cur) == "" then
             vim.fn.setreg(cur, content)
-            print(surround_string(content, "'", "'") .. " written to @" .. cur)
+            print(
+                M.surround_string(content, "'", "'") .. " written to @" .. cur
+            )
             return content
         end
     end
@@ -887,9 +895,9 @@ next_free_register = function(content, start_register)
 end
 
 -- Open window to edit ftplugin file for current filetype
-edit_filetype = function(filetype, extension)
-    local filetype = default_arg(filetype, vim.bo.filetype)
-    local extension = default_arg(extension, "lua")
+M.edit_filetype = function(filetype, extension)
+    filetype = M.default_arg(filetype, vim.bo.filetype)
+    extension = M.default_arg(extension, "lua")
     if filetype == "" then
         print("Invalid filetype")
         return
@@ -897,7 +905,7 @@ edit_filetype = function(filetype, extension)
 
     local ftplugin = vim.api.nvim_get_runtime_file("ftplugin", false)
     if table.getn(ftplugin) == 0 then
-        print(surround_string(ftplugin) .. " does not exist")
+        print(M.surround_string(ftplugin) .. " does not exist")
         return
     end
     local file = ftplugin[1] .. "/" .. filetype .. "." .. extension
@@ -906,45 +914,77 @@ edit_filetype = function(filetype, extension)
 end
 
 -- Check conditions for saving session
-do_save_session = function(min_buffers)
-    min_buffers = default_arg(min_buffers, 2)
+M.do_save_session = function(min_buffers)
+    min_buffers = M.default_arg(min_buffers, 2)
     if
-        count_bufs_by_type(true)["normal"] >= min_buffers
-        and summarize_option("ft")["anki_vim"] == nil
+        M.count_bufs_by_type(true)["normal"] >= min_buffers
+        and M.summarize_option("ft")["anki_vim"] == nil
     then
-        save_session()
+        M.save_session()
     end
 end
 
 --From Reddit user vonheikemen
 --load = function(mod)
-  --package.loaded[mod] = nil
-  --return require(mod)
+--package.loaded[mod] = nil
+--return require(mod)
 --end
 
 --Reddit user Rafat913
-function open_uri_under_cursor()
-  local function open_uri(uri)
-    if type(uri) ~= 'nil' then
-      uri = string.gsub(uri, "#", "\\#") --double escapes any # signs
-      uri = '"'..uri..'"'
-      vim.cmd('!xdg-open '..uri..' > /dev/null')
-      vim.cmd('mode')
-      -- print(uri)
-      return true
-    else
-      return false
+M.open_uri_under_cursor = function()
+    local function open_uri(uri)
+        if type(uri) ~= "nil" then
+            uri = string.gsub(uri, "#", "\\#") --double escapes any # signs
+            uri = '"' .. uri .. '"'
+            vim.cmd("!xdg-open " .. uri .. " > /dev/null")
+            vim.cmd("mode")
+            -- print(uri)
+            return true
+        else
+            return false
+        end
     end
-  end
 
-  local word_under_cursor = vim.fn.expand("<cWORD>")
+    local word_under_cursor = vim.fn.expand("<cWORD>")
 
-  -- any uri with a protocol segment
-  local regex_protocol_uri = "%a*:%/%/[%a%d%#%[%]%-%%+:;!$@/?&=_.,~*()]*"
-  if (open_uri(string.match(word_under_cursor, regex_protocol_uri))) then return end
+    -- any uri with a protocol segment
+    local regex_protocol_uri = "%a*:%/%/[%a%d%#%[%]%-%%+:;!$@/?&=_.,~*()]*"
+    if open_uri(string.match(word_under_cursor, regex_protocol_uri)) then
+        return
+    end
 
-  -- consider anything that looks like string/string a github link
-  local regex_plugin_url = "[%a%d%-%.%_]*%/[%a%d%-%.%_]*"
-  if (open_uri('https://github.com/'..string.match(word_under_cursor, regex_plugin_url))) then return end
+    -- consider anything that looks like string/string a github link
+    local regex_plugin_url = "[%a%d%-%.%_]*%/[%a%d%-%.%_]*"
+    if
+        open_uri(
+            "https://github.com/"
+                .. string.match(word_under_cursor, regex_plugin_url)
+        )
+    then
+        return
+    end
 end
 --vim.api.nvim_create_user_command('open_uri_under_cursor', open_uri_under_cursor, {})
+--#region
+--#region
+
+M.clamp = function(x, lower, upper)
+    return math.min(math.max(x, lower), upper)
+end
+
+-- Given a command and number, applies the command to the range of lines between the current line and
+-- the number inclusive, clamping to file length
+M.range_command = function(command, range, invert)
+    range = M.default_arg(range, vim.v.count1)
+    invert = M.default_arg(invert, false)
+    local bound = (invert and -1 * range) or range
+    local current_line = vim.fn.line(".")
+    bound = M.clamp(current_line + bound, 1, vim.fn.line("$")) - current_line
+    -- Needed to avoid range-swapping prompt
+    if bound < 0 then
+        bound = current_line + bound .. "," .. current_line
+    else
+        bound = ".,.+" .. bound
+    end
+    vim.cmd(bound .. " normal " .. command)
+end

@@ -1,8 +1,8 @@
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
-    local max_size = default_arg(max_size, 1024 * 1024)
-    local ignore_hidden = default_arg(hidden, true)
-    local filetype = default_arg(vim.bo.filetype)
+    local max_size = M.default_arg(max_size, 1024 * 1024)
+    local ignore_hidden = M.default_arg(hidden, true)
+    local filetype = M.default_arg(vim.bo.filetype)
     return (not ignore_hidden or vim.api.nvim_buf_is_loaded(bufnr))
         and vim.api.nvim_buf_get_offset(
             bufnr,

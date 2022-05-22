@@ -4,41 +4,41 @@ vim.g.mapleader = ","
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>!!",
-    [[:<C-U>lua term_exec("\x1b\x5b\x41")<CR>]],
+    [[:<C-U>lua M.term_exec("\x1b\x5b\x41")<CR>]],
     { noremap = true, silent = true }
 )
 -- Send line under cursor to terminal
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>sl",
-    [[:lua term_exec(vim.fn.getline('.'))<CR>]],
+    [[:lua M.term_exec(vim.fn.getline('.'))<CR>]],
     { noremap = true, silent = true }
 )
 -- Interact with terminal buffer
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>te",
-    [[:lua term_edit()<CR>]],
+    [[:lua M.term_edit()<CR>]],
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>tr",
-    [[:lua term_edit('savehistory("/tmp/history.txt")', 'r')<CR>]],
+    [[:lua M.term_edit('savehistory("/tmp/history.txt")', 'r')<CR>]],
     { noremap = true, silent = true }
 )
 -- Visual selection to terminal
 vim.api.nvim_set_keymap(
     "v",
     "<Leader>ts",
-    [[:lua term_exec(vim.fn.getreg('*'))<CR>]],
+    [[:lua M.term_exec(vim.fn.getreg('*'))<CR>]],
     { noremap = true, silent = true }
 )
 
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>ts",
-    [[:lua term_exec(vim.fn.getline('.'))<CR>]],
+    [[:lua M.term_exec(vim.fn.getline('.'))<CR>]],
     { noremap = true, silent = true }
 )
 
@@ -46,13 +46,13 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<C-PageDown>",
-    ':lua win_exec("normal 3j", vim.g.last_terminal_win_id)<CR>',
+    ':lua M.win_exec("normal 3j", vim.g.last_terminal_win_id)<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<C-PageUp>",
-    ':lua win_exec("normal 3k", vim.g.last_terminal_win_id)<CR>',
+    ':lua M.win_exec("normal 3k", vim.g.last_terminal_win_id)<CR>',
     { noremap = true, silent = true }
 )
 
@@ -60,71 +60,71 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>kk",
-    ':lua win_exec("normal k", "k")<CR>',
+    ':lua M.win_exec("normal k", "k")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>kj",
-    ':lua win_exec("normal j", "k")<CR>',
+    ':lua M.win_exec("normal j", "k")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>lk",
-    ':lua win_exec("normal k", "l")<CR>',
+    ':lua M.win_exec("normal k", "l")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>lj",
-    ':lua win_exec("normal j", "l")<CR>',
+    ':lua M.win_exec("normal j", "l")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>jk",
-    ':lua win_exec("normal k", "j")<CR>',
+    ':lua M.win_exec("normal k", "j")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>jj",
-    ':lua win_exec("normal j", "j")<CR>',
+    ':lua M.win_exec("normal j", "j")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>hk",
-    ':lua win_exec("normal k", "h")<CR>',
+    ':lua M.win_exec("normal k", "h")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>hj",
-    ':lua win_exec("normal j", "h")<CR>',
+    ':lua M.win_exec("normal j", "h")<CR>',
     { noremap = true, silent = true }
 )
 
 vim.keymap.set({'n', 'v'},
-"<Leader>kq", ":lua win_exec('q', 'k')<CR>",
+"<Leader>kq", ":lua M.win_exec('q', 'k')<CR>",
 { noremap = true, silent = true })
 
 vim.keymap.set({'n', 'v'},
-"<Leader>hq", ":lua win_exec('q', 'h')<CR>",
+"<Leader>hq", ":lua M.win_exec('q', 'h')<CR>",
 { noremap = true, silent = true })
 
 vim.keymap.set({'n', 'v'},
-"<Leader>lq", ":lua win_exec('q', 'l')<CR>",
+"<Leader>lq", ":lua M.win_exec('q', 'l')<CR>",
 { noremap = true, silent = true })
 
 vim.keymap.set({'n', 'v'},
-"<Leader>jq", ":lua win_exec('q', 'j')<CR>",
+"<Leader>jq", ":lua M.win_exec('q', 'j')<CR>",
 { noremap = true, silent = true })
 
 
 vim.keymap.set({'n', 'v'},
-"<Leader>wc", ":lua win_exec('normal ' .. vim.fn.input('Command: '), vim.fn.input('Window: '))<CR>",
+"<Leader>wc", ":lua M.win_exec('normal ' .. vim.fn.input.M.t('Command: '), vim.fn.input('Window: '))<CR>",
 { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap(
@@ -250,25 +250,25 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Tab>h",
-    "<cmd>lua repeat_cmd('normal ' .. t('<C-w>') .. 'h', vim.v.count1)<CR>",
+    "<cmd>lua M.repeat_cmd('normal ' .. M.t('<C-w>') .. 'h', vim.v.count1)<CR>",
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Tab>j",
-    "<cmd>lua repeat_cmd('normal ' .. t('<C-w>') .. 'j', vim.v.count1)<CR>",
+    "<cmd>lua M.repeat_cmd('normal ' .. M.t('<C-w>') .. 'j', vim.v.count1)<CR>",
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Tab>k",
-    "<cmd>lua repeat_cmd('normal ' .. t('<C-w>') .. 'k', vim.v.count1)<CR>",
+    "<cmd>lua M.repeat_cmd('normal ' .. M.t('<C-w>') .. 'k', vim.v.count1)<CR>",
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Tab>l",
-    "<cmd>lua repeat_cmd('normal ' .. t('<C-w>') .. 'l', vim.v.count1)<CR>",
+    "<cmd>lua M.repeat_cmd('normal ' .. M.t('<C-w>') .. 'l', vim.v.count1)<CR>",
     { noremap = true, silent = true }
 )
 
@@ -313,13 +313,13 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Tab><",
-    ':<C-u>lua repeat_cmd("wincmd >", vim.v.count1)<CR>',
+    ':<C-u>lua M.repeat_cmd("wincmd >", vim.v.count1)<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Tab>>",
-    '<cmd>lua repeat_cmd("wincmd >", vim.v.count1)<CR>',
+    '<cmd>lua M.repeat_cmd("wincmd >", vim.v.count1)<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
@@ -378,7 +378,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<leader>tt",
-    ':lua switch_to_buffer("term")<CR>',
+    ':lua M.switch_to_buffer("term")<CR>',
     { noremap = true, silent = true }
 )
 
@@ -477,7 +477,7 @@ vim.api.nvim_set_keymap(
 --
 --Knit rmarkdown - ugly as sin but works
 vim.keymap.set({ "n" }, "<Leader>kn", function()
-    knit(nil, true, true)
+    M.knit(nil, true, true)
 end, { noremap = true, silent = true })
 -- For easier copy-paste
 vim.api.nvim_set_keymap(
@@ -549,7 +549,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "\\ck",
-    ':RSend .. t("<C-c>") <CR>',
+    ':RSend .. M.t("<C-c>") <CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
@@ -563,19 +563,19 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "\ra",
-    ':lua r_exec("args")<CR>',
+    ':lua M.r_exec("args")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "\rt",
-    ':lua r_exec("str")<CR>',
+    ':lua M.r_exec("str")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "\re",
-    ':lua vim.cmd("RSend " .. surround_string(vim.fn.getline("."), "(", ")"))<CR>',
+    ':lua vim.cmd("RSend " .. M.surround_string(vim.fn.getline("."), "(", ")"))<CR>',
     { noremap = true, silent = true }
 )
 
@@ -589,7 +589,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     '<leader>"',
-    [[:lua modify_register(surround_string, '+', '"', '"')<CR>]],
+    [[:lua M.modify_register(M.surround_string, '+', '"', '"')<CR>]],
     { noremap = true, silent = true }
 )
 
@@ -604,25 +604,25 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>zz",
-    ':<C-U>lua alter_closest("")<CR>',
+    ':<C-U>lua M.alter_closest("")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>ZZ",
-    ':<C-U>lua alter_closest("b")<CR>',
+    ':<C-U>lua M.alter_closest("b")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>zr",
-    ':<C-U>lua alter_closest("", true)<CR>',
+    ':<C-U>lua M.alter_closest("", true)<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>Zr",
-    ':<C-U>lua alter_closest("b", true)<CR>',
+    ':<C-U>lua M.alter_closest("b", true)<CR>',
     { noremap = true, silent = true }
 )
 
@@ -663,26 +663,26 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>nj",
-    ":<C-U>lua no_jump_safe()<CR>",
+    ":<C-U>lua M.no_jump_safe()<CR>",
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "i",
     "<C-a>",
-    "<C-o>:lua no_jump_safe()<CR>",
+    "<C-o>:lua M.no_jump_safe()<CR>",
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "v",
     "<C-a>",
-    "<C-o>:lua no_jump_safe()<CR>",
+    "<C-o>:lua M.no_jump_safe()<CR>",
     { noremap = true, silent = true }
 )
 
 vim.api.nvim_set_keymap(
     "n",
     "<Leader>pd",
-    '^yiWoprint(paste("<C-o>p<space>=",<space><C-o>p))<Esc>k^',
+    '^yiWoprinM.t(paste("<C-o>p<space>=",<space><C-o>p))<Esc>k^',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
@@ -745,7 +745,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     "<leader>sr",
-    ":lua next_free_register(nil, nil)<CR>",
+    ":lua M.next_free_register(nil, nil)<CR>",
     { noremap = true, silent = true }
 )
 
@@ -790,7 +790,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "c",
     "<-A-k>",
-    t("<C-f>i" .. expand_pair("(") .. "<Down>"),
+    M.t("<C-f>i" .. M.expand_pair("(") .. "<Down>"),
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
@@ -809,13 +809,13 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "n",
     ",ty",
-    ':lua term_exec(vim.fn.getreg("+"))<CR>',
+    ':lua M.term_exec(vim.fn.getreg("+"))<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "v",
     ",ty",
-    ':lua term_exec(yank_visual("+"))<CR>',
+    ':lua M.term_exec(M.yank_visual("+"))<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
@@ -824,15 +824,15 @@ vim.api.nvim_set_keymap(
     "<Space><bar>><Space>",
     { noremap = true, silent = true }
 )
---vim.api.nvim_set_keymap('c', '(', [[luaeval('expand_pair("(")')]], {noremap = true, silent = true, expr = true})
---vim.api.nvim_set_keymap('c', ')', [[luaeval('match_pair(")")')]], {noremap = true, silent = true, expr = true})
+--vim.api.nvim_set_keymap('c', '(', [[luaeval('M.expand_pair("(")')]], {noremap = true, silent = true, expr = true})
+--vim.api.nvim_set_keymap('c', ')', [[luaeval('M.match_pair(")")')]], {noremap = true, silent = true, expr = true})
 
 vim.api.nvim_set_keymap("n", "!!", "@:<CR>", { noremap = true, silent = true })
 
 vim.api.nvim_set_keymap(
     "n",
     "<leader>ab",
-    [[<cmd>lua add_abbrev(vim.fn.expand('<cword>'))<CR>]],
+    [[<cmd>lua M.add_abbrev(vim.fn.expand('<cword>'))<CR>]],
     { noremap = true }
 )
 
@@ -850,20 +850,22 @@ vim.api.nvim_set_keymap(
     { noremap = true, silent = true }
 )
 
+vim.keymap.set({'n','v'}, '<Leader>nn', ":<C-U>lua M.range_command(vim.fn.input('normal command: '))<CR>")
+vim.keymap.set({'n','v'}, '<Leader>Nn', ":<C-U>lua M.range_command(vim.fn.input('normal command: '), nil, true)<CR>")
 vim.api.nvim_set_keymap(
     "v",
     "*",
-    ':lua visual_search("/")<CR>',
+    ':lua M.visual_search("/")<CR>',
     { noremap = true, silent = true }
 )
 vim.api.nvim_set_keymap(
     "v",
     "#",
-    ':lua visual_search("?")<CR>',
+    ':lua M.visual_search("?")<CR>',
     { noremap = true, silent = true }
 )
 --Pairs
--- Tranpose function arguments
+-- Transpose function arguments
 -- These complex mappings copied from https://vim.fandom.com/wiki/Swapping_characters,_words_and_lines
 vim.api.nvim_set_keymap(
     "n",
@@ -911,7 +913,7 @@ vim.api.nvim_set_keymap(
 vim.api.nvim_set_keymap(
     "i",
     "<C-(>",
-    ":normal i( | lua match_paren()",
+    ":normal i( | lua M.match_paren()",
     { noremap = true, silent = true }
 )
 vim.keymap.set("n", "<Leader>LL", function()
@@ -926,7 +928,7 @@ vim.keymap.set(
     { noremap = true, silent = true }
 )
 vim.keymap.set({ "i", "n", "v" }, "<C-%>>", function()
-    match_paren()
+    M.match_paren()
 end, { silent = true })
 -- Save messages
 vim.keymap.set({ "n" }, "<leader>mm", function()

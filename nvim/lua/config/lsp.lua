@@ -6,8 +6,6 @@ local format_diagnostic = function(diagnostic)
     return diagnostic
 end
 
-
---TODO store global LSP settings in L table like a civilized person
 lspkind = require("lspkind")
 on_attach = function(client, bufnr)
     --if  vim.b.zotcite_omnifunc then
@@ -146,18 +144,18 @@ on_attach = function(client, bufnr)
     )
     vim.cmd([[ command! Format execute 'lua vim.lsp.buf.formatting()' ]])
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
-    --Highlight group here screwing up syntax somehow
     if client then
-        --if
-            --client.supports_method("textDocument/formatting")
-        --then
-            --vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
-            --vim.api.nvim_create_autocmd("BufWritePre", {
-                --group = augroup,
-                --buffer = bufnr,
-                --callback = vim.lsp.buf.formatting_sync,
-            --})
-        --end
+        if
+            client.supports_method("textDocument/formatting")
+            and client.name ~= "r-language-server"
+        then
+            vim.api.nvim_clear_autocmds({ group = augroup, buffer = bufnr })
+            vim.api.nvim_create_autocmd("BufWritePre", {
+                group = augroup,
+                buffer = bufnr,
+                callback = vim.lsp.buf.formatting_sync,
+            })
+        end
 
         if
             client.name ~= "null-ls"
@@ -194,6 +192,10 @@ local servers = {
             cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/main.lua" },
             IntelliSense = { traceBeSetted = true },
             color = { mode = "Grammar" },
+            completion = {
+                keywordSnippet = "Replace",
+                callSnippet = "Replace",
+            },
             runtime = {
                 version = "LuaJIT",
                 path = path,
@@ -203,7 +205,10 @@ local servers = {
                 disable = { "lowercase-global" },
             },
             workspace = {
-                library = vim.api.nvim_get_runtime_file("", true),
+                library = {
+                    [vim.fn.expand("$VIMRUNTIME/lua")] = true,
+                    [vim.fn.stdpath("config") .. "/lua"] = true,
+                },
             },
             telemetry = {
                 enable = false,
@@ -211,7 +216,6 @@ local servers = {
         },
     },
 }
-
 local border = {
     { "🭽", "FloatBorder" },
     { "▔", "FloatBorder" },
@@ -311,3 +315,4 @@ vim.g.lsp_done = true
 --show_line_diagnostics = <function 24>,
 --show_position_diagnostics = <function 25>
 --}
+--library = vim.api.nvim_get_runtime_file("", true)

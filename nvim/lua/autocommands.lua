@@ -71,7 +71,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     group = "Terminal",
     callback = function()
-        set_term_opts()
+        M.set_term_opts()
     end,
 })
 vim.api.nvim_create_autocmd(
@@ -111,7 +111,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
         if vim.b.source_on_save == 1 then
-            refresh(vim.fn.expand("%:p"))
+            M.refresh(vim.fn.expand("%:p"))
         end
     end,
 })
@@ -125,7 +125,7 @@ vim.api.nvim_create_autocmd(
 vim.api.nvim_create_autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
-        do_save_session()
+        M.do_save_session()
     end,
 })
 --autocmd! FileChangedShell *.pdf v:fcs_choice]]})
@@ -134,7 +134,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
     pattern = "*",
     callback = function()
         if vim.fn.argc() == 0 then
-            load_session()
+            M.load_session()
         end
     end,
     desc = "Load latest session on startup if no arguments provided",

@@ -4,7 +4,7 @@
 shopt -s extglob cdable_vars globstar
 eval "$(dircolors -b)"
 
-export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin"
+export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.cargo/bin"
 export EDITOR="nvim"
 export INPUTRC="$HOME/.inputrc"
 export R_KEYRING_BACKEND="secret_service"

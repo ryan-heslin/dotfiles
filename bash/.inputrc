@@ -21,3 +21,5 @@ set visible-stats on
 # Macros
 # ALT-R
 "\er": "~/R-4.1.0/bin/R"
+# sudo prefix - see https://wiki.archlinux.org/title/readline
+"\es": "\C-asudo \C-e"

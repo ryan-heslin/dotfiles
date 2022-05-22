@@ -1,1 +1,1 @@
-vim.cmd[[source $MYVIMRC]]
+vim.cmd([[source $MYVIMRC]])
