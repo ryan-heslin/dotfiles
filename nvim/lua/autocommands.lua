@@ -1,11 +1,12 @@
 vim.o.t_EI = [[\e[2 q]]
+if last_filetype == nil then
+    last_filetype = {}
+end
 -- Standard autocommands
 -- NB table of autocmd args takes group argument for augroup
-vim.api.nvim_create_autocmd(
-    "ColorScheme",
-    {
-        pattern = "*",
-        command = [[
+vim.api.nvim_create_autocmd("ColorScheme", {
+    pattern = "*",
+    command = [[
 highlight NormalFloat guibg=#1f2335
 highlight FloatBorder guifg=white guibg=#1f2335
 highlight Pmenu guibg=#1f2335
@@ -34,24 +35,17 @@ let g:rainbow_active = 1
 let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
 let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
 ]],
-    }
-)
+})
 
-vim.api.nvim_create_autocmd(
-    "TextYankPost",
-    {
-        pattern = "*",
-        command = 'silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150, on_macro = true}',
-    }
-)
+vim.api.nvim_create_autocmd("TextYankPost", {
+    pattern = "*",
+    command = 'silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150, on_macro = true}',
+})
 -- Remember cursor position color
-vim.api.nvim_create_autocmd(
-    "BufReadPost",
-    {
-        pattern = "*",
-        command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | execute "normal! g`\"" | endif ]],
-    }
-)
+vim.api.nvim_create_autocmd("BufReadPost", {
+    pattern = "*",
+    command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | execute "normal! g`\"" | endif ]],
+})
 -- Unfold on enter
 vim.api.nvim_create_autocmd(
     "BufReadPost",
@@ -59,14 +53,11 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_augroup("Terminal", { clear = true })
-vim.api.nvim_create_autocmd(
-    "BufEnter",
-    {
-        pattern = "*",
-        group = "Terminal",
-        command = [[if &buftype == 'terminal' | :startinsert | endif]],
-    }
-)
+vim.api.nvim_create_autocmd("BufEnter", {
+    pattern = "*",
+    group = "Terminal",
+    command = [[if &buftype == 'terminal' | :startinsert | endif]],
+})
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     group = "Terminal",
@@ -115,13 +106,10 @@ vim.api.nvim_create_autocmd("BufWritePost", {
         end
     end,
 })
-vim.api.nvim_create_autocmd(
-    "FileType anki_vim",
-    {
-        pattern = "*",
-        command = "let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories",
-    }
-)
+vim.api.nvim_create_autocmd("FileType anki_vim", {
+    pattern = "*",
+    command = "let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories",
+})
 vim.api.nvim_create_autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
@@ -153,6 +141,11 @@ vim.api.nvim_create_autocmd("FileType", {
 --
 vim.api.nvim_create_autocmd("BufReadPre", {
     pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
-        command = 'let R_path="~/R-4.1.0/bin"',
-        desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version"
+    command = 'let R_path="~/R-4.1.0/bin"',
+    desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
+})
+vim.api.nvim_create_autocmd("BufEnter", {
+    callback = M.record_file_name,
+    desc = "On entering file of any type, record its name, overwriting old value if it exists",
+    pattern = "*",
 })

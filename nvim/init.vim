@@ -37,6 +37,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'honza/vim-snippets'
     Plug 'onsails/lspkind-nvim'
     Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+    Plug 'quangnguyen30192/cmp-nvim-tags'
     Plug 'ncm2/ncm2'
     Plug 'roxma/nvim-yarp'
     Plug 'chrisbra/csv.vim'

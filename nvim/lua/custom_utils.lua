@@ -1,4 +1,11 @@
 M = {}
+
+M.record_file_name = function()
+    if vim.bo.filetype ~= "" then
+        last_filetype[vim.bo.filetype] = vim.fn.expand("%:p")
+    end
+end
+
 local a = require("plenary.async")
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
@@ -8,7 +15,7 @@ M.with_register = function(func)
         local old_register = vim.v.register
         local old_register_value = vim.fn.getreg(old_register)
         local old_register_type = vim.fn.getregtype(old_register)
-        out = func(...)
+        local out = func(...)
         vim.fn.setreg(old_register, old_register_value, old_register_type)
         return out
     end
@@ -84,6 +91,7 @@ M.safe_call = function(func, ...)
     end
 end
 
+-- Configure standard options when entering terminal, and record metadata in global variables
 M.set_term_opts = function()
     vim.cmd("startinsert")
     vim.wo.number = false
@@ -96,18 +104,39 @@ M.set_term_opts = function()
 end
 
 -- Yank text at end of terminal buffer
-M.term_yank = function(term_id)
+M.term_yank = function(term_id, prompt_pattern, offset)
+    prompt_pattern = M.default_arg(prompt_pattern, [[>\s[^ ]\+]])
+    offset = M.default_arg(offset, -1)
     local term_id = M.default_arg(term_id, vim.g.last_terminal_win_id)
-    local prompt_line = vim.fn.win_execute(term_id, 'call search(">", "bnW")')
-    if prompt_line == "" then
+    -- Find most recent line with terminal prompt
+    local prompt_line = tonumber(
+        string.gsub(
+            vim.fn.win_execute(
+                term_id,
+                "echo search('" .. prompt_pattern .. "', 'bnW')"
+            ),
+            "\n",
+            ""
+        ),
+        10
+    )
+    print(prompt_line)
+
+    if prompt_line == 0 then
         return ""
     end
-    local text = vim.fn.win_execute(
-        term_id,
-        "normal " .. tostring(prompt_line) .. "gg0f>lvG$y"
+    --local text = vim.fn.win_execute(
+    --term_id,
+    --"normal " .. tostring(prompt_line) .. "gg0f>lvG$y"
+    --)
+    local text = vim.api.nvim_buf_get_lines(
+        vim.g.last_terminal_buf_id,
+        prompt_line,
+        offset,
+        true
     )
     --vim.fn.setreg('+', text)
-    return text
+    return M.join(text, "")
 end
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
 
@@ -267,6 +296,7 @@ M.term_exec = function(keys, scroll_down)
     end
 end
 
+--Substitute default value for omitted argument
 M.default_arg = function(arg, default)
     return arg ~= nil and arg or default
 end
@@ -594,20 +624,18 @@ M.save_session = function()
         return
     end
     local this_session = vim.g.current_session
-        or (vim.v.this_session ~= "" and vim.fn.systemlist( --Check if session file exists with current session name
+        or (vim.v.this_session ~= nil and vim.v.this_session ~= "" and vim.fn.systemlist( --Check if session file exists with current session name
             'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
         )[1])
         or nil
     -- If no current session name found, prompt user for one, warning if already in use
     local name_provided = false
     if this_session == nil then
-        local ok, this_session = pcall(
-            vim.fn.input("Enter session name (enter to skip): ")
-        )
-        if not ok then
-            print("\n Error saving session")
-            return
-        elseif this_session == "" then
+        this_session = vim.fn.input("Enter session name (enter to skip): ")
+        --if not ok then
+        --print("\n Error saving session")
+        --return
+        if this_session == "" then
             print("\nInvalid session name")
             return
         end
@@ -616,7 +644,7 @@ M.save_session = function()
     local current_session = this_session
 
     local path = session_dir .. "/" .. current_session .. ".vim"
-    if name_provided and file_exists(path) then
+    if name_provided and M.file_exists(path) then
         local choice = vim.fn.input(
             "Session "
                 .. M.surround_string(current_session)
@@ -930,6 +958,16 @@ end
 --return require(mod)
 --end
 
+-- Collapse table into string
+M.join = function(tab, join)
+    join = M.default_arg(join, "")
+    local out = table.remove(tab)
+    for i = table.getn(tab), 1, -1 do
+        out = tab[i] .. join .. out
+    end
+    return out
+end
+
 --Reddit user Rafat913
 M.open_uri_under_cursor = function()
     local function open_uri(uri)
@@ -976,6 +1014,9 @@ end
 -- the number inclusive, clamping to file length
 M.range_command = function(command, range, invert)
     range = M.default_arg(range, vim.v.count1)
+    if range == "$" then
+        range = vim.fn.line("$")
+    end
     invert = M.default_arg(invert, false)
     local bound = (invert and -1 * range) or range
     local current_line = vim.fn.line(".")
@@ -988,3 +1029,97 @@ M.range_command = function(command, range, invert)
     end
     vim.cmd(bound .. " normal " .. command)
 end
+
+-- Provided by https://github.com/milanglacier/nvim/blob/9bde2a70c95be121eb814d00a792f8192fc6ff85/lua/conf/builtin_extend.lua#L224
+function M.create_tags_for_yanked_columns(df)
+    local ft = vim.bo.filetype
+    if not (ft == "r" or ft == "rmd" or ft == "python") then
+        return
+    end
+
+    local ft_mapping = { r = "r", rmd = "r", python = "python" }
+
+    local bufid = vim.api.nvim_get_current_buf()
+    local filename = vim.fn.expand("%:t")
+    local filename_without_extension = filename:match("(.+)%..+")
+    local newfile = filename_without_extension .. "_tags"
+
+    vim.cmd(string.format("e %s", newfile)) -- open a file whose name is xxx_tags.extension
+    local newtag_bufid = vim.api.nvim_get_current_buf()
+
+    vim.cmd([[normal! Go]]) -- go to the end of the buffer and create a new line
+    --vim.cmd([[normal! "0p]]) -- paste the content just yanked into this buffer
+
+    -- flag ge means: replace every occurrences in every line, and
+    -- when there are no matched patterns in the document, do not issue an error
+    if ft == "python" then
+        vim.cmd([[%s/,//ge]]) -- remove every occurrence of ,
+    else
+        --vim.cmd([[g/^r?\$>.\+$/d]]) -- remove line starts with r$> which usually is the REPL prompt
+        --vim.cmd([[%s/\[\d\+\]//ge]]) -- remove every occurrence of [xxx], where xxx is a number
+        --append column names to file
+        vim.cmd(
+            "RSend "
+                .. string.format(
+                    [[cat(paste(colnames(%s), "'%s'", sep=" <- "), sep = "\n", file= "%s", append = TRUE)]],
+                    df,
+                    df,
+                    newfile
+                )
+        )
+    end
+
+    vim.cmd([[%s/\s\+/\r/ge]]) -- break multiple spaces into a new line
+    vim.cmd([[g/^$/d]]) -- remove any blank lines
+
+    if ft == "python" then
+        vim.cmd([[%s/'//ge]]) -- remove '
+        vim.cmd([[g/^\w\+$/normal! A="]] .. df .. [["]]) -- show which dataframe this column belongs to
+        -- use " instead of ', for incremental tagging, since ' will be removed.
+    else
+        --vim.cmd([[%s/"//ge]])
+        --vim.cmd([[g/^\w\+$/normal! A=']] .. df .. [[']])
+        -- r use " to quote strings, in contrary to python
+    end
+    print()
+
+    --vim.cmd([[sort u]]) -- remove duplicated entry
+    --vim.cmd([[%!sort | uniq -u]])
+    vim.cmd([[w]]) -- save current buffer
+
+    local newfile_shell_escaped = vim.fn.shellescape(newfile)
+    -- replace . by \. such that it is recognizable by vim regex
+    -- replace / by \/
+    local newfile_vim_regexed = newfile_shell_escaped:gsub("%.", [[\.]])
+    newfile_vim_regexed = newfile_vim_regexed:gsub("/", [[\/]])
+    newfile_vim_regexed = newfile_vim_regexed:sub(2, -2) -- remove the first and last chars, i.e. ' and '
+    print(newfile_vim_regexed)
+
+    vim.cmd([[e tags]]) -- open the file where ctags stores the tags
+    local tag_bufid = vim.api.nvim_get_current_buf()
+
+    vim.cmd([[g/^\w\+\s\+]] .. newfile_vim_regexed .. [[\s.\+/d]]) -- remove existed entries for the current newtag file in tags file
+    vim.cmd([[w]])
+
+    -- This actually stores tags
+    vim.cmd(
+        [[!ctags -a --language-force=]]
+            .. ft_mapping[ft]
+            .. " "
+            .. newfile_shell_escaped
+    ) -- let ctags tag current newtag file
+
+    vim.api.nvim_win_set_buf(0, bufid)
+    vim.cmd([[bd!]] .. newtag_bufid) -- delete the buffer created for tagging
+    vim.cmd([[bd!]] .. tag_bufid) -- delete the ctags tag buffer
+    vim.cmd([[noh]]) -- remove matched pattern's highlight
+end
+
+local command = vim.api.nvim_create_user_command
+
+command("TagYankedColumns", function(options)
+    local df = options.args
+    M.create_tags_for_yanked_columns(df)
+end, {
+    nargs = "?",
+})
