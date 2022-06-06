@@ -8,6 +8,15 @@ vim.keymap.set(
     [[:<C-U>lua M.term_exec("\x1b\x5b\x41")<CR>]],
     opts
 )
+-- Put in last window
+vim.keymap.set(
+    { "n", "v" },
+    "<leader>p",
+    [[:lua M.win_put(nil, vim.v.register)<CR>]],
+    opts
+)
+-- Write, then repeat last command
+vim.keymap.set({ "n", "v" }, "<leader>w", ":w | normal @:<CR>", opts)
 -- Send line under cursor to terminal
 vim.keymap.set(
     { "n" },

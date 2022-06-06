@@ -1,12 +1,13 @@
 M = {}
+-- Records most recent window, buffer filetype, etc.
+recents = { window = nil, filetype = {}, terminal = {} }
 
 M.record_file_name = function()
     if vim.bo.filetype ~= "" then
-        last_filetype[vim.bo.filetype] = vim.fn.expand("%:p")
+        recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
     end
 end
 
-local a = require("plenary.async")
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
 -- TODO fix
@@ -172,7 +173,7 @@ M.alter_closest = function(flags, replace)
     local start = vim.fn.getpos(".")
     local flags = "wz" .. (flags or "")
     -- Search forward or backward; ternary-ish expression
-    step = (vim.fn.stridx(flags, "b") == -1) and "n" or "N"
+    local step = (vim.fn.stridx(flags, "b") == -1) and "n" or "N"
 
     vim.fn.setreg("/", string)
     local matches = vim.fn.searchcount()["total"]
@@ -227,6 +228,29 @@ M.switch_to_buffer = function(pattern)
     vim.cmd("b" .. buf_number)
 end
 
+M.filter_loaded = function(tbl, i)
+    if not vim.api.nvim_buf_is_loaded(tbl[i]) then
+        table.remove(tbl, i)
+    end
+    return tbl
+end
+
+-- Return names of known buffers filtered by a one-argument function
+-- (defaults to checking if they are loaded)
+M.get_buf_names = function(filter, ...)
+    filter = M.default_arg(filter, function(bufnr)
+        return vim.api.nvim_buf_is_loaded(bufnr)
+    end)
+    local bufnrs = vim.api.nvim_list_bufs()
+    local out = {}
+    for _, bufnr in ipairs(bufnrs) do
+        if filter(bufnr, ...) then
+            out[tostring(bufnr)] = vim.api.nvim_buf_get_name(bufnr)
+        end
+    end
+    return out
+end
+
 M.close_bufs_by_type = function(buftype)
     for _, bufname in pairs(vim.api.nvim_list_bufs()) do
         if vim.api.nvim_buf_get_option(bufname, "buftype") == buftype then
@@ -238,7 +262,7 @@ end
 -- suggested by official guide to automatically escape terminal codes
 
 M.t = function(str)
-    --last arg is "special"
+    --Last arg is "special"
     return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
@@ -250,10 +274,7 @@ M.get_opposite_window = function(dir)
 end
 
 M.win_exec = function(keys, dir)
-    local keys = keys
-    if keys == nil then
-        keys = vim.fn.input("Window command: ")
-    end
+    keys = default_arg(keys, vim.fn.input("Window command: "))
     local count = vim.v.count1
     local command = string.gsub(
         M.t(keys),
@@ -272,6 +293,17 @@ M.win_exec = function(keys, dir)
     print(command)
     vim.cmd(command)
     vim.cmd(this_window .. "wincmd w")
+end
+
+-- Put register contents into most recent window
+M.win_put = function(register, win_id)
+    register = M.default_arg(register, "+")
+    win_id = M.default_arg(win_id, recents["window"])
+    if win_id == nil then
+        return
+    end
+    local command = "put " .. register
+    vim.fn.win_execute(win_id, command)
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
@@ -691,7 +723,7 @@ end
 M.knit = function(file, quiet, view_result)
     -- We have to get the full path of the output in case the YAML specifies a different output directory
 
-    local file = M.default_arg(file, vim.g.last_rmd)
+    file = M.default_arg(file, recents["filetype"]["rmd"])
     if not M.file_exists(file) then
         print(M.surround_string(file) .. " does not exist")
         return

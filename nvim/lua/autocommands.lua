@@ -149,3 +149,10 @@ vim.api.nvim_create_autocmd("BufEnter", {
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
     pattern = "*",
 })
+vim.api.nvim_create_autocmd("WinLeave", {
+    callback = function()
+        recents["window"] = vim.fn.win_getid()
+    end,
+    desc = "On leaving a window, record its id",
+    pattern = "*",
+})
