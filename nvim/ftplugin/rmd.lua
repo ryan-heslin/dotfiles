@@ -39,5 +39,7 @@ vim.api.nvim_buf_set_keymap(
     { noremap = true, silent = true }
 )
 -- Zotcite path
-vim.cmd([[noreabbrev zotcite '/home/rheslin/.local/share/nvim/plugged/zotcite/python3/zotref.py']])
+vim.cmd(
+    [[noreabbrev zotcite '/home/rheslin/.local/share/nvim/plugged/zotcite/python3/zotref.py']]
+)
 vim.b.surround_99 = "<!--\r-->"

@@ -156,3 +156,10 @@ vim.api.nvim_create_autocmd("WinLeave", {
     desc = "On leaving a window, record its id",
     pattern = "*",
 })
+
+vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
+    callback = function()
+        vim.bo.filetype = "quarto"
+    end,
+    pattern = { "*.Qmd", "*.qmd" },
+})

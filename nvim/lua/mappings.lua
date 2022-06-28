@@ -621,3 +621,15 @@ end, { silent = true })
 vim.keymap.set({ "n" }, "<leader>mm", function()
     vim.fn.setreg("+", vim.fn.execute("messages"))
 end, { silent = true })
+
+--Insert mode: delete word or WORD right of cursor
+vim.keymap.set({ "i" }, "<C-b>", "<S-Right><C-o>dw<C-o>``", opts)
+vim.keymap.set({ "i" }, "<C-B>", "<S-Right><C-o>dW<C-o>``", opts)
+
+-- Extract to default argument
+vim.keymap.set(
+    { "n" },
+    "<Leader>ed",
+    [[:<C-U>lua M.extract_to_default_arg()<CR>]],
+    opts
+)

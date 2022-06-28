@@ -4,7 +4,7 @@
 shopt -s extglob cdable_vars globstar
 eval "$(dircolors -b)"
 
-export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.cargo/bin"
+export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$HOME/.local/bin/lua-language-server/bin:$HOME/.cargo/bin:$HOME/.poetry/bin"
 export EDITOR="nvim"
 export INPUTRC="$HOME/.inputrc"
 export R_KEYRING_BACKEND="secret_service"
@@ -26,7 +26,7 @@ export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
 export HISTCONTROL='ignorespace'
 export NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 export NVIM_PYTHON_LOG_LEVEL="DEBUG"
-export GIT_CEILING_DIRECTORIES="$(dirname $HOME)"
+export GIT_CEILING_DIRECTORIES="$(dirname "$HOME")"
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'
@@ -42,7 +42,7 @@ fi
 # Caps lock remap
 [ -f "$HOME/sh_utils/remap_caps.sh" ] && . "$HOME/sh_utils/remap_caps.sh"
 # Customize prompt
-if [ $OSTYPE == "linux-gnu" ]; then
+if [ "$OSTYPE" == "linux-gnu" ]; then
     PS1="\$(new_line_ps1)\[\033[1;34m\]Ubuntu\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]\$(parse_git_branch)\[\033[1;15m\]> \[\033[0m\]"
 else
     PS1="\[\033[1;34m\]$USER\[\033[0;15m\]|\[\033[0;31m\]\w\[\033[0;33m\]$(__git_ps1 " (%s)")\[\033[1;15m\]> \[\033[0m\]"

@@ -35,3 +35,7 @@ ${1:if${2:}}:
 ${3:else}:
     $0
 endsnippet
+
+snippet cli "click decorator"
+@click.${1:option}("--${2:name}", help = "${3:help}" ${4:${5:, default = ${6}}})${0}
+endsnippet

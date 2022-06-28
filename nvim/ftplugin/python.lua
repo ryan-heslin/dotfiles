@@ -41,8 +41,10 @@ vim.keymap.set(
     [[^yWoIprint(f'<C-o>P = {<C-o>P}')<Esc>]],
     opts
 )
+--vim.keymap.set({"n", "v"}, [[:split | normal  | term | lua M.term_exec("ipython3")<CR>]])
 vim.keymap.set("n", [[<leader>di]], [[Pa["<Esc>ea"]<Esc>B]], opts)
 vim.keymap.set("i", [[<C-l>]], [[<Esc>A:<CR>]], opts)
+
 -- Special Python highlighting
 -- TODO highlight instance
 local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
@@ -61,5 +63,6 @@ vim.api.nvim_create_autocmd("ColorScheme", {
  \ | highlight method guifg=DarkOrchid3
 ]=],
     group = pycolors,
+    pattern = "*",
 })
 --\ | highlight def link pythonFunction Function

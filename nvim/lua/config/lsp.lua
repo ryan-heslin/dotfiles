@@ -186,7 +186,7 @@ table.insert(path, "lua/?.lua")
 table.insert(path, "lua/?/init.lua")
 
 local servers = {
-    r_language_server = {},
+    r_language_server = { filetypes = { "r", "rmd", "quarto" } },
     pyright = {},
     bashls = { filetypes = { "sh", "bash" } },
     sumneko_lua = {

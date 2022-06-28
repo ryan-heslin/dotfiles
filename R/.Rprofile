@@ -77,6 +77,21 @@ local({
   })
 }
 
+# Create active binding to function that updates a server for a blogdown site
+.my_funs$update_website <- function(envir = globalenv()) {
+  if (!requireNamespace("blogdown", quietly = TRUE)) {
+    stop("blogdown is not installed")
+  }
+  update_website_impl <- function() {
+    blogdown::stop_server()
+    blogdown::build_site()
+    blogdown::serve_site()
+  }
+  makeActiveBinding("bd",
+    fun = update_website_impl,
+    env = envir
+  )
+}
 .my_funs$knit2dir <-
   function(dir = getwd(),
            out = file.path(dir, "outputs"),
@@ -85,7 +100,7 @@ local({
            params = NULL,
            envir = NULL) {
 
-    # In case envir is not supplied, create a new enviornment every iteration
+    # In case envir is not supplied, create a new environment every iteration
     force(envir)
     get_env <- function(arg) {
       if (is.environment(arg)) {
@@ -156,8 +171,11 @@ local({
 
 .my_funs$switch_project <- function(project, stem = "~/R/Projects") {
   .my_funs$rstudio_wrap(
-    expr = tryCatch(rstudioapi::openProject(paste0(stem, "/", project, "/", project, ".Rproj")),
-      error = function(e) cat("Project", project, "does not exist\n")
+    expr = tryCatch(rstudioapi::openProject(paste0(
+      stem,
+      "/", project, "/", project, ".Rproj"
+    )),
+    error = function(e) cat("Project", project, "does not exist", "\n")
     ), project = NULL, stem = "~/R/Projects"
   )
 }

@@ -72,11 +72,10 @@ lua <<EOF
   require('config/Nvim-R')
   require('config/UltiSnips')
   require('config/vim-slime')
+  require('config/ale')
   require('abbrev')
   require('mappings')
   require('syntax')
--- pandoc filetype is markdown
-
  vim.cmd[[
  augroup sql
  autocmd!

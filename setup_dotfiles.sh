@@ -3,9 +3,8 @@
 # Trick from a StackOverflow post I forget to get the path to the current file
 DOTFILES_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-
 # From https://github.com/ajmalsiddiqui/dotfiles/blob/master/bootstrap.exclude.sh
-# Array of dotfiles and symlink targets; create any links no already created
+# Array of dotfiles and symlink targets; create any links not already created
 declare -A link_pairs
 link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME"
 ["$DOTFILES_PATH/bash/.bash_profile"]="$HOME"
@@ -22,7 +21,8 @@ link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME"
 ["$DOTFILES_PATH/nvim"]="$HOME/.config/"
 ["$DOTFILES_PATH/linters/stylua.toml"]="$HOME/stylua.toml"
 ["$DOTFILES_PATH/linters/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py"
-["$DOTFILES_PATH/misc/.ctags"]="$HOME/.ctags")
+["$DOTFILES_PATH/misc/.ctags"]="$HOME/.ctags"
+["$DOTFILES_PATH/misc/motd"]="/etc/motd")
 
 link () {
 for target in "${!link_pairs[@]}"; do

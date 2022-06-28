@@ -22,6 +22,17 @@ M.with_register = function(func)
     end
 end
 
+-- Save position, execute a function, then return to it
+M.with_position = function(func)
+    return function(...)
+        vim.api.nvim_buf_set_mark(0, "`", vim.fn.line("."), vim.fn.col("."), {})
+        local out = func(...)
+        vim.cmd("normal ``")
+        vim.api.nvim_buf_del_mark(0, "`")
+        return out
+    end
+end
+
 -- Returns function that retrieves table element keyed to filetype, then calls another function with that value
 M.switch_filetype = function(mapping, default)
     return function(func)
@@ -274,7 +285,9 @@ M.get_opposite_window = function(dir)
 end
 
 M.win_exec = function(keys, dir)
-    keys = default_arg(keys, vim.fn.input("Window command: "))
+    if keys == nil then
+        keys = vim.fn.input("Window command: ")
+    end
     local count = vim.v.count1
     local command = string.gsub(
         M.t(keys),
@@ -306,6 +319,15 @@ M.win_put = function(register, win_id)
     vim.fn.win_execute(win_id, command)
 end
 
+M.term_setup = function(commands)
+    vim.cmd("vsplit")
+    vim.cmd([[normal l]])
+    vim.cmd("term")
+    --vim.cmd("normal iipython")
+    vim.cmd([[normal k]])
+    M.term_exec("ipython")
+end
+
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 M.term_exec = function(keys, scroll_down)
     if vim.g.last_terminal_chan_id == nil then
@@ -313,7 +335,7 @@ M.term_exec = function(keys, scroll_down)
     end
     local count = vim.v.count1
     local command = keys
-    scroll_down = scroll_down or true
+    scroll_down = M.default_arg(scroll_down, true)
     if vim.fn.stridx(keys, [[\]]) ~= -1 then
         command = M.t(keys)
     end
@@ -330,7 +352,7 @@ end
 
 --Substitute default value for omitted argument
 M.default_arg = function(arg, default)
-    return arg ~= nil and arg or default
+    return (arg ~= nil and arg) or default
 end
 
 -- double controls whether to concatenate if string already has prefix/suffix
@@ -1144,7 +1166,7 @@ function M.create_tags_for_yanked_columns(df)
     vim.api.nvim_win_set_buf(0, bufid)
     vim.cmd([[bd!]] .. newtag_bufid) -- delete the buffer created for tagging
     vim.cmd([[bd!]] .. tag_bufid) -- delete the ctags tag buffer
-    vim.cmd([[noh]]) -- remove matched pattern's highlight
+    vim.cmd([[noh]]) -- remove matched pattern highlight
 end
 
 local command = vim.api.nvim_create_user_command
@@ -1155,3 +1177,71 @@ command("TagYankedColumns", function(options)
 end, {
     nargs = "?",
 })
+
+M.grow_list = function()
+
+    --TODO grow list of item in document by inserting next line with correct preceding mark (e.g., * if * opens current line,
+    --3 if 2 does, c if d does, etc.)
+    --To be triggered by insert mapping
+end
+
+M.namespace_convert = function()
+    innner = function(dict)
+        --TODO memoize dict to convert object name to member of
+    end
+end
+
+M.extract_to_default_arg = function(name)
+    name = name or vim.fn.expand("<cword>")
+    local old_pos = vim.fn.getpos(".")
+    -- Get value bound to name
+    vim.cmd('normal 2w"zyW')
+    local value = vim.fn.getreg("z")
+    -- Remove trailing paren
+    if not string.match(value, "%(") and string.match(value, "%)$") then
+        value = string.gsub(value, "%)$", "")
+    end
+    local fn_line = vim.fn.search([[<-\s*function]], "b")
+    vim.fn.cursor(fn_line, 1)
+    if fn_line == 0 then
+        return
+    end
+    local target_line = vim.fn.search([[)\s*{\s*$]])
+    if target_line == 0 then
+        return
+    end
+    vim.fn.setline(
+        target_line,
+        vim.fn.substitute(
+            vim.fn.getline(target_line),
+            [[)\s*{]],
+            string.format(", %s = %s) {", name, value),
+            ""
+        )
+    )
+    vim.fn.setpos(".", old_pos)
+    M.clean_definition(name)
+end
+
+-- Alters a parameter in a function call, or a variable assignment, to reflect that
+-- variable having been turned into a function argument (and therefore without a fixed value)
+M.clean_definition = function(name)
+    name = name or vim.fn.expand("<cword>")
+    line = vim.fn.getline(".")
+    -- in function call, so replace name = 5 with name = name
+    local trailing_comma = string.match(line, ",%s*$")
+    if
+        trailing_comma
+        or string.match(line, "^[a-zA-Z_.]+%(")
+        or (
+            vim.fn.line(".") > 1
+            and string.match(vim.fn.getline(vim.fn.line(".") - 1), ",%s*$")
+        )
+    then
+        vim.cmd("normal 2wcW" .. name .. (trailing_comma and "," or ""))
+        -- assignment statement, so delete entire assingment
+    else
+        vim.cmd("normal dd")
+    end
+end
+M.clean_definition = M.with_position(M.clean_definition)
