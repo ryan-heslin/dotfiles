@@ -39,8 +39,10 @@ M.switch_filetype = function(mapping, default)
         local mapping = mapping
         return function(...)
             local value = mapping[vim.bo.filetype]
+            if value == nil then
             local default = M.default_arg(default, nil)
             value = M.default_arg(value, default)
+        end
             return func(value, ...)
         end
     end
@@ -352,7 +354,13 @@ end
 
 --Substitute default value for omitted argument
 M.default_arg = function(arg, default)
-    return (arg ~= nil and arg) or default
+    local out
+    if arg ~= nil then
+        out = arg
+    else
+        out = default
+    end
+    return out
 end
 
 -- double controls whether to concatenate if string already has prefix/suffix
@@ -837,6 +845,7 @@ end
 
 -- Display lines of command output (e.g., autocmd) matching pattern
 M.grep_output = function(cmd, print_output, ...)
+    print_output = M.default_arg(print_output, true)
     local patterns = { ... }
     local output = vim.fn.execute(cmd)
     --output = str_split(output)
@@ -1245,3 +1254,21 @@ M.clean_definition = function(name)
     end
 end
 M.clean_definition = M.with_position(M.clean_definition)
+
+-- Get rid of empty undo files
+M.delete_undo = function()
+    local pattern = "Not%san%sundo%sfile:%s"
+    local lines = M.grep_output("messages", false, pattern)
+    if lines == {} then
+        return
+    end
+    for _, line in ipairs(lines) do
+        vim.fn.system("rm " .. string.gsub(line, pattern, ""))
+    end
+end
+
+M.choose_menu = function(which)
+    which = M.default_arg(which, 1)
+    vim.lsp.buf.formatting_sync()
+    vim.cmd(which)
+end

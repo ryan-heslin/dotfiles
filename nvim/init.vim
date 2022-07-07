@@ -58,30 +58,25 @@ call plug#end()
 
 lua <<EOF
   require("custom_utils")
-  require('autocommands')
-  require('options')
-  require('commands')
-  require('config/cmp_dictionary')
-  require('config/lsp')
+  require("autocommands")
+  require("options")
+  require("commands")
+  require("config/cmp_dictionary")
+  require("config/lsp")
   --Local variable represents module, but also created global for configuration ugh
-  require('config/nvim-cmp')
-  require('config/lualine')
-  require('config/autopairs')
-  require('config/formatting')
-  require('config/lsp_signature')
-  require('config/Nvim-R')
-  require('config/UltiSnips')
-  require('config/vim-slime')
-  require('config/ale')
-  require('abbrev')
-  require('mappings')
-  require('syntax')
- vim.cmd[[
- augroup sql
- autocmd!
- autocmd FileType sql,mysql,plsql,sqlite lua require('cmp').setup.buffer { sources = { { name = 'vim-dadbod'} } }
- augroup END
- ]]
+  require("config/nvim-cmp")
+  require("config/lualine")
+  require("config/autopairs")
+  require("config/formatting")
+  require("config/lsp_signature")
+  require("config/Nvim-R")
+  require("config/UltiSnips")
+  require("config/vim-slime")
+  --require("config/ale")
+  require("abbrev")
+  require("vimscript")
+  require("mappings")
+  require("syntax")
 EOF
 
 " From https://gist.github.com/TheCedarPrince/7b9b51af4c146880f17c39407815b594

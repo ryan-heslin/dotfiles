@@ -123,10 +123,8 @@ on_attach = function(client, bufnr)
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
         if
-            vim.bo.filetype ~= "r"
-            and vim.bo.filetype ~= "rmd"
-            and client.supports_method("textDocument/formatting")
-            and client.name ~= "r-language-server"
+            client.supports_method("textDocument/formatting")
+            and client.name ~= "null-ls"
         then
             vim.api.nvim_clear_autocmds({ group = formatting, buffer = bufnr })
             vim.api.nvim_create_autocmd("BufWritePre", {
@@ -136,10 +134,7 @@ on_attach = function(client, bufnr)
             })
         end
 
-        if
-            client.name ~= "null-ls"
-            and client.resolved_capabilities.document_highlight
-        then
+        if client.resolved_capabilities.document_highlight then
             vim.cmd([[
                  highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
                  highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
@@ -186,7 +181,13 @@ table.insert(path, "lua/?.lua")
 table.insert(path, "lua/?/init.lua")
 
 local servers = {
-    r_language_server = { filetypes = { "r", "rmd", "quarto" } },
+    r_language_server = {
+        root_dir = function(fname)
+            return require("lspconfig.util").find_git_ancestor(fname)
+                or vim.loop.os_homedir()
+        end,
+        filetypes = { "r", "rmd", "quarto" },
+    },
     pyright = {},
     bashls = { filetypes = { "sh", "bash" } },
     sumneko_lua = {

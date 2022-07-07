@@ -13,7 +13,7 @@ end
 
 -- From documentation: complete from all visible buffers
 -- Not working
-get_bufnrs = function(ignore_hidden)
+local get_bufnrs = function(ignore_hidden)
     local megabyte = 1024 * 1024
     local buffers = {}
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do

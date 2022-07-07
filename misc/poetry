@@ -1,0 +1,6 @@
+cache-dir = "/home/rheslin/.cache/pypoetry"
+experimental.new-installer = true
+installer.parallel = true
+virtualenvs.create = true
+virtualenvs.in-project = true
+virtualenvs.path = "{cache-dir}/virtualenvs"  # /home/rheslin/.cache/pypoetry/virtualenvs

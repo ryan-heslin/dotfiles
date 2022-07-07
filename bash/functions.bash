@@ -22,12 +22,12 @@ cplock() {
 
 # cd to first directory of search result
 cdf(){
-    cd $(fdfind -type d --color 'never' "$1" | head -n 1)
+    cd "$(fdfind -type d --color 'never' "$1" | head -n 1)"
 }
 
 install(){
     local package="$HOME/R/Packages/${1}"
-    [ -d "$package" ] && R  --quiet -e "install2('${package}')"
+    [ -d "$package" ] && R  --quiet -e "install2('$package')"
 }
 # From https://coderwall.com/p/fasnya/add-git-branch-name-to-bash-prompt
 parse_git_branch() {
@@ -54,7 +54,7 @@ nvimsess(){
 local session="$1"
 local path="$VIM_SESSION_DIR/$1.vim"
 
-[ -f $path ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
+[ -f "$path" ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
 }
 # Test Shiny app. From https://www.r-bloggers.com/2018/09/4-ways-to-be-more-productive-using-rstudios-terminal/
 testapp() {
@@ -64,7 +64,7 @@ R -e "library(shiny); runApp(port = 9999, launch.browser = FALSE); rstudioapi::v
 
 # cd into chosen dir
 d(){
-  cd $(fd --type directory . $HOME | fzf)
+  cd "$(fd --type directory . "$HOME" | fzf)"
 }
 
 open2 () {
@@ -101,7 +101,7 @@ apply() {
 
 mvall() {
 
-	mv *$1* "$2"
+	mv *"$1"* "$2"
 }
 
 #ranges don't expand vars
@@ -109,9 +109,9 @@ updir() {
 
   local cmd=".."
   for ((i = 1;i < $1;i++)); do
-    cmd="${cmd}/.."
+    cmd="$cmd/.."
   done
-  cd $cmd
+  cd "$cmd"
 }
 
 #one-comamnd git add, commit, push
@@ -144,7 +144,7 @@ pat() {
 	then
 		cmd="$2"
 	fi;
-	"$cmd" *$1* || echo "No file in $PWD matches pattern $1"
+	"$cmd" *"$1"* || echo "No file in $PWD matches pattern $1"
 }
 
 # Rename file referenced by a path
@@ -158,7 +158,7 @@ rename_exten() {
 local old=$1
 local new=$2
 
-for file in *$old; do
+for file in *"$old"; do
 	mv "$file" "${file%.*}.$new" || echo "$file could not be renamed"
 	echo "Renamed $file to ${file%.*}.$new"
 done
@@ -188,7 +188,7 @@ done
 nfiles(){
 
 local dir="${3:-.}"
-local prefix=( $(seq -w $1 $2) )
+local prefix=( "$(seq -w "$1" "$2")" )
 
 for pref in "${prefix[@]}"; do
 	open "$dir"/"$pref"*
@@ -224,7 +224,7 @@ lastn (){
 
 	local n=${2:-1}
 	local cmd="${3:echo}"
-	find "$1" -maxdepth 1 -type f -printf '%T@ %p\n' | sort -rn | head -$n | cut -f2- -d" " | xargs $cmd
+	find "$1" -maxdepth 1 -type f -printf '%T@ %p\n' | sort -rn | head -"$n" | cut -f2- -d" " | xargs "$cmd"
 }
 
 #Output range of lettered or numbered sections
@@ -269,7 +269,7 @@ newf(){
 
  if [ ! -f "$1" ]; then
    touch "$1"
-   printf "# %s\n# Ryan Heslin\n# %s\n\n" "$(basename $1)" "$(date +'%m/%d/%Y')" > "$1"
+   printf "# %s\n# Ryan Heslin\n# %s\n\n" "$(basename "$1")" "$(date +'%m/%d/%Y')" > "$1"
    nvim "+normal G" +startinsert "$1"
  else
    echo "$1 already exists"
@@ -282,7 +282,7 @@ draft2(){
   IFS="|"
   #Split filename and arg list by |, then build and execute command
   for arg in "${args[@]}";do
-    read -r -a split <<< "${arg}"
+    read -r -a split <<< "$arg"
     argexec 'R -s -e' draft2 "'${split[0]}'" "'${split[1]}'" "${split[2]}" "open=${split[3]:-TRUE}"
   done
 }
@@ -293,7 +293,7 @@ argexec(){
     local fun="$2"
     shift 2
     IFS=","
-    local cmd="${cmd} \"${fun}($*)\""
+    local cmd="$cmd \"$fun($*)\""
     echo "$cmd"
     eval "$cmd"
 }
@@ -320,7 +320,7 @@ exists(){
     command -v "$1" &>/dev/null
 }
 fzn(){
-    exists nvim && nvim $(fzf)
+    exists nvim && nvim "$(fzf)"
 }
 # Go into parent directory by name
 cu(){
@@ -345,14 +345,14 @@ cat < /dev/clipboard
 rewith(){
 
 for file in *"$1"*; do
-	local new="$(echo ${file} | sed  "s/$1/$2/")"
+	local new="$(echo "$file" | sed  "s/$1/$2/")"
 	mv "$file" "$new"
 done
 }
 
 # Strip carriage returns
 decarriage(){
-	sed -i 's/\r$//' $1
+	sed -i 's/\r$//' "$1"
 }
 
 rev(){
@@ -376,14 +376,14 @@ new_line_ps1() {
 
   IFS='[;' read -p $'\e[6n' -d R -rs _ y x _
   if [[ "$x" != 1 ]]; then
-    printf "\n${LIGHT_YELLOW}^^ no newline at end of output ^^\n${RESET}"
+    printf "\n$LIGHT_YELLOW^^ no newline at end of output ^^\n$RESET"
   fi
 }
 
 _sess_complete(){
     local cur=${COMP_WORDS[COMP_CWORD]} #find ~/.vim/sessions/ -maxdepth 1 -type f
-    COMPLETE=( $( compgen -W "$( ls ~/.vim/sessions )" -- $cur ) )
-    COMREPLY=($(printf "%s\n" "${COMPLETE[@]}"))
+    COMPLETE=( "$( compgen -W "$( ls ~/.vim/sessions )" -- "$cur" )" )
+    COMREPLY=("$(printf "%s\n" "${COMPLETE[@]}")")
 }
 
 complete  -F _sess_complete nvimsess
@@ -432,11 +432,11 @@ get_AoC(){
             -y|--year )
                 # Confirm specified year is this year (if the month is December), or last year (otherwise)
                 local year="$2"
-                if [ $(date +"%-m") -lt 12 ]; then
+                if [ "$(date +"%-m")" -lt 12 ]; then
                     local current_year=$(( current_year - 1 ))
                 fi
                 #Confirm year is valid
-                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le $current_year ] );  then
+                if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le "$current_year" ] );  then
                     echo "$year is not a valid Advent of Code year. Valid: 2015-$current_year"
                     return 1
                 fi
@@ -466,8 +466,8 @@ get_AoC(){
 
 
     #Use environment variable if it exists, otherwise throw error
-    if [ -z "${cookie+x}" ]; then
-        if [ -n "${AOC_COOKIE+set}" ]; then
+    if [ "${cookie+x}" = "" ]; then
+        if [ "${AOC_COOKIE+set}" != "" ]; then
             local cookie="$AOC_COOKIE"
         else
             echo 'No cookie parameter provided and no cookie environment variable set'
@@ -477,18 +477,18 @@ get_AoC(){
 
 
     #TODO fix year substitution
-    if [ -z "${year+x}" ] || [ -z "${day+x}" ]; then
-        local target="$(date -d ${current_year}-12-01 '+%Y-%m-%d')"
+    if [ "${year+x}" = "" ] || [ "${day+x}" = "" ]; then
+        local target="$(date -d "$current_year"-12-01 '+%Y-%m-%d')"
         local now="$(date '+%Y-%m-%d')"
-        if [ -z "${year+x}" ]; then
+        if [ "${year+x}" = "" ]; then
             local year="$current_year"
         # If before December, default to previous year
             if [ "$now" < "$target" ]; then
                 local year=$(( "$year" - 1 ))
-                echo $year
+                echo "$year"
             fi
         fi
-        if [ -z "${day+x}" ]; then
+        if [ "${day+x}" = "" ]; then
             local month="$(date '+%m')"
             if [ "month" -ne 12]; then
                 echo "Date automatically supplied only in December"
@@ -522,9 +522,9 @@ get_AoC(){
     if [ "$verbose" = true ]; then
          echo "Getting input for Day $day of $year"
     fi
-    echo "https://adventofcode.com/${year}/day/${day}/input"
+    echo "https://adventofcode.com/$year/day/$day/input"
 
-    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/${year}/day/${day}/input"
+    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
 # Retrieve secret from secret-tool and copy to clipboard
@@ -532,13 +532,13 @@ secretget(){
     local st="$(which secret-tool)"
     read -s -p 'Password: ' password
     echo ''
-    local secret="$($st lookup $1 $password)"
-    [ -n "$secret" ] && cs "$secret" || echo "Secret not found"
+    local secret="$("$st" lookup "$1" "$password")"
+    [ "$secret" != "" ] && cs "$secret" || echo "Secret not found"
 }
 
 # Build Python package and upload to test-PyPi
 rebuild(){
-    local package="$(basename $(realpath .))"
+    local package="$(basename "$(realpath .)")"
     [ -d ."/dist" ] && rm -r "./dist"
     [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info"
     python3 -m build || echo "Error building $package"
@@ -566,8 +566,8 @@ local file="week$1.Rmd"
 # Window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
 opac(){
     local level="$(echo "${1:-0.8}" | bc -l)"
-    if [ "${level}" -lt 0 || "${level}" -gt 1 ]; then
-        echo "Invalid opacity value ${level}; must be between 0 and 1"
+    if [ "$level" -lt 0 || "$level" -gt 1 ]; then
+        echo "Invalid opacity value $level; must be between 0 and 1"
         return
     fi
     sh -c 'xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * $level)))'
@@ -575,7 +575,7 @@ opac(){
 
 # Rename file in directory by different name in same directory
 rn(){
-    mv "${1}" "$(dirname ${1})/${2}"
+    mv "${1}" "$(dirname "${1}")/${2}"
 }
 
 
@@ -602,5 +602,20 @@ setdiff(){
 
 # Git status that excludes output by a regex; useful for filenames
 gse(){
-    git -c color.status=always status | grep --color=always -vE $1
+    git -c color.status=always status | grep --color=always -vE "$1"
+}
+
+show(){
+local name="$1"
+local file="$2"
+local printer="$()"
+local extension="${file##*.}"
+awk "/^ *$name\(.*?\) *\{ *$/,/^ *} *$/" "$file" | bat -l "$extension"
+}
+
+prebuild(){
+local cmd="$1"
+poetry build
+poetry install
+poetry run "$cmd"
 }

@@ -2,14 +2,17 @@
 # Set options
 local({
   default_packages <- character()
-  if (!"renv" %in% list.dirs(base::.libPaths()[1],
+  if (!"renv" %in% list.dirs(base::.libPaths()[[1]],
     recursive = FALSE, full.names = FALSE
   ) || is.null(renv::project())) {
     default_packages <- "my.templates"
   }
-  # Add Nvim-R completion if started with Nvim
+  # Add Nvim-R completion and language server requirements if started with Nvim
   if (Sys.getenv("OS") != "Windows_NT") {
-    default_packages <- c(default_packages, "nvimcom")
+    default_packages <- c(
+      default_packages, "nvimcom",
+      "languageserver", "lintr", "styler"
+    )
   }
   if (interactive()) {
     require(usethis, quietly = TRUE)
@@ -66,7 +69,10 @@ local({
           face = "bold"
         ),
         axis.text = ggplot2::element_text(size = 8, family = "sans"),
-        strip.background = ggplot2::element_rect(color = "black", fill = "black"),
+        strip.background = ggplot2::element_rect(
+          color = "black",
+          fill = "black"
+        ),
         strip.text.x = ggplot2::element_text(color = "white"),
         strip.text.y = ggplot2::element_text(color = "white")
       )
@@ -625,6 +631,33 @@ registerS3method("print", "debuggerclass", .my_funs$print.debuggerclass)
   home <- Sys.getenv("HOME")
   setwd(dir)
   options(prompt = paste0(file.path(basename(home), dir), "> "))
+}
+
+# Copy dependencies of a package to another directory
+.my_funs$populate_library <- function(package, target_dir = getwd(),
+                                      target_lib = .libPaths()[[1]],
+                                      ignore_core = TRUE) {
+  info <- packageDescription(package, fields = c("Depends", "Imports"))
+  if (length(info) == 1 && is.na(info)) stop(package, " is not installed")
+  core_packages <- c(
+    "base", "compiler", "datasets", "grDevices",
+    "graphics", "grid", "methods",
+    "parallel", "splines", "stats", "stats4", "tcltk", "tools", "utils"
+  )
+  target_dir <- normalizePath(target_dir, mustWork = FALSE)
+  target_lib <- normalizePath(target_lib, mustWork = TRUE)
+  if (!dir.exists(target_dir)) dir.create(target_dir)
+  info[["Depends"]] <- gsub("^R\\s\\(.*", "", info[["Depends"]])
+  needed <- unlist(info, use.names = FALSE) |>
+    gsub(pattern = "\\s*\\([^)]*\\)\\s*", replacement = "") |>
+    strsplit(split = "\\s*,\\s+") |>
+    unlist(use.names = FALSE)
+  # Don't copy packages included with most R distributions
+  if (ignore_core) needed <- needed[!needed %in% core_packages]
+  paths <- file.path(target_lib, needed)
+  paths <- paths[paths %in% list.dirs(target_lib)]
+
+  file.copy(paths, to = target_dir, overwrite = TRUE, recursive = TRUE)
 }
 tryCatch(
   {

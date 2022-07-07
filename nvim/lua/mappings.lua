@@ -623,8 +623,11 @@ vim.keymap.set({ "n" }, "<leader>mm", function()
 end, { silent = true })
 
 --Insert mode: delete word or WORD right of cursor
-vim.keymap.set({ "i" }, "<C-b>", "<S-Right><C-o>dw<C-o>``", opts)
-vim.keymap.set({ "i" }, "<C-B>", "<S-Right><C-o>dW<C-o>``", opts)
+vim.keymap.set({ "i" }, "<C-b>", "<C-o>mz<S-Right><C-o>dw<C-o>`z<C-o>", opts)
+vim.keymap.set({ "i" }, "<C-B>", "<C-o>mz<S-Right><C-o>dW<C-o>`z<C-o>", opts)
+-- Insert mode: delete word or WORD under cursor
+vim.keymap.set({ "i" }, "<C-d>", "<C-o>ciw", opts)
+vim.keymap.set({ "i" }, "<C-D>", "<C-o>ciW", opts)
 
 -- Extract to default argument
 vim.keymap.set(
@@ -633,3 +636,17 @@ vim.keymap.set(
     [[:<C-U>lua M.extract_to_default_arg()<CR>]],
     opts
 )
+-- Repeat motion
+vim.keymap.set("n", "gt", _G.__dot_repeat, { expr = true })
+-- Print lines, take count
+vim.keymap.set(
+    "n",
+    "<leader>gt",
+    "<ESC><CMD>lua _G.__dot_repeat(nil, true, true)<CR>",
+    { expr = true }
+)
+vim.keymap.set(
+    "x",
+    "gt",
+    "<ESC><CMD>lua _G.__dot_repeat(vim.fn.visualmode(), false, true)<CR>"
+) -- 1.
