@@ -11,7 +11,7 @@ export R_KEYRING_BACKEND="secret_service"
 export PYTHONIOENCODING=UTF-8
 export VM_NAME="Ubuntu"
 
-export R_USER_LIBRARY="$HOME/R/x86_64-pc-linux-gnu-library/4.1/"
+export R_USER_LIBRARY="$HOME/R/x86_64-pc-linux-gnu-library/4.2/"
 export FZF_DEFAULT_OPTS="-m --cycle --height 70% --reverse --border --tabstop=4 --ansi --preview 'file {} && [ -f {} ] && bat {} --color=always --style=numbers --line-range :500' --preview-window=right:50%:wrap --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'"
 export VIM_SESSION_DIR="$HOME/.vim/sessions"
 export FZF_DEFAULT_COMMAND="fdfind . $HOME --follow --exclude .git"
@@ -27,6 +27,8 @@ export HISTCONTROL='ignorespace'
 export NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 export NVIM_PYTHON_LOG_LEVEL="DEBUG"
 export GIT_CEILING_DIRECTORIES="$(dirname "$HOME")"
+export LIBVA_DRIVER_NAME='i965'
+export LIBVA_DRIVERS_PATH='/usr/local/lib/dri'
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'

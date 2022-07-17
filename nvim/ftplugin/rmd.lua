@@ -42,4 +42,11 @@ vim.api.nvim_buf_set_keymap(
 vim.cmd(
     [[noreabbrev zotcite '/home/rheslin/.local/share/nvim/plugged/zotcite/python3/zotref.py']]
 )
-vim.b.surround_99 = "<!--\r-->"
+require("nvim-surround").buffer_setup({
+    delimiters = {
+        pairs = {
+        -- List element
+        ["!"] = {"<!--", "-->"},
+        }
+    }
+})

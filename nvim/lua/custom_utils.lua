@@ -2,6 +2,7 @@ M = {}
 -- Records most recent window, buffer filetype, etc.
 recents = { window = nil, filetype = {}, terminal = {} }
 
+
 M.record_file_name = function()
     if vim.bo.filetype ~= "" then
         recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
@@ -40,9 +41,9 @@ M.switch_filetype = function(mapping, default)
         return function(...)
             local value = mapping[vim.bo.filetype]
             if value == nil then
-            local default = M.default_arg(default, nil)
-            value = M.default_arg(value, default)
-        end
+                local default = M.default_arg(default, nil)
+                value = M.default_arg(value, default)
+            end
             return func(value, ...)
         end
     end
@@ -503,10 +504,19 @@ M.no_jump_safe = M.safe_call(no_jump)
 
 M.refresh = function(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
-    local file = file or vim.fn.expand("%:p")
-    local extension = vim.bo.filetype
-    local cmd = ""
-    if extension == "R" or extension == "r" then
+    local extension
+    -- If no file provided, assume current buffer
+    if file == nil then
+    file =  vim.fn.expand("%:p")
+     extension = vim.bo.filetype
+else
+    file = vim.fn.system("realpath " .. file)
+    extension = string.lower(string.match(file, "^.+(%..+)$"))
+    local mapping = {lua = "lua", vim = "vim", py = "python", R = "r", r = "r", bash = "shell", sh = "shell"}
+    extension = mapping[ extension ]
+end
+    local cmd
+    if extension == "r" then
         cmd = 'RSend source("' .. file .. '")'
     elseif extension == "python" then
         cmd = "IPythonCellRun"

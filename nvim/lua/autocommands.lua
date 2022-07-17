@@ -98,11 +98,12 @@ vim.api.nvim_create_autocmd("User TelescopePreviewerLoaded", {
     end,
 })
 
+-- Automatically source on save
 vim.api.nvim_create_autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if vim.b.source_on_save == 1 then
-            M.refresh(vim.fn.expand("%:p"))
+        if vim.b.source_on_save ~= 0 and (vim.bo.filetype == "r" or vim.b.source_on_save == 1) then
+            M.refresh()
         end
     end,
 })

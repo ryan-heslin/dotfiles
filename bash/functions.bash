@@ -565,12 +565,13 @@ local file="week$1.Rmd"
 
 # Window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
 opac(){
-    local level="$(echo "${1:-0.8}" | bc -l)"
-    if [ "$level" -lt 0 || "$level" -gt 1 ]; then
-        echo "Invalid opacity value $level; must be between 0 and 1"
-        return
-    fi
-    sh -c 'xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * $level)))'
+    #local level="$(echo "${1:80}" | bc -l)"
+    local level=${1:-100}
+    #if [ "${level} " -lt 0 || "${level}" -gt 1 ]; then
+    #    echo "Invalid opacity value $level; must be between 0 and 1"
+    #    return
+    #fi
+    sh -c "xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * ${level} / 100)))"
 }
 
 # Rename file in directory by different name in same directory
@@ -618,4 +619,9 @@ local cmd="$1"
 poetry build
 poetry install
 poetry run "$cmd"
+}
+
+# Get command at specified line of history
+hline(){
+history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selection clipboard
 }

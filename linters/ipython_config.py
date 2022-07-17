@@ -331,7 +331,7 @@ c.TerminalIPythonApp.profile = "profile_default"
 #  nodes should be run interactively (displaying output from expressions).
 #  Choices: any of ['all', 'last', 'last_expr', 'none', 'last_expr_or_assign']
 #  Default: 'last_expr'
-# c.InteractiveShell.ast_node_interactivity = 'last_expr'
+c.InteractiveShell.ast_node_interactivity = "last_expr_or_assign"
 
 ## A list of ast.NodeTransformer subclass instances, which will be applied to
 #  user input before code is run.
@@ -482,7 +482,7 @@ c.InteractiveShell.autocall = 1
 ## Enables rich html representation of docstrings. (This requires the docrepr
 #  module).
 #  Default: False
-# c.InteractiveShell.sphinxify_docstring = False
+c.InteractiveShell.sphinxify_docstring = True
 
 #  Default: True
 # c.InteractiveShell.wildcards_case_sensitive = True
@@ -497,7 +497,7 @@ c.InteractiveShell.xmode = "Verbose"
 # ------------------------------------------------------------------------------
 ##
 #  See also: InteractiveShell.ast_node_interactivity
-# c.TerminalInteractiveShell.ast_node_interactivity = 'last_expr'
+c.TerminalInteractiveShell.ast_node_interactivity = 'last_expr'
 
 ##
 #  See also: InteractiveShell.ast_transformers
@@ -509,7 +509,7 @@ c.InteractiveShell.xmode = "Verbose"
 
 ##
 #  See also: InteractiveShell.autocall
-# c.TerminalInteractiveShell.autocall = 0
+c.TerminalInteractiveShell.autocall = 1
 
 ## Autoformatter to reformat Terminal code. Can be `'black'` or `None`
 #  Default: None

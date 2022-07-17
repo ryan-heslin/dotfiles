@@ -1,6 +1,6 @@
 " Plugins
 call plug#begin(stdpath('data') . '/plugged')
-    Plug 'tpope/vim-surround'
+    "Plug 'tpope/vim-surround'
     Plug 'tpope/vim-unimpaired'
     Plug 'tpope/vim-repeat'
     Plug 'tpope/vim-fugitive'
@@ -18,6 +18,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'lervag/vimtex'
     Plug 'uga-rosa/cmp-dictionary'
     Plug 'nvim-lua/lsp-status.nvim'
+    Plug 'kylechui/nvim-surround'
     "Plug 'lukas-reineke/lsp-format.nvim'
     Plug 'neovim/nvim-lspconfig'
     Plug 'REditorSupport/languageserver'

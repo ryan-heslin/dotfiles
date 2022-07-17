@@ -56,4 +56,12 @@ vim.b.ale_set_balloons = 1
 vim.b.ale_change_sign_column_color = 1
 vim.b.ale_set_highlights = 1
 vim.b.ale_virtualtext_cursor = 1
-vim.b.surround98 = "[[\r]]"
+ -- require("nvim-surround").buffer_setup({
+     -- delimiters = {
+         -- pairs = {
+         -- -- List element
+         -- ["l"] = {"[[", "]]"},
+         -- ["L"] = {[=[[["]=], [=["]]=]}
+         -- }
+     -- }
+ -- })

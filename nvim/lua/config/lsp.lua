@@ -130,7 +130,7 @@ on_attach = function(client, bufnr)
             vim.api.nvim_create_autocmd("BufWritePre", {
                 group = formatting,
                 buffer = bufnr,
-                callback = vim.lsp.buf.formatting_sync,
+                callback = vim.lsp.buf.formatting_seq_sync,
             })
         end
 

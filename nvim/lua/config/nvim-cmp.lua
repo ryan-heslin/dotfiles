@@ -228,7 +228,7 @@ cmp_config.setup.cmdline("/", {
     },
 })
 
-local spell_filetypes = { "", "rmd", "txt", "pandoc" }
+local spell_filetypes = { "", "rmd", "txt", "pandoc", "quarto" }
 local spell_sources = {
     name = "spell",
     max_item_count = 5,
@@ -238,6 +238,7 @@ local spell_sources = {
 }
 --TODO add dictionary
 table.insert(sources, spell_sources)
+table.insert(sources, { name = "dictionary", keyword_length = 2 })
 for _, ft in ipairs(spell_filetypes) do
     cmp_config.setup.filetype(
         ft,

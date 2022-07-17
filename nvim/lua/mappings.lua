@@ -430,8 +430,7 @@ vim.keymap.set(
     opts
 )
 
-vim.keymap.set({ "n" }, "<leader>fl", [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], opts)
-vim.keymap.set({ "v" }, "<leader>fl", [[:s/\%>80v,\zs\s*\ze/\r  /g<CR>]], opts)
+vim.keymap.set({ "n", "v" }, "<leader>fl", [[:s/\%>80v,\zs\s*\ze/\re  /g<CR>]], opts)
 
 -- Yank from terminal
 vim.keymap.set(
