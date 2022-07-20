@@ -2,7 +2,6 @@ M = {}
 -- Records most recent window, buffer filetype, etc.
 recents = { window = nil, filetype = {}, terminal = {} }
 
-
 M.record_file_name = function()
     if vim.bo.filetype ~= "" then
         recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
@@ -507,14 +506,22 @@ M.refresh = function(file)
     local extension
     -- If no file provided, assume current buffer
     if file == nil then
-    file =  vim.fn.expand("%:p")
-     extension = vim.bo.filetype
-else
-    file = vim.fn.system("realpath " .. file)
-    extension = string.lower(string.match(file, "^.+(%..+)$"))
-    local mapping = {lua = "lua", vim = "vim", py = "python", R = "r", r = "r", bash = "shell", sh = "shell"}
-    extension = mapping[ extension ]
-end
+        file = vim.fn.expand("%:p")
+        extension = vim.bo.filetype
+    else
+        file = vim.fn.system("realpath " .. file)
+        extension = string.lower(string.match(file, "^.+(%..+)$"))
+        local mapping = {
+            lua = "lua",
+            vim = "vim",
+            py = "python",
+            R = "r",
+            r = "r",
+            bash = "shell",
+            sh = "shell",
+        }
+        extension = mapping[extension]
+    end
     local cmd
     if extension == "r" then
         cmd = 'RSend source("' .. file .. '")'
@@ -1281,4 +1288,23 @@ M.choose_menu = function(which)
     which = M.default_arg(which, 1)
     vim.lsp.buf.formatting_sync()
     vim.cmd(which)
+end
+
+-- Insert `sub` every `stride` characters in `str`
+-- May want to add break_line that inserts newline in first space of each chunk
+M.replace_indices = function(str, sub, stride)
+    local length = string.len(str)
+    local last = stride * math.ceil(length / stride)
+    if last > length then
+        return str
+    end
+    local out = ""
+    for i = stride, last, stride do
+        out = out .. string.sub(str, i - stride + 1, i) .. sub
+    end
+    return out
+end
+
+M.identity = function(x)
+    return x
 end

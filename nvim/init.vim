@@ -46,7 +46,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'vim-pandoc/vim-pandoc-syntax'
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'kyazdani42/nvim-web-devicons'
-    Plug 'dense-analysis/ale'
+    "Plug 'dense-analysis/ale'
     Plug 'rafi/awesome-vim-colorschemes'
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
@@ -73,6 +73,7 @@ lua <<EOF
   require("config/Nvim-R")
   require("config/UltiSnips")
   require("config/vim-slime")
+  require("config/nvim-surround")
   --require("config/ale")
   require("abbrev")
   require("vimscript")

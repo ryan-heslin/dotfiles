@@ -1,9 +1,54 @@
 local formatting = vim.api.nvim_create_augroup("LspFormatting", {})
 local format_diagnostic = function(diagnostic)
-    --local lookup = {[1] = 'Error', [2] = 'Warning', [3] = 'Info', [4] = 'Hint'}
-    --local format = lookup[diagnostic.severity] or ''
-    --return string.format(format .. ': %s', diagnostic.message)
-    return diagnostic
+    --They seem to be indices of global diagnostics table?
+    if type(diagnostic) == "number" then
+        diagnostic = vim.diagnostic.get(1)[diagnostic]
+    end
+    if type(diagnostic) == "nil" then
+        return ""
+    end
+    -- Prepend type prefix
+    local lookup = { [1] = "E", [2] = "W", [3] = "I", [4] = "H" }
+    local code = lookup[diagnostic.severity] or ""
+    local message = string.format("%s: %s", code, diagnostic.message)
+
+    local win_width = vim.api.nvim_win_get_width(0)
+    local space = win_width - vim.fn.col("$")
+    if space < 15 then
+        local width = math.max(win_width - 5, 5)
+        local height = 4
+        vim.lsp.util.open_floating_preview(
+            { "Diagnostic:", message, string.format("(%s)", diagnostic.source) },
+            vim.bo.syntax,
+            {
+                height = height,
+                width = width,
+                wrap = true,
+                max_width = width,
+                max_height = height,
+                pad_top = 1,
+                pad_bottom = 1,
+                close_events = { "CursorMoved" },
+                row = vim.fn.line("."),
+                col = 0,
+                border = "single",
+                noautocmd = true,
+            }
+            --pos = { vim.fn.line("."), 0 },
+            --namespace = diagnostic.namespace,
+            --format = function(diag)
+            --   return diag.message
+            --end,
+            --}, diagnostic)
+        )
+        return ""
+    end
+    --print(space)
+    --print(string.len(diagnostic.message))
+    local out = M.replace_indices(message, [[\n]], space)
+    --print(out)
+    return out
+    --return diagnostic
 end
 
 lspkind = require("lspkind")
@@ -233,9 +278,11 @@ vim.diagnostic.config({
     update_in_insert = true,
     severity_sort = true,
     signs = true,
+    virtual_text = true,
     underline = true,
     source = true,
     float = { source = true, severity_sort = true, update_in_insert = true },
+    format = format_diagnostic,
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
@@ -286,6 +333,7 @@ for server, settings in pairs(servers) do
     })
 end
 vim.g.lsp_done = true
+vim.o.signcolumn = "yes"
 --vim.lsp.set_log_level('debug')
 --end
 --
