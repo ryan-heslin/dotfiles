@@ -1,4 +1,4 @@
-local opts = { noremap = true, silent = true }
+local opts = { noremap = true, silent = true, buffer = true }
 vim.opt.cinwords:append({
     "if",
     "else",

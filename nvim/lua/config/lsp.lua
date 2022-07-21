@@ -14,7 +14,7 @@ local format_diagnostic = function(diagnostic)
 
     local win_width = vim.api.nvim_win_get_width(0)
     local space = win_width - vim.fn.col("$")
-    if space < 15 then
+    if space < string.len(message) + 3 then
         local width = math.max(win_width - 5, 5)
         local height = 4
         vim.lsp.util.open_floating_preview(
@@ -333,7 +333,7 @@ for server, settings in pairs(servers) do
     })
 end
 vim.g.lsp_done = true
-vim.o.signcolumn = "yes"
+vim.wo.signcolumn = "yes"
 --vim.lsp.set_log_level('debug')
 --end
 --
