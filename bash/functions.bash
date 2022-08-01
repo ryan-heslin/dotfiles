@@ -625,3 +625,17 @@ poetry run "$cmd"
 hline(){
 history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selection clipboard
 }
+
+# Create new quarto file
+qdraft(){
+    local new_file="$(echo ${1} | grep '\.qmd$' || echo "${1}.qmd")" 
+    cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "${new_file}"
+    nvim "${new_file}"
+}
+
+# Ready Python files for commit
+prec(){
+    poetry run task format 
+    poetry run task sort
+    poetry run flake8
+}

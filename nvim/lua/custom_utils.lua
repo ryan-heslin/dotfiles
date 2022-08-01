@@ -11,12 +11,13 @@ end
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
 -- TODO fix
-M.with_register = function(func)
+M.with_register = function(_func, register)
     return function(...)
-        local old_register = vim.v.register
+        print('reg '.. register)
+        local old_register = M.default_arg(register, vim.v.register)
         local old_register_value = vim.fn.getreg(old_register)
         local old_register_type = vim.fn.getregtype(old_register)
-        local out = func(...)
+        local out = _func(...)
         vim.fn.setreg(old_register, old_register_value, old_register_type)
         return out
     end
@@ -111,6 +112,7 @@ M.set_term_opts = function()
     vim.wo.number = false
     vim.wo.relativenumber = false
     vim.wo.spell = false
+    vim.wo.signcolumn = "no"
     -- Globals respectively indicating  buffer, channel, and window ID of last terminal entered
     vim.g.last_terminal_buf_id = vim.fn.bufnr()
     vim.g.last_terminal_chan_id = vim.b.terminal_job_id
@@ -348,7 +350,8 @@ M.term_exec = function(keys, scroll_down)
     vim.fn.chansend(vim.g.last_terminal_chan_id, M.t("<CR>"))
     -- Scroll down if argument specified, useful for long input
     if scroll_down then
-        vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
+        --vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
+        vim.api.nvim_win_set_cursor(vim.g.last_terminal_win_id, {vim.api.nvim_buf_line_count(vim.g.last_terminal_buf_id), 1})
     end
 end
 
@@ -376,11 +379,11 @@ end
 
 -- Modify register with function
 M.modify_register = function(func, register, ...)
-    local register = M.default_arg(register, "+")
+    register = M.default_arg(register, "+")
     local current = vim.fn.getreg(register)
     local new = func(current, ...)
     vim.fn.setreg(register, new)
-    return new
+    --return new
 end
 
 M.jump = function(pattern, offset, flags)
@@ -557,13 +560,14 @@ end
 -- Dump command output to scratch buffer
 M.capture_output = function(cmd)
     local output = vim.fn.execute(cmd)
-    vim.fn.setreg("z", output)
-    func = function()
-        vim.cmd("put z")
+    local register = "z"
+    vim.fn.setreg(register, output)
+    local func = function()
+        vim.cmd("put " .. register)
     end
     M.make_scratch(func)
 end
-capture_output = M.with_register(capture_output)
+M.capture_output = M.with_register(M.capture_output, "z")
 
 -- Open scratch buffer containing terminal history so you can browse and rerun commands
 -- TODO fix syntax highlighting in scratch
@@ -659,7 +663,7 @@ M.yank_visual = function(register)
     vim.cmd("normal " .. sub .. "gvy")
     return vim.fn.getreg(register)
 end
-yank_visual = M.with_register(yank_visual)
+M.yank_visual = M.with_register(yank_visual)
 
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
 M.visual_search = function(target)
@@ -1282,12 +1286,6 @@ M.delete_undo = function()
     for _, line in ipairs(lines) do
         vim.fn.system("rm " .. string.gsub(line, pattern, ""))
     end
-end
-
-M.choose_menu = function(which)
-    which = M.default_arg(which, 1)
-    vim.lsp.buf.formatting_sync()
-    vim.cmd(which)
 end
 
 -- Insert `sub` every `stride` characters in `str`

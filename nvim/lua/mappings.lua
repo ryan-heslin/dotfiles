@@ -648,4 +648,10 @@ vim.keymap.set(
     "x",
     "gt",
     "<ESC><CMD>lua _G.__dot_repeat(vim.fn.visualmode(), false, true)<CR>"
-) -- 1.
+) 
+--Collapse last paste with literal newlines
+vim.keymap.set(
+    "n",
+    "<leader>jj",
+    ":lua M.modify_register(function(x) string.gsub(x, [=[\n]=], [=[\\n]=]) end)<CR>"
+)

@@ -2,21 +2,27 @@ local formatting = vim.api.nvim_create_augroup("LspFormatting", {})
 local format_diagnostic = function(diagnostic)
     --They seem to be indices of global diagnostics table?
     if type(diagnostic) == "number" then
-        diagnostic = vim.diagnostic.get(1)[diagnostic]
+        diagnostic = vim.diagnostic.get(0)[diagnostic]
     end
     if type(diagnostic) == "nil" then
         return ""
     end
     -- Prepend type prefix
     local lookup = { [1] = "E", [2] = "W", [3] = "I", [4] = "H" }
-    local code = lookup[diagnostic.severity] or ""
-    local message = string.format("%s: %s", code, diagnostic.message)
+    local code = lookup[diagnostic.severity] .. ": " or ""
+    local message = code .. diagnostic.message
 
     local win_width = vim.api.nvim_win_get_width(0)
+    -- Space in window right of last character on line
     local space = win_width - vim.fn.col("$")
-    if space < string.len(message) + 3 then
-        local width = math.max(win_width - 5, 5)
-        local height = 4
+
+    -- If not enough space, show diagnostic in float instead
+    local length = string.len(message)
+    if space <  length + 3 then
+        -- Constrain window width to reasonable range
+        local width = M.clamp(win_width - 5, 5, 40)
+        -- Allocate one row for each line of formatted text
+        local height = math.ceil(length / width) + 2
         vim.lsp.util.open_floating_preview(
             { "Diagnostic:", message, string.format("(%s)", diagnostic.source) },
             vim.bo.syntax,
@@ -26,29 +32,21 @@ local format_diagnostic = function(diagnostic)
                 wrap = true,
                 max_width = width,
                 max_height = height,
-                pad_top = 1,
+                pad_top = 0,
                 pad_bottom = 1,
-                close_events = { "CursorMoved" },
-                row = vim.fn.line("."),
+                close_events = { "CursorMoved", "BufHidden" },
+                row = diagnostic.line or vim.fn.line("."),
                 col = 0,
                 border = "single",
                 noautocmd = true,
             }
-            --pos = { vim.fn.line("."), 0 },
-            --namespace = diagnostic.namespace,
-            --format = function(diag)
-            --   return diag.message
-            --end,
-            --}, diagnostic)
         )
         return ""
     end
     --print(space)
     --print(string.len(diagnostic.message))
-    local out = M.replace_indices(message, [[\n]], space)
-    --print(out)
-    return out
-    --return diagnostic
+    -- Does not seem to work
+    return  M.replace_indices(message, [[\n]], space)
 end
 
 lspkind = require("lspkind")
@@ -281,8 +279,8 @@ vim.diagnostic.config({
     virtual_text = true,
     underline = true,
     source = true,
-    float = { source = true, severity_sort = true, update_in_insert = true },
-    format = format_diagnostic,
+    float = { source = true, severity_sort = true, update_in_insert = true }
+    --format = format_diagnostic,
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
