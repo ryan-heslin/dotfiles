@@ -10,8 +10,8 @@ local aliases = {
 }
 require("nvim-surround").setup({
     keymaps = { -- vim-surround style keymaps
-        insert = "ys",
-        insert_line = "yss",
+        insert = "yss",
+        insert_line = "ysss",
         visual = "S",
         delete = "ds",
         change = "cs",
@@ -19,7 +19,7 @@ require("nvim-surround").setup({
     delimiters = {
         invalid_key_behavior = function(char)
             vim.api.nvim_err_writeln(
-                "Error: Invalid surround character" .. char
+                "Error: Invalid surround character " .. M.surround_string(char)
             )
         end,
         pairs = {
@@ -34,10 +34,10 @@ require("nvim-surround").setup({
             -- Define pairs based on function evaluations!
             ["i"] = function()
                 return {
-                    require("nvim-surround.utils").get_input(
+                    vim.fn.input(
                         "Enter left delimiter: "
                     ),
-                    require("nvim-surround.utils").get_input(
+                    vim.fn.input(
                         "Enter right delimiter: "
                     ),
                 }
