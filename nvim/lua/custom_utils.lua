@@ -13,7 +13,7 @@ end
 -- TODO fix
 M.with_register = function(_func, register)
     return function(...)
-        print('reg '.. register)
+        print("reg " .. register)
         local old_register = M.default_arg(register, vim.v.register)
         local old_register_value = vim.fn.getreg(old_register)
         local old_register_type = vim.fn.getregtype(old_register)
@@ -50,11 +50,7 @@ M.switch_filetype = function(mapping, default)
 end
 
 -- TODO make named tables, for matched indexing
-M.invert_logical = M.switch_filetype({
-    r = { "TRUE", "FALSE" },
-    rmd = { "TRUE", "FALSE" },
-    python = { "True", "False" },
-    lua = { "true", "false" },
+M.invert_logical = M.switch_filetype({ r = { "TRUE", "FALSE" }, rmd = { "TRUE", "FALSE" }, python = { "True", "False" }, lua = { "true", "false" },
 })
 
 M.swap_word = function(mapping)
@@ -351,7 +347,10 @@ M.term_exec = function(keys, scroll_down)
     -- Scroll down if argument specified, useful for long input
     if scroll_down then
         --vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
-        vim.api.nvim_win_set_cursor(vim.g.last_terminal_win_id, {vim.api.nvim_buf_line_count(vim.g.last_terminal_buf_id), 1})
+        vim.api.nvim_win_set_cursor(
+            vim.g.last_terminal_win_id,
+            { vim.api.nvim_buf_line_count(vim.g.last_terminal_buf_id), 1 }
+        )
     end
 end
 

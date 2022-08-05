@@ -18,7 +18,7 @@ local format_diagnostic = function(diagnostic)
 
     -- If not enough space, show diagnostic in float instead
     local length = string.len(message)
-    if space <  length + 3 then
+    if space < length + 3 then
         -- Constrain window width to reasonable range
         local width = M.clamp(win_width - 5, 5, 40)
         -- Allocate one row for each line of formatted text
@@ -46,7 +46,7 @@ local format_diagnostic = function(diagnostic)
     --print(space)
     --print(string.len(diagnostic.message))
     -- Does not seem to work
-    return  M.replace_indices(message, [[\n]], space)
+    return M.replace_indices(message, [[\n]], space)
 end
 
 lspkind = require("lspkind")
@@ -247,14 +247,16 @@ local servers = {
                 path = path,
             },
             diagnostics = {
-                globals = { "vim", "use" },
+                globals = { "vim" },
                 disable = { "lowercase-global" },
             },
             workspace = {
+                maxPreload = 10000,
                 library = {
                     [vim.fn.expand("$VIMRUNTIME/lua")] = true,
                     [vim.fn.stdpath("config") .. "/lua"] = true,
                 },
+                checkThirdParty = false,
             },
             telemetry = {
                 enable = false,
@@ -279,7 +281,7 @@ vim.diagnostic.config({
     virtual_text = true,
     underline = true,
     source = true,
-    float = { source = true, severity_sort = true, update_in_insert = true }
+    float = { source = true, severity_sort = true, update_in_insert = true },
     --format = format_diagnostic,
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()

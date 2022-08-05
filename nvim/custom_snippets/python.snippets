@@ -4,7 +4,7 @@ snippet "(\w+).par" "Parenthesis (postfix)" r
 endsnippet
 
 snippet wf "with open block"
-    with ${1:open}("${2}" as ${3:f}):
+	with ${1:open}("${2}" as ${3:f}):
 	`!p t[3]`.${4:read}(${5:})
 endsnippet
 
@@ -31,11 +31,16 @@ endsnippet
 
 snippet bl "Wrap visual selection in block"
 ${1:if${2:}}:
-    ${VISUAL}
+	${VISUAL}
 ${3:else}:
-    $0
+	$0
 endsnippet
 
 snippet cli "click decorator"
 @click.${1:option}("--${2:name}", help = "${3:help}" ${4:${5:, default = ${6}}})${0}
+endsnippet
+
+snippet def "function definition"
+def() ->:
+	pass
 endsnippet
