@@ -1,3 +1,7 @@
+global !p
+from all_snippet_helpers import *
+from python_snippet_helpers import *
+endglobal
 # From README
 snippet "(\w+).par" "Parenthesis (postfix)" r
 (`!p snip.rv = match.group(1)`$1)$0
@@ -40,7 +44,6 @@ snippet cli "click decorator"
 @click.${1:option}("--${2:name}", help = "${3:help}" ${4:${5:, default = ${6}}})${0}
 endsnippet
 
-snippet def "function definition"
-def() ->:
-	pass
+pre_expand "write_function_snippet(snip)"
+snippet "def\d+" "function definition" r
 endsnippet
