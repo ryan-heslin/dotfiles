@@ -231,7 +231,7 @@ local servers = {
         end,
         filetypes = { "r", "rmd", "quarto" },
     },
-    pyright = {},
+    pyright = { filetypes = {"python", "quarto"}},
     bashls = { filetypes = { "sh", "bash" } },
     sumneko_lua = {
         Lua = {
@@ -252,6 +252,7 @@ local servers = {
             },
             workspace = {
                 maxPreload = 10000,
+                preloadFileSize = 5000,
                 library = {
                     [vim.fn.expand("$VIMRUNTIME/lua")] = true,
                     [vim.fn.stdpath("config") .. "/lua"] = true,

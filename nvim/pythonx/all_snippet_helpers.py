@@ -76,6 +76,3 @@ def generate_tabstops(template : str,  join = "\n",  repetitions = 1, offset = 0
 # def parse_snippet_line
 # def clear_snippet_line
 # def write_snippet
-
-def name(arg : type = None, arg : type = None, arg : type = None) ->  None:
-    pass

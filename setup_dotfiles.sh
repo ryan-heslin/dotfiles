@@ -23,7 +23,8 @@ link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME"
 ["$DOTFILES_PATH/linters/ipython_config.py"]="$HOME/.ipython/profile_default/ipython_config.py"
 ["$DOTFILES_PATH/misc/.ctags"]="$HOME/.ctags"
 ["$DOTFILES_PATH/misc/motd"]="/etc/motd"
-["$DOTFILES_PATH/misc/poetry"]="$HOME/.config/pypoetry/config.toml")
+["$DOTFILES_PATH/misc/poetry"]="$HOME/.config/pypoetry/config.toml"
+["$DOTFILES_PATH/misc/jupyter/jupyter_console_config.py"]="$HOME/.jupyter/jupyter_console_config.py")
 
 
 link () {

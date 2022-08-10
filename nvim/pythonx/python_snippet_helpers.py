@@ -6,7 +6,6 @@ def write_function_snippet(snip):
     # Get number of repetitions, then remove trigger
     arity = ash.parse_snippet_count(snip, snippet_string)
     snip = ash.clean_snippet_line(snip, snippet_string)
-    vim.command(f"echo {arity}")
     formals, highest_tabstop = ash.generate_tabstops(template = "${{{0}:arg}} : ${{{1}:type}}${{{2}: = None}}", repetitions = arity, offset = 1, join = ", ") 
     signature = f"def ${{1:name}}({formals}) -> ${{{highest_tabstop + 1}: None}}:" 
     snippet = "\n\t".join(( signature, f"${{{highest_tabstop + 2}:pass}}" ))

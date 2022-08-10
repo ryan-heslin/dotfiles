@@ -1,4 +1,7 @@
+local languages = {"r", "python"}
 vim.g.rout_follow_colorscheme = 1
+vim.g.markdown_fenced_languages = languages 
+vim.g.rmd_fenced_languages = languages
 vim.g.Rout_more_colors = 1
 -- Disable default assign shortcut
 vim.g.R_buffer_opts = 'winfixwidth nonumber'

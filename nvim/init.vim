@@ -46,6 +46,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'kyazdani42/nvim-web-devicons'
     "Plug 'dense-analysis/ale'
+    Plug 'jupyter-vim/jupyter-vim'
     Plug 'rafi/awesome-vim-colorschemes'
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim'
@@ -63,7 +64,6 @@ lua <<EOF
   require("commands")
   require("config/cmp_dictionary")
   require("config/lsp")
-  --Local variable represents module, but also created global for configuration ugh
   require("config/nvim-cmp")
   require("config/lualine")
   require("config/autopairs")
@@ -72,6 +72,7 @@ lua <<EOF
   require("config/Nvim-R")
   require("config/UltiSnips")
   require("config/vim-slime")
+  require("quarto")
   --require("config/nvim-surround")
   require('nvim-surround').setup()
   --require("config/ale")
@@ -101,12 +102,6 @@ filetype plugin indent on
 " Backups
 " fzf
 let g:fzf_tags_command = 'ctags -R'
-
-" vi-slime settings
-"let g:slime_target="neovim"
-"let g:slime_paste_file="$HOME/.slime_paste"
-""let g:slime_default_config = {"socket_name": "default", "target_pane": "{last}"}
-"let g:slime_dont_ask_default = 1
 
 "Linting
  "let g:ale_fix_on_save=1
