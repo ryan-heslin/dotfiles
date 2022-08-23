@@ -11,7 +11,7 @@ cplock() {
     if [ "$#" -gt 0 ]; then
         local dirs = "($@)"
     else
-        local dirs=(dotfiles gradebook misc R sh_utils .venvs Zotero)
+        local dirs=(dotfiles misc R sh_utils .venvs Zotero)
     fi
 
     for dir in "${dirs[@]}"; do

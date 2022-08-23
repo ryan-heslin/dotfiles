@@ -40,6 +40,7 @@ inoreabbrev T TRUE
 inoreabbrev FA FALSE
 ]])
 
+
 --vim.b.ale_set_balloons = 1
 --vim.b.ale_change_sign_column_color = 1
 --vim.b.ale_set_highlights = 1

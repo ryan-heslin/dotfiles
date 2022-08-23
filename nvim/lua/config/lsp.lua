@@ -46,7 +46,7 @@ local format_diagnostic = function(diagnostic)
     --print(space)
     --print(string.len(diagnostic.message))
     -- Does not seem to work
-    return M.replace_indices(message, [[\n]], space)
+    return message
 end
 
 lspkind = require("lspkind")
