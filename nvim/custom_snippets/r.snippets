@@ -60,3 +60,18 @@ snippet eli "else if"
   ${2:expr}
  }$0
 endsnippet
+
+snippet module "Shiny app composed of modules"
+$1UI <- function(id) {
+  tagList(
+    ${2:tags}
+  )
+}
+
+$1Server <- function(id) {
+  moduleServer(id, function(input, output, session) {
+    ${3:server}
+  })
+}
+${4:shinyApp($1UI, $1Server)}
+endsnippet

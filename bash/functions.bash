@@ -16,7 +16,7 @@ cplock() {
 
     for dir in "${dirs[@]}"; do
         echo "$dir"
-        flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> "$HOME/backup.log"
+        flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "google_drive:/backup" &> "$HOME/backup.log"
     done
 }
 

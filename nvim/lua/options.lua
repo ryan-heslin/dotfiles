@@ -1,6 +1,6 @@
 vim.cmd("filetype plugin indent on")
-vim.cmd("colorscheme OceanicNext")
 vim.cmd("syntax enable")
+vim.cmd("colorscheme OceanicNext")
 vim.g.text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
 --For now, enabling this (to use lua filtetype detection file in addition to .vim
 --version) just slows startup

@@ -169,3 +169,22 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
         --require("cmp").setup.buffer({ sources = { { name = "vim-dadbod" } } })
     --end,
 --})
+local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
+vim.api.nvim_create_autocmd("ColorScheme *", {
+    command = [=[
+   highlight pythonImportedObject ctermfg=127 guifg=127
+ \ | highlight pythonImportedFuncDef ctermfg=127 guifg=127
+ \ | highlight pythonImportedClassDef ctermfg=127 guifg=127
+ \ | syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
+ \ | syntax match self /\(\W\|^\)\@<=self\(\.\)\@=/
+ \ | syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
+ \ | syntax match method /\v[[:alnum:]_]\.\zs[[:alnum:]_]+\ze\(/
+ \ | syntax match call /\v([(, ]|^)\zs[[:alnum:]_]+\ze\s*\(/
+ \ | highlight def link pythonFunction Function
+ \ | highlight self ctermfg=Yellow guifg=Yellow
+ \ | highlight call ctermfg=Blue guifg=RoyalBlue3
+ \ | highlight method guifg=DarkOrchid3
+]=],
+    group = pycolors,
+    pattern = "*.py",
+})

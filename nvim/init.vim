@@ -20,6 +20,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'kylechui/nvim-surround'
     "Plug 'lukas-reineke/lsp-format.nvim'
     Plug 'neovim/nvim-lspconfig'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     Plug 'REditorSupport/languageserver'
     Plug 'hrsh7th/nvim-cmp'
     Plug 'hrsh7th/cmp-nvim-lsp'
@@ -57,6 +58,37 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'makerj/vim-pdf'
 call plug#end()
 
+augroup Colors 
+   autocmd!
+   autocmd ColorScheme * highlight pythonImportedObject ctermfg=127 guifg=127
+  highlight pythonImportedFuncDef ctermfg=127 guifg=127
+  highlight pythonImportedClassDef ctermfg=127 guifg=127
+  syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
+  syntax keyword python_keyword self "self /\(\W\|^\)\@<=self\(\.\)\@=/
+  syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
+  syntax match method /\v[[:alnum:]_]\.\zs[[:alnum:]_]+\ze\(/
+  syntax match python_call /\v([(, ]|^)\zs[[:alnum:]_]+\ze\s*\(/
+  syntax match test /test/
+  highlight test guifg=Blue
+  highlight def link pythonFunction Function
+  highlight link python_keyword Keyword
+  highlight python_call ctermfg=Blue guifg=RoyalBlue3
+  highlight method guifg=DarkOrchid3
+augroup END 
+highlight pythonImportedObject ctermfg=127 guifg=127
+  highlight pythonImportedFuncDef ctermfg=127 guifg=127
+  highlight pythonImportedClassDef ctermfg=127 guifg=127
+  syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
+  syntax keyword python_keyword self "self /\(\W\|^\)\@<=self\(\.\)\@=/
+  syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
+  syntax match method /\v[[:alnum:]_]\.\zs[[:alnum:]_]+\ze\(/
+  syntax match python_call /\v([(, ]|^)\zs[[:alnum:]_]+\ze\s*\(/
+  syntax match test "/test/"
+  highlight test guifg=Blue
+  highlight def link pythonFunction Function
+  highlight link python_keyword Keyword
+  highlight python_call ctermfg=Blue guifg=RoyalBlue3
+  highlight method guifg=D
 lua <<EOF
   require("custom_utils")
   require("autocommands")
@@ -72,6 +104,7 @@ lua <<EOF
   require("config/Nvim-R")
   require("config/UltiSnips")
   require("config/vim-slime")
+  require("config/treesitter")
   require("quarto")
   --require("config/nvim-surround").setup()
   require("config/nvim-surround")
