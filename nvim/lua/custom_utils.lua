@@ -1305,3 +1305,38 @@ end
 M.identity = function(x)
     return x
 end
+
+--Locate function, class, etc. in buffer by name
+--@param type: kind of identifier to match. Options are keyword (e.g, "def foo")
+--or "name" (e.g., "foo = function")
+--@param keyword Word to match
+M.locate = function(args)
+    local keyword = args["keyword"]
+    local type = args["type"]
+    local pattern
+    if type == "keyword" then
+        pattern =  "%s*" .. keyword .. "%s+"
+    -- = function
+    elseif type == "name" then
+        pattern = "%s*=%s*" .. keyword
+    end
+
+    return  function(name)
+        -- Order depends on type of code being matched
+        -- Create fresh so it isn't preserved in enclosing environment
+        this_pattern = (type == "keyword" ) and pattern .. name or name .. pattern
+        local lines = vim.api.nvim_buf_get_lines(0, 0, vim.fn.line("$"), {})
+        for i = 1,table.getn(lines),1 do
+            -- Set cursor to line of first match from top
+            if string.match(lines[i], this_pattern) then
+                vim.fn.cursor(i, 0)
+                return i
+            end
+        end
+        print(name .. " not found")
+    end
+end
+--"%s*def%s" .. name
+--"%s*class%s " .. name
+test = M.locate({keyword = "function", type = "name"})
+
