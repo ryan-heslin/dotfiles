@@ -73,7 +73,7 @@ run_current_chunk = function(buffer)
     --send_to_repl(table.concat(lines_to_send, "\n"))
 end
 
-
+-- Gets first index of table that matches pattern, or nil if an "abort" pattern is encountered before it
 get_table_match_index =
     function(lines, start, stop, step, match_pattern, abort_pattern)
         local line
@@ -101,7 +101,9 @@ function parse_code_chunks(buffer, stop_line)
         vim.fn.line("$"),
         {}
     )
-    if stop_line  == nil then stop_line = table.getn(buffer_lines) end
+    if stop_line == nil then
+        stop_line = table.getn(buffer_lines)
+    end
     local code = {}
     local chunk_started, chunk_ended
     local in_chunk = false
@@ -126,7 +128,9 @@ function parse_code_chunks(buffer, stop_line)
             -- Case 2: code inside chunk
         else
             -- Break early if stop line exceeded
-            if i >= stop_line then  break end
+            if i >= stop_line then
+                break
+            end
             if chunk_ended then
                 print("Invalid buffer: chunk end outside chunk")
                 return {}
@@ -141,11 +145,18 @@ function parse_code_chunks(buffer, stop_line)
     return code
 end
 
-run_all_chunks = create_send_function(parse_code_chunks, function(text) vim.fn["slime#send"](collapse_text(text)) end)
+run_all_chunks = create_send_function(parse_code_chunks, function(text)
+    vim.fn["slime#send"](collapse_text(text))
+end)
 
-run_current_chunks_above = create_send_function(function() parse_code_chunks(nil,
-    vim.fn.line(".", vim.fn.bufwinid(vim.api.nvim_buf_get_name(0)))) end, function(text) vim.fn["slime#send"](collapse_text(text)) end)
-
+run_current_chunks_above = create_send_function(function()
+    parse_code_chunks(
+        nil,
+        vim.fn.line(".", vim.fn.bufwinid(vim.api.nvim_buf_get_name(0)))
+    )
+end, function(text)
+    vim.fn["slime#send"](collapse_text(text))
+end)
 
 -- Run current line from a buffer
 run_line = function(buffer)
@@ -155,25 +166,33 @@ run_line = function(buffer)
     local buffer_name = vim.api.nvim_buf_get_name(buffer)
     -- bufwinid takes a buffer name, not number
     local current_line = vim.fn.line(".", vim.fn.bufwinid(buffer_name))
-    local line = vim.api.nvim_buf_get_lines(buffer, current_line - 1, current_line , {})
+    local line = vim.api.nvim_buf_get_lines(
+        buffer,
+        current_line - 1,
+        current_line,
+        {}
+    )
     vim.fn["slime#send"](collapse_text(line))
 end
 
 -- Yank a specified text object (e.g., "ip") and process for sending to REPL
 extract_text_object = function(buffer, text_object)
-
     -- Prserve old register contents, to be restored
     local old_register = vim.fn.getreg("z")
-    if old_register == nil then old_register = ""  end
+    if old_register == nil then
+        old_register = ""
+    end
 
-    if buffer == nil then buffer = 0 end
+    if buffer == nil then
+        buffer = 0
+    end
     local buf_win_id = vim.fn.bufwinid(vim.api.nvim_buf_get_name(buffer))
 
     local line = vim.fn.line(".", buf_win_id)
     local column = vim.fn.col(".")
 
     vim.fn.setreg("z", "")
-    vim.cmd([[silent normal "zy]] .. text_object ) -- "
+    vim.cmd([[silent normal "zy]] .. text_object) -- "
     -- Reset cursor (moved by yank)
     vim.fn.cursor(line, column)
     local text = string.gsub(vim.fn.getreg("z"), "```[^\n]*\n", "\n")
@@ -181,15 +200,19 @@ extract_text_object = function(buffer, text_object)
     vim.fn.setreg("z", old_register)
     return text .. "\n "
 end
-run_paragraph = create_send_function(function() return extract_text_object(nil, "ip") end, vim.fn["slime#send"] )
-run_word = create_send_function(function() return extract_text_object(nil, "iW") end, vim.fn["slime#send"] )
+run_paragraph = create_send_function(function()
+    return extract_text_object(nil, "ip")
+end, vim.fn["slime#send"])
+run_word = create_send_function(function()
+    return extract_text_object(nil, "iW")
+end, vim.fn["slime#send"])
 
 -- Returns the most recent visual selection in a buffer, regardless of the
 -- mode used
 parse_visual_selection = function(buffer)
-if buffer == nil then
-    buffer = 0
-end
+    if buffer == nil then
+        buffer = 0
+    end
     -- Define visual registers "'<", "'>" marking selection bounds
     -- If either missing, return empty string
     -- Get visual mode (char, line, block)
@@ -204,7 +227,12 @@ end
     if end_line < start_line then
         start_line, end_line = end_line, start_line
     end
-    local selected_lines = vim.api.nvim_buf_get_lines(buffer, start_line - 1, end_line, {})
+    local selected_lines = vim.api.nvim_buf_get_lines(
+        buffer,
+        start_line - 1,
+        end_line,
+        {}
+    )
     --print(vim.inspect(selected_lines))
     local n_lines = table.getn(selected_lines)
     -- If only one line selected, start and end col both occur on it, hence
@@ -212,54 +240,64 @@ end
     if n_lines == 1 then
         selected_lines[1] = string.sub(selected_lines[1], start_col, end_col)
     else
-    -- Trim non-selected parts of start and end lines
-    selected_lines[1] = string.sub(selected_lines[1], start_col)
-    selected_lines[n_lines] = string.sub(selected_lines[n_lines], 1, end_col)
+        -- Trim non-selected parts of start and end lines
+        selected_lines[1] = string.sub(selected_lines[1], start_col)
+        selected_lines[n_lines] = string.sub(
+            selected_lines[n_lines],
+            1,
+            end_col
+        )
     end
     return selected_lines
     --if mode == "v" then
     --elseif mode == "V" then
     --elseif mode == "^V" then
     --else
-        --print("Invalid visual mode " .. mode)
-        --return ""
+    --print("Invalid visual mode " .. mode)
+    --return ""
     --end
 end
 
-
-send_visual_selection = create_send_function(parse_visual_selection, function(text) vim.fn["slime#send"](collapse_text(text)) end)
+send_visual_selection = create_send_function(
+    parse_visual_selection,
+    function(text)
+        vim.fn["slime#send"](collapse_text(text))
+    end
+)
 
 -- Move cursor `n_chunks` forward or backward
 find_chunk = function(n_chunks)
-local match_line = nil
-local i
-local flags = "W"
-local step
-if n_chunks < 0 then
-i = -1
-step = -1
--- Needed to use < condition for loop for both positive and negative cases
-n_chunks = n_chunks * -1
--- Add flag to search backward
-flags = "b" .. flags
-else
-    i = 0 
-    step = 1
-end
+    local match_line = nil
+    local i
+    local flags = "W"
+    local step
+    if n_chunks < 0 then
+        i = -1
+        step = -1
+        -- Needed to use < condition for loop for both positive and negative cases
+        n_chunks = n_chunks * -1
+        -- Add flag to search backward
+        flags = "b" .. flags
+    else
+        i = 0
+        step = 1
+    end
 
-while match_line ~= 0 and i < n_chunks do
-    -- Do not wrap around
-    match_line = vim.fn.search(any_chunk_start, flags)
-    i = i + step
+    while match_line ~= 0 and i < n_chunks do
+        -- Do not wrap around
+        match_line = vim.fn.search(any_chunk_start, flags)
+        i = i + step
     end
     return match_line
 end
 
-run_next_chunk = function() 
+run_next_chunk = function()
     local next_chunk_start = find_chunk(1)
-    
+
     -- Do not run if no next chunk found (i.e., cursor in last chunk in buffer)
-    if next_chunk_start ~= 0 then run_current_chunk() end
+    if next_chunk_start ~= 0 then
+        run_current_chunk()
+    end
 end
 --TODO:
 -- 1. Jump to chunks by name/position (absolute or relative)

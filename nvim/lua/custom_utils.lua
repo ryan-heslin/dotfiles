@@ -50,7 +50,11 @@ M.switch_filetype = function(mapping, default)
 end
 
 -- TODO make named tables, for matched indexing
-M.invert_logical = M.switch_filetype({ r = { "TRUE", "FALSE" }, rmd = { "TRUE", "FALSE" }, python = { "True", "False" }, lua = { "true", "false" },
+M.invert_logical = M.switch_filetype({
+    r = { "TRUE", "FALSE" },
+    rmd = { "TRUE", "FALSE" },
+    python = { "True", "False" },
+    lua = { "true", "false" },
 })
 
 M.swap_word = function(mapping)
@@ -1315,18 +1319,19 @@ M.locate = function(args)
     local type = args["type"]
     local pattern
     if type == "keyword" then
-        pattern =  "%s*" .. keyword .. "%s+"
-    -- = function
+        pattern = "%s*" .. keyword .. "%s+"
+        -- = function
     elseif type == "name" then
         pattern = "%s*=%s*" .. keyword
     end
 
-    return  function(name)
+    return function(name)
         -- Order depends on type of code being matched
         -- Create fresh so it isn't preserved in enclosing environment
-        this_pattern = (type == "keyword" ) and pattern .. name or name .. pattern
+        this_pattern = (type == "keyword") and pattern .. name
+            or name .. pattern
         local lines = vim.api.nvim_buf_get_lines(0, 0, vim.fn.line("$"), {})
-        for i = 1,table.getn(lines),1 do
+        for i = 1, table.getn(lines), 1 do
             -- Set cursor to line of first match from top
             if string.match(lines[i], this_pattern) then
                 vim.fn.cursor(i, 0)
@@ -1336,7 +1341,44 @@ M.locate = function(args)
         print(name .. " not found")
     end
 end
---"%s*def%s" .. name
---"%s*class%s " .. name
-test = M.locate({keyword = "function", type = "name"})
+--test = M.locate({keyword = "function", type = "name"})
 
+-- TODO enhance to only show options for which capabilities are defined, and disable 
+-- if LSP off
+M.choose_picker = function()
+    --"%s*def%s" .. name
+    --"%s*class%s " .. name
+    -- Abort if no servers active
+    if vim.lsp.get_active_clients() == {} then
+        print("No active language server clients found")
+        return 
+    end
+    vim.ui.select(
+        {
+            "lsp_references",
+            "lsp_incoming_calls",--callHierarchyProvider
+            "lsp_outgoing_calls", --callHierarchyProvider
+            "lsp_document_symbols",
+            "lsp_workspace_symbols",
+            "lsp_dynamic_workspace_symbols",
+            "diagnostics",
+            "lsp_implementations", --implementationProvider
+            "lsp_definitions",
+            "lsp_type_definitions",
+        },
+        {
+            prompt = "Select LSP picker:",
+            format_item = function(item)
+                 --Remove lsp namespace and underscores
+                 item = string.gsub(string.gsub(item, "^lsp_", ""), "_", " ")
+                 --Capitalize
+                 return string.upper(string.sub(item, 1, 1)) .. string.sub(item, 2)
+            end,
+        },
+        -- Run selected picker, or abort if none chosen
+        function(choice, index)
+            if choice == nil then return end
+            vim.cmd("Telescope " .. choice)
+        end
+    )
+end

@@ -111,7 +111,7 @@ endfunction
 " From https://stackoverflow.com/questions/1642611/how-to-save-and-restore-multiple-different-sessions-in-vim,
 " with heavy modification
 function! functions#MakeSession()
-  let b:sessiondir = $HOME . "/.vim/sessions" . getcwd()
+  let b:sessiondir = expand("$HOME") . "/.vim/sessions" . getcwd()
   if (filewritable(b:sessiondir) != 2)
     exe 'silent !mkdir -p ' b:sessiondir
     redraw!

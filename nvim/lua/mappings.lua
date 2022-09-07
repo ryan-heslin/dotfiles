@@ -430,7 +430,12 @@ vim.keymap.set(
     opts
 )
 
-vim.keymap.set({ "n", "v" }, "<leader>fl", [[:s/\%>80v,\zs\s*\ze/\re  /g<CR>]], opts)
+vim.keymap.set(
+    { "n", "v" },
+    "<leader>fl",
+    [[:s/\%>80v,\zs\s*\ze/\re  /g<CR>]],
+    opts
+)
 
 -- Yank from terminal
 vim.keymap.set(
@@ -648,10 +653,25 @@ vim.keymap.set(
     "x",
     "gt",
     "<ESC><CMD>lua _G.__dot_repeat(vim.fn.visualmode(), false, true)<CR>"
-) 
+)
 --Collapse last paste with literal newlines
 vim.keymap.set(
     "n",
     "<leader>jj",
     ":lua M.modify_register(function(x) string.gsub(x, [=[\n]=], [=[\\n]=]) end)<CR>"
 )
+
+-- Treesitter pickers
+vim.keymap.set({ "n", "v" }, "<leader>ff", "<cmd>Telescope find_files<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>lg", "<cmd>Telescope live_grep<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>bb", "<cmd>Telescope buffers<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>gs", "<cmd>Telescope grep_string<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>of", "<cmd>Telescope oldfiles<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>sh", "<cmd>Telescope search_history<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>qf", "<cmd>Telescope quickfix<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>hl", "<cmd>Telescope highlights<CR>")
+vim.keymap.set({ "n", "v" }, "<leader>cb", "<cmd>Telescope current_buffer_fuzzy_find<CR>")
+-- Choose from menu of LSP options
+vim.keymap.set({ "n", "v" }, "<leader>cp", "<cmd>lua M.choose_picker()")
+
+--TODO menu for LSP code actions

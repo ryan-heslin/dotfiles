@@ -19,6 +19,7 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'nvim-lua/lsp-status.nvim'
     Plug 'kylechui/nvim-surround'
     "Plug 'lukas-reineke/lsp-format.nvim'
+    Plug 'jez/vim-better-sml'
     Plug 'neovim/nvim-lspconfig'
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     Plug 'REditorSupport/languageserver'
@@ -46,11 +47,11 @@ call plug#begin(stdpath('data') . '/plugged')
     Plug 'vim-pandoc/vim-pandoc-syntax'
     Plug 'nvim-lualine/lualine.nvim'
     Plug 'kyazdani42/nvim-web-devicons'
-    "Plug 'dense-analysis/ale'
+    Plug 'dense-analysis/ale'
     Plug 'jupyter-vim/jupyter-vim'
     Plug 'rafi/awesome-vim-colorschemes'
     Plug 'nvim-lua/plenary.nvim'
-    Plug 'nvim-telescope/telescope.nvim'
+    Plug 'nvim-telescope/telescope.nvim', { 'tag' : '0.1.0' }
     Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
     Plug 'tpope/vim-dadbod'
     Plug 'frazrepo/vim-rainbow'
