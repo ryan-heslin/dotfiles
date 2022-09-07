@@ -755,13 +755,14 @@ M.load_session = function()
         "lastn " .. session_dir .. " 1 echo"
     )[1]
     local session_name = vim.fn.systemlist(
-        "basename -s '.vim' " .. M.surround_string(latest_session)
+        "basename -s '.vim' " .. M.surround_string(latest_session, "'")
     )[1]
     local safe_source = function(file)
         vim.cmd("source " .. file)
     end
+
     print(session_name)
-    if not pcall(safe_source, M.surround_string(latest_session)) then
+    if vim.fn.filereadable(latest_session) ~= 1 then
         print(
             "Session file "
                 .. M.surround_string(latest_session)
@@ -769,6 +770,7 @@ M.load_session = function()
         )
         return
     end
+    vim.cmd("source " .. latest_session)
     vim.g.current_session = session_name
     print("Loading session " .. session_name)
 end
@@ -1343,7 +1345,7 @@ M.locate = function(args)
 end
 --test = M.locate({keyword = "function", type = "name"})
 
--- TODO enhance to only show options for which capabilities are defined, and disable 
+-- TODO enhance to only show options for which capabilities are defined, and disable
 -- if LSP off
 M.choose_picker = function()
     --"%s*def%s" .. name
@@ -1351,12 +1353,12 @@ M.choose_picker = function()
     -- Abort if no servers active
     if vim.lsp.get_active_clients() == {} then
         print("No active language server clients found")
-        return 
+        return
     end
     vim.ui.select(
         {
             "lsp_references",
-            "lsp_incoming_calls",--callHierarchyProvider
+            "lsp_incoming_calls", --callHierarchyProvider
             "lsp_outgoing_calls", --callHierarchyProvider
             "lsp_document_symbols",
             "lsp_workspace_symbols",
@@ -1369,16 +1371,27 @@ M.choose_picker = function()
         {
             prompt = "Select LSP picker:",
             format_item = function(item)
-                 --Remove lsp namespace and underscores
-                 item = string.gsub(string.gsub(item, "^lsp_", ""), "_", " ")
-                 --Capitalize
-                 return string.upper(string.sub(item, 1, 1)) .. string.sub(item, 2)
+                --Remove lsp namespace and underscores
+                item = string.gsub(string.gsub(item, "^lsp_", ""), "_", " ")
+                --Capitalize
+                return string.upper(string.sub(item, 1, 1))
+                    .. string.sub(item, 2)
             end,
         },
         -- Run selected picker, or abort if none chosen
         function(choice, index)
-            if choice == nil then return end
+            if choice == nil then
+                return
+            end
             vim.cmd("Telescope " .. choice)
         end
     )
+end
+
+-- Set environment variable to value
+M.setenv = function(variable, value, quote)
+    if quote then
+        value = M.surround_string(value, "'")
+    end
+    vim.fn.system("export " .. variable .. "=" .. value)
 end

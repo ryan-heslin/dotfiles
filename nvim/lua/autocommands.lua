@@ -109,8 +109,9 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 })
 vim.api.nvim_create_autocmd("FileType anki_vim", {
     pattern = "*",
-    command = "let b:UltiSnipsSnippetDirectories = g:UltiSnipsSnippetDirectories",
+    callback = function() vim.b.UltiSnipsSnippetDirectories = vim.g.UltiSnipsSnippetDirectories end
 })
+
 vim.api.nvim_create_autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
@@ -126,6 +127,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
             M.load_session()
         end
     end,
+    nested = true,
     desc = "Load latest session on startup if no arguments provided",
 })
 -- Save latest Rmd file for automatic knitting

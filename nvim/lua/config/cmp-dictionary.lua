@@ -1,7 +1,8 @@
 --Mostly copied defaults
+-- TODO enable for text filetypes
     require("cmp_dictionary").setup({
         dic = {
-            ["rmd,pandoc,txt,''"] = { "/usr/share/dict/words" },
+            ["rmd,pandoc,quarto,txt,''"] = { "/usr/share/dict/words" },
         },
         exact = 2,
         first_case_insensitive = false,

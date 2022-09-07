@@ -5,8 +5,21 @@ vim.g.text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
 --For now, enabling this (to use lua filtetype detection file in addition to .vim
 --version) just slows startup
 --vim.g.do_filetype_lua = 1
+-- Needed since move to packer
+--M.setenv("NVIM_PYTHON_LOG_FILE", "/tmp/nvim_log")
+--M.setenv("NVIM_PYTHON_LOG_LEVEL", "DEBUG")
+--M.setenv("BASH_ENV", vim.fn.expand("$HOME/dotfiles/bash/.bash_profile"))
+vim.cmd([[
+let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
+let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
+let $BASH_ENV="~/dotfiles/bash/.bash_profile"
+]])
+vim.g["$BASH_ENV"] = vim.fn.expand("$HOME/dotfiles/bash/.bash_profile")
 
-vim.g.session_dir = "~/.vim/sessions"
+vim.o.runtimepath = vim.o.runtimepath
+    .. ","
+    .. vim.fn.expand("$HOME/.local/share/nvim/site/pack/packer")
+vim.g.session_dir = vim.fn.expand("$HOME/.vim/sessions")
 vim.o.termguicolors = true
 vim.opt.wildignore:append({
     "*.db",
@@ -86,7 +99,9 @@ vim.o.confirm = true
 vim.o.autowrite = true
 vim.o.swapfile = false
 vim.g.python3_host_prog = [[/usr/bin/python3]]
---vim.o.guicursor=[[n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
--- ,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
---,sm:block-blinkwait175-blinkoff150-blinkon175]]
+vim.cmd([[
+set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
+  \,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
+  \,sm:block-blinkwait175-blinkoff150-blinkon175
+]])
 vim.g.vimsyn_embed = "lP"
