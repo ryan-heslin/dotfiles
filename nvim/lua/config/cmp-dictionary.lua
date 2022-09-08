@@ -1,8 +1,9 @@
 --Mostly copied defaults
 -- TODO enable for text filetypes
+local key = table.concat(vim.g.text_extensions)
     require("cmp_dictionary").setup({
         dic = {
-            ["rmd,pandoc,quarto,txt,''"] = { "/usr/share/dict/words" },
+            [key] = { "/usr/share/dict/words" },
         },
         exact = 2,
         first_case_insensitive = false,
