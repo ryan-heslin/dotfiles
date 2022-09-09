@@ -1,0 +1,13 @@
+set default-bg '#56636B'
+set statusbar-bg '#56636B'
+set statusbar-fg '#63AD5F'
+set inputbar-bg '#56636B'
+set inputbar-fg '#d4CE5F'
+set font 'monospace normal 12'
+set guioptions 'sc'
+set scroll-page-aware true
+set selection-clipboard clipboard
+set completion-bg #4a5661
+set window-height 800
+set window-width 1000
+set window-title-page true

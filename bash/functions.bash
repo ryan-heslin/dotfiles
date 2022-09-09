@@ -5,6 +5,11 @@ get(){
 	z -e open -r -f "$1"
 }
 
+# Help
+h() {
+    which "$1" && "$1" --help | batcat
+}
+
 # Use lock file to copy directories to  Google Drive. Requires rclone setup.
 cplock() {
 
