@@ -670,8 +670,22 @@ vim.keymap.set({ "n", "v" }, "<leader>of", "<cmd>Telescope oldfiles<CR>")
 vim.keymap.set({ "n", "v" }, "<leader>sh", "<cmd>Telescope search_history<CR>")
 vim.keymap.set({ "n", "v" }, "<leader>qf", "<cmd>Telescope quickfix<CR>")
 vim.keymap.set({ "n", "v" }, "<leader>hl", "<cmd>Telescope highlights<CR>")
-vim.keymap.set({ "n", "v" }, "<leader>cb", "<cmd>Telescope current_buffer_fuzzy_find<CR>")
+vim.keymap.set(
+    { "n", "v" },
+    "<leader>cb",
+    "<cmd>Telescope current_buffer_fuzzy_find<CR>"
+)
 -- Choose from menu of LSP options
 vim.keymap.set({ "n", "v" }, "<leader>cp", "<cmd>lua M.choose_picker()")
 
---TODO menu for LSP code actions
+
+-- hop 
+vim.keymap.set({ "n", "v" }, "<C-h>aa", "<cmd>HopAnywhere<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>ab", "<cmd>HopAnywhereBC<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>c1", "<cmd>HopChar1<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
+vim.keymap.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
+

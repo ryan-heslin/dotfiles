@@ -108,6 +108,14 @@ packer.startup(function(use)
     use("frazrepo/vim-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("makerj/vim-pdf")
+    use ( {
+      "phaazon/hop.nvim",
+      branch = 'v2', -- optional but strongly recommended
+      config = function()
+        -- you can configure Hop the way you like here; see :h hop-config
+        require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
+      end
+    } )
     -- Automatically set up your configuration after cloning packer.nvim
     if packer_bootstrap then
         packer.sync()
@@ -129,6 +137,7 @@ require("config/Nvim-R")
 require("config/UltiSnips")
 require("config/vim-slime")
 require("config/treesitter")
+require("config/hop")
 require("quarto")
 require("config/nvim-surround")
 require("abbrev")
