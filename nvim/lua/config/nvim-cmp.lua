@@ -106,6 +106,18 @@ cmp_config.setup({
             return trigger_characters
         end,
     },
+
+    -- From wiki: https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
+    enabled = function()
+        -- disable completion in comments
+        local context = require("cmp.config.context")
+        -- keep command mode completion enabled when cursor is in a comment
+        return vim.api.nvim_get_mode().mode == "c"
+            or not (
+                context.in_treesitter_capture("comment")
+                or context.in_syntax_group("Comment")
+            )
+    end,
     window = {
         completion = cmp_config.config.window.bordered(),
         documentation = cmp_config.config.window.bordered(),

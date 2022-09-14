@@ -99,6 +99,12 @@ packer.startup(function(use)
         cmd = "ALEEnable",
         config = "vim.cmd('ALEEnable')",
     })
+    use({
+        "glacambre/firenvim",
+        run = function()
+            vim.fn["firenvim#install"](0)
+        end,
+    })
     use("jupyter-vim/jupyter-vim")
     use("rafi/awesome-vim-colorschemes")
     use("nvim-lua/plenary.nvim")
@@ -108,14 +114,14 @@ packer.startup(function(use)
     use("frazrepo/vim-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("makerj/vim-pdf")
-    use ( {
-      "phaazon/hop.nvim",
-      branch = 'v2', -- optional but strongly recommended
-      config = function()
-        -- you can configure Hop the way you like here; see :h hop-config
-        require'hop'.setup { keys = 'etovxqpdygfblzhckisuran' }
-      end
-    } )
+    use({
+        "phaazon/hop.nvim",
+        branch = "v2", -- optional but strongly recommended
+        config = function()
+            -- you can configure Hop the way you like here; see :h hop-config
+            require("hop").setup({ keys = "etovxqpdygfblzhckisuran" })
+        end,
+    })
     -- Automatically set up your configuration after cloning packer.nvim
     if packer_bootstrap then
         packer.sync()
