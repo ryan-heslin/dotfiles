@@ -70,7 +70,17 @@ packer.startup(function(use)
     use("f3fora/cmp-spell")
     use("kdheepak/cmp-latex-symbols")
     use("windwp/nvim-autopairs")
-    use("SirVer/ultisnips")
+    use("SirVer/ultisnips", {
+        requires = { { "honza/vim-snippets", rtp = "." } },
+        config = function()
+            vim.g.UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+            vim.g.UltiSnipsJumpForwardTrigger = "<Plug>(ultisnips_jump_forward)"
+            vim.g.UltiSnipsJumpBackwardTrigger =
+                "<Plug>(ultisnips_jump_backward)"
+            vim.g.UltiSnipsListSnippets = "<c-x><c-s>"
+            vim.g.UltiSnipsRemoveSelectModeMappings = 0
+        end,
+    })
     use("honza/vim-snippets")
     use("onsails/lspkind-nvim")
     use("quangnguyen30192/cmp-nvim-ultisnips")

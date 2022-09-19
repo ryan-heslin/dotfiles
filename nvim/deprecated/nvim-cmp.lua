@@ -1,4 +1,3 @@
--- Partly taken fom the wiki 
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
     local max_size = M.default_arg(max_size, 1024 * 1024)
@@ -11,6 +10,34 @@ local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
         ) <= max_size
         and vim.api.nvim_buf_get_option(bufnr, "filetype") == filetype
 end
+
+local  cmp_kinds = {
+  Text = '  ',
+  Method = '  ',
+  Function = '  ',
+  Constructor = '  ',
+  Field = '  ',
+  Variable = '  ',
+  Class = '  ',
+  Interface = '  ',
+  Module = '  ',
+  Property = '  ',
+  Unit = '  ',
+  Value = '  ',
+  Enum = '  ',
+  Keyword = '  ',
+  Snippet = '  ',
+  Color = '  ',
+  File = '  ',
+  Reference = '  ',
+  Folder = '  ',
+  EnumMember = '  ',
+  Constant = '  ',
+  Struct = '  ',
+  Event = '  ',
+  Operator = '  ',
+  TypeParameter = '  ',
+}
 
 -- From documentation: complete from all visible buffers
 -- Not working
@@ -31,7 +58,7 @@ sources = {
         name = "nvim_lsp",
         max_item_count = 10,
         keyword_length = 2,
-        priority = 10,
+        priority = 8,
     },
     { name = "nvim_lsp_signature_help" },
     {
@@ -46,7 +73,7 @@ sources = {
     { name = "nvim_lua" },
     { name = "ultisnips" },
     { name = "calc" },
-    { name = "latex_symbols", priority = 3 },
+    { name = "latex_symbols" },
     --comparators = {
     --function(...) return cmp_buffer:compare_locality(...) end
     --},
@@ -77,33 +104,6 @@ local press = function(key)
         true
     )
 end
-local cmp_kinds = {
-    Text = "  ",
-    Method = "  ",
-    Function = "  ",
-    Constructor = "  ",
-    Field = "  ",
-    Variable = "  ",
-    Class = "  ",
-    Interface = "  ",
-    Module = "  ",
-    Property = "  ",
-    Unit = "  ",
-    Value = "  ",
-    Enum = "  ",
-    Keyword = "  ",
-    Snippet = "  ",
-    Color = "  ",
-    File = "  ",
-    Reference = "  ",
-    Folder = "  ",
-    EnumMember = "  ",
-    Constant = "  ",
-    Struct = "  ",
-    Event = "  ",
-    Operator = "  ",
-    TypeParameter = "  ",
-}
 
 -- From official repo
 local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
@@ -155,12 +155,25 @@ cmp_config.setup({
     },
     --view = {entries = 'native'},
     formatting = {
-        format = function(_, vim_item)
-            vim_item.maxwidth = 50
-            vim_item.kind = (cmp_kinds[vim_item.kind] or "") .. vim_item.kind
-            return vim_item
-        end,
-    },
+        format = 
+        --format = lspkind.cmp_format({
+            --maxwidth = 50,
+            --with_text = false,
+            --menu = {
+                --buffer = "{buf}",
+                --dictionary = "{dict}",
+                --latex_symbols = "{TeX}",
+                --nvim_lsp = "{LSP}",
+                --path = "{path}",
+                --spell = "{spell}",
+                --tags = "{tags}",
+                --ultisnips = "{snip}",
+                function(_, vim_item)
+                    vim_item.kind = (cmp_kinds[vim_item.kind] or '') .. vim_item.kind
+                    return vim_item
+                end,
+        },
+        
     -- Order suggested by https://www.reddit.com/r/neovim/comments/u3c3kw/how_do_you_sorting_cmp_completions_items/
     sorting = {
         comparators = {
@@ -184,82 +197,107 @@ cmp_config.setup({
             vim.fn["UltiSnips#Anon"](args.body)
         end,
     },
-    mapping = cmp_config.mapping.preset.insert({
-        ["<C-b>"] = cmp_config.mapping.scroll_docs(-4),
-        ["<C-f>"] = cmp_config.mapping.scroll_docs(4),
-        ["<C-n>"] = cmp_config.mapping.select_next_item(),
-        ["<C-h>"] = cmp_config.mapping.select_prev_item(),
-        ["<C-e>"] = cmp_config.mapping.close(),
-        ["<CR>"] = cmp_config.mapping.confirm({ select = true }),
-        ["<C-Space>"] = cmp_config.mapping(function(fallback)
-            if cmp_config.visible() then
-                cmp_config.select_next_item()
-            elseif has_any_words_before() then
-                press("<Space>")
-            else
-                fallback()
-            end
-        end, {
-            "i",
-            "s",
-            "c",
-        }),
+    mapping =  {
         ["<Tab>"] = cmp_config.mapping({
             c = function()
                 if cmp_config.visible() then
-                    cmp_config.select_next_item({
-                        behavior = cmp_config.SelectBehavior.Insert,
-                    })
+                    cmp_config.select_next_item({ behavior = cmp_config.SelectBehavior.Insert })
                 else
                     cmp_config.complete()
                 end
             end,
             i = function(fallback)
                 if cmp_config.visible() then
-                    cmp_config.select_next_item({
-                        behavior = cmp_config.SelectBehavior.Insert,
-                    })
+                    cmp_config.select_next_item({ behavior = cmp_config.SelectBehavior.Insert })
                 elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    vim.api.nvim_feedkeys(
-                        t("<Plug>(ultisnips_jump_forward)"),
-                        "m",
-                        true
-                    )
+                    vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_forward)"), 'm', true)
                 else
                     fallback()
                 end
             end,
             s = function(fallback)
                 if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    vim.api.nvim_feedkeys(
-                        t("<Plug>(ultisnips_jump_forward)"),
-                        "m",
-                        true
-                    )
+                    vim.api.nvim_feedkeys(t("<Plug>(ultisnips_jump_forward)"), 'm', true)
+                else
+                    fallback()
+                end
+            end
+        }),
+        ["<S-Tab>"] = cmp_config.mapping({
+            c = function()
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({ behavior = cmp_config.SelectBehavior.Insert })
+                else
+                    cmp_config.complete()
+                end
+            end,
+            i = function(fallback)
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({ behavior = cmp_config.SelectBehavior.Insert })
+                elseif vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
+                    return vim.api.nvim_feedkeys( t("<Plug>(ultisnips_jump_backward)"), 'm', true)
                 else
                     fallback()
                 end
             end,
-        }),
-        ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
-            if
-                vim.fn["UltiSnips#CanJumpForwards"]() == 1
-                and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
-            then
-                press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-            else
-                fallback()
+            s = function(fallback)
+                if vim.fn["UltiSnips#CanJumpBackwards"]() == 1 then
+                    return vim.api.nvim_feedkeys( t("<Plug>(ultisnips_jump_backward)"), 'm', true)
+                else
+                    fallback()
+                end
             end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp_config.mapping(function(fallback)
-            cmp_ultisnips_mappings.jump_backwards(fallback)
-        end, {
-            "i",
-            "s",
-            "c",
         }),
-    }),
-    sources = cmp_config.config.sources(sources),
+        ['<Down>'] = cmp_config.mapping(cmp_config.mapping.select_next_item({ behavior = cmp_config.SelectBehavior.Select }), {'i'}),
+        ['<Up>'] = cmp_config.mapping(cmp_config.mapping.select_prev_item({ behavior = cmp_config.SelectBehavior.Select }), {'i'}),
+        ['<C-n>'] = cmp_config.mapping({
+            c = function()
+                if cmp_config.visible() then
+                    cmp_config.select_next_item({ behavior = cmp_config.SelectBehavior.Select })
+                else
+                    vim.api.nvim_feedkeys(t('<Down>'), 'n', true)
+                end
+            end,
+            i = function(fallback)
+                if cmp_config.visible() then
+                    cmp_config.select_next_item({ behavior = cmp_config.SelectBehavior.Select })
+                else
+                    fallback()
+                end
+            end
+        }),
+        ['<C-p>'] = cmp_config.mapping({
+            c = function()
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({ behavior = cmp_config.SelectBehavior.Select })
+                else
+                    vim.api.nvim_feedkeys(t('<Up>'), 'n', true)
+                end
+            end,
+            i = function(fallback)
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({ behavior = cmp_config.SelectBehavior.Select })
+                else
+                    fallback()
+                end
+            end
+        }),
+        ['<C-b>'] = cmp_config.mapping(cmp_config.mapping.scroll_docs(-4), {'i', 'c'}),
+        ['<C-f>'] = cmp_config.mapping(cmp_config.mapping.scroll_docs(4), {'i', 'c'}),
+        ['<C-Space>'] = cmp_config.mapping(cmp_config.mapping.complete(), {'i', 'c'}),
+        ['<C-e>'] = cmp_config.mapping({ i = cmp_config.mapping.close(), c = cmp_config.mapping.close() }),
+        ['<CR>'] = cmp_config.mapping({
+            i = cmp_config.mapping.confirm({ behavior = cmp_config.ConfirmBehavior.Replace, select = false }),
+            c = function(fallback)
+                if cmp_config.visible() then
+                    cmp_config.confirm({ behavior = cmp_config.ConfirmBehavior.Replace, select = false })
+                else
+                    fallback()
+                end
+            end
+        }),
+    },
+    
 })
 
 --Extra completion sources
