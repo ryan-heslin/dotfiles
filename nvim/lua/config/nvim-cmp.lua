@@ -221,7 +221,7 @@ cmp_config.setup({
                     })
                 elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
                     vim.api.nvim_feedkeys(
-                        t("<Plug>(ultisnips_jump_forward)"),
+                        M.t("<Plug>(ultisnips_jump_forward)"),
                         "m",
                         true
                     )
@@ -232,7 +232,7 @@ cmp_config.setup({
             s = function(fallback)
                 if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
                     vim.api.nvim_feedkeys(
-                        t("<Plug>(ultisnips_jump_forward)"),
+                        M.t("<Plug>(ultisnips_jump_forward)"),
                         "m",
                         true
                     )
