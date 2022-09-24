@@ -1,6 +1,16 @@
 vim.bo.tabstop = 2
+local inline_send = function()
+    if not os.getenv("NVIMR_ID") then
+        print("Nvim-R is not running")
+        return
+    end
+    vim.cmd("RSend " .. vim.fn.getreg("z"))
+end
+--My utility functions
+inline_send = M.with_register(M.with_position(inline_send),"z")
 
 local opts = { noremap = true, silent = true, buffer = true }
+vim.keymap.set("n", [[\kk]], inline_send, opts)
 vim.keymap.set("i", [[--]], [[<Space><-<Space>]], opts)
 vim.keymap.set("i", [[;fun]], [[<Space><- function(){<esc>o}<esc>kf)i]], opts)
 vim.keymap.set("i", [[++]], [[<Space><bar>><Space>]], opts)

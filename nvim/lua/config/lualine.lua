@@ -56,8 +56,8 @@ end
 
                 buffers_color = {
                     -- Same values as the general color option can be used here.
-                    active = "lualine_{section}_normal", -- Color for active buffer.
-                    inactive = "lualine_{section}_inactive", -- Color for inactive buffer.
+                    active = "TabLineSel", -- Color for active buffer.
+                    inactive = "TabLineFill", -- Color for inactive buffer.
                 },
                 symbols = {
                     modified = " +", -- Text to show when the buffer is modified
@@ -89,8 +89,8 @@ end
 
                 windows_color = {
                     -- Same values as the general color option can be used here.
-                    active = "lualine_{section}_normal", -- Color for active window.
-                    inactive = "lualine_{section}_inactive", -- Color for inactive window.
+                    active = "lualine_b_normal", -- Color for active window.
+                    inactive = "lualine_b_inactive", -- Color for inactive window.
                 },
             },
         },
@@ -110,8 +110,8 @@ end
 
                 tabs_color = {
                     -- Same values as the general color option can be used here.
-                    active = "lualine_{section}_normal", -- Color for active tab.
-                    inactive = "lualine_{section}_inactive", -- Color for inactive tab.
+                    active = "lualine_z_normal", -- Color for active tab.
+                    inactive = "lualine_z_inactive", -- Color for inactive tab.
                 },
             },
         },

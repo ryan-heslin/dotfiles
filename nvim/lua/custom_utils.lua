@@ -10,7 +10,6 @@ end
 
 -- TODO make table of vim filetypes and standard extensions
 -- Wrapper that checks and restores the current register and type.
--- TODO fix
 M.with_register = function(_func, register)
     return function(...)
         print("reg " .. register)
@@ -1220,11 +1219,6 @@ M.grow_list = function()
     --To be triggered by insert mapping
 end
 
-M.namespace_convert = function()
-    innner = function(dict)
-        --TODO memoize dict to convert object name to member of
-    end
-end
 
 M.extract_to_default_arg = function(name)
     name = name or vim.fn.expand("<cword>")

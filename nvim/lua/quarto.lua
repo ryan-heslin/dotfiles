@@ -115,7 +115,7 @@ function parse_code_chunks(buffer, stop_line)
         -- Case 1: in chunk in last iteration
         if in_chunk then
             if chunk_started then
-                print("Invalid buffer: chunk start inside chunk")
+                print("Invalid buffer: chunk start inside chunk at line" .. i)
                 return {}
             end
             -- Reached chunk end
@@ -132,7 +132,7 @@ function parse_code_chunks(buffer, stop_line)
                 break
             end
             if chunk_ended then
-                print("Invalid buffer: chunk end outside chunk")
+                print("Invalid buffer: chunk end outside chunk at line " .. i)
                 return {}
             end
             if chunk_started then
