@@ -64,13 +64,6 @@ run_current_chunk = function(buffer)
     -- Exclude start and end lines, which lack valid Python code
     vim.fn["slime#send_range"](nearest_start + 1, nearest_end - 1)
     return nearest_start + 1, nearest_end - 1
-    --local n_lines = nearest_end - nearest_start + 1
-    --local lines_to_send = {}
-    --
-    --for i = nearest_start, nearest_end, 1 do
-    --lines_to_send.insert(buffer_lines[i])
-    --end
-    --send_to_repl(table.concat(lines_to_send, "\n"))
 end
 
 -- Gets first index of table that matches pattern, or nil if an "abort" pattern is encountered before it
@@ -142,11 +135,28 @@ function parse_code_chunks(buffer, stop_line)
         end
         --local slime_config = vim.api.nvim_buf_get_var(buffer, "slime_config")
     end
+        --IPython indent escaping
+        --table.insert(code, 1,"%cpaste -q\n" )
+        --table.insert(code, "--\n")
     return code
+    --return ["%cpaste -q\n", g:slime_dispatch_ipython_pause, a:text, "--\n"]
+end
+
+-- Disable autoindent to send text, to prevent indentation errors
+toggle_autoindent = function(func)
+    return function(...)
+        M.term_exec("%autoindent on")
+        local out = func(...)
+        --M.term_exec("%autoindent on")
+        return out
+    end
 end
 
 run_all_chunks = create_send_function(parse_code_chunks, function(text)
+    -- Janky but partially working
+    vim.fn["slime#send"]("%cpaste -q\n")
     vim.fn["slime#send"](collapse_text(text))
+    vim.fn["slime#send"]("\n--\n")
 end)
 
 run_current_chunks_above = create_send_function(function()
