@@ -16,6 +16,7 @@ create_send_function = function(parser, sender)
     end
 end
 chunk_start = "^%s*```{python.*$"
+-- Vim pattern, not Lua
 any_chunk_start = [[^\s*```{[a-z]\+]]
 chunk_end = "^%s*```$"
 
@@ -135,9 +136,9 @@ function parse_code_chunks(buffer, stop_line)
         end
         --local slime_config = vim.api.nvim_buf_get_var(buffer, "slime_config")
     end
-        --IPython indent escaping
-        --table.insert(code, 1,"%cpaste -q\n" )
-        --table.insert(code, "--\n")
+    --IPython indent escaping
+    --table.insert(code, 1,"%cpaste -q\n" )
+    --table.insert(code, "--\n")
     return code
     --return ["%cpaste -q\n", g:slime_dispatch_ipython_pause, a:text, "--\n"]
 end
@@ -160,8 +161,8 @@ run_all_chunks = create_send_function(parse_code_chunks, function(text)
 end)
 
 run_current_chunks_above = create_send_function(function()
-    parse_code_chunks(
-        nil,
+    return parse_code_chunks(
+        0,
         vim.fn.line(".", vim.fn.bufwinid(vim.api.nvim_buf_get_name(0)))
     )
 end, function(text)
@@ -278,19 +279,14 @@ send_visual_selection = create_send_function(
 -- Move cursor `n_chunks` forward or backward
 find_chunk = function(n_chunks)
     local match_line = nil
-    local i
+    local i = 0
     local flags = "W"
-    local step
+    local step = 1
     if n_chunks < 0 then
-        i = -1
-        step = -1
         -- Needed to use < condition for loop for both positive and negative cases
         n_chunks = n_chunks * -1
         -- Add flag to search backward
         flags = "b" .. flags
-    else
-        i = 0
-        step = 1
     end
 
     while match_line ~= 0 and i < n_chunks do
@@ -299,6 +295,28 @@ find_chunk = function(n_chunks)
         i = i + step
     end
     return match_line
+end
+
+-- Find chunk by chunk name
+-- If duplicate names, finds first, going down and wrapping
+find_named_chunk = function(name)
+    local pattern = [[^\s*```{.*\s*]] .. name .. [[}\s*$]]
+    local flags = "w" -- Wrap
+    return vim.fn.search(pattern, flags)
+end
+
+find_nth_chunk = function(n_chunks)
+    if n_chunks < 1 then
+        print("Invalid chunk offset " .. n_chunks)
+        return
+    end
+
+    -- If new chunk not found, restore old position
+    local old_pos = vim.fn.getpos(".")
+    local new_pos = find_chunk(n_chunks)
+    if new_pos == nil then
+        vim.fn.setpos(old_pos)
+    end
 end
 
 run_next_chunk = function()

@@ -1,4 +1,7 @@
 #!/usr/bin/bash
+if [ -f "/usr/bin/batcat" ]; then
+alias bat="/usr/bin/batcat"
+fi
 alias gs="git status"
 alias ga="git add -A"
 alias gc="git commit -m"
