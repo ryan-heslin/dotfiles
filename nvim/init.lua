@@ -1,8 +1,4 @@
 -- Copied from https://github.com/wbthomason/packer.nvim
-local packer = require("packer")
-packer.init({
-    max_jobs = 9,
-})
 local ensure_packer = function()
     local fn = vim.fn
     local install_path = fn.stdpath("data")
@@ -23,6 +19,10 @@ local ensure_packer = function()
 end
 
 local packer_bootstrap = ensure_packer()
+local packer = require("packer")
+packer.init({
+    max_jobs = 9,
+})
 
 packer.startup(function(use)
     use("wbthomason/packer.nvim")
@@ -71,16 +71,6 @@ packer.startup(function(use)
     use("windwp/nvim-autopairs")
     use("SirVer/ultisnips", {
         requires = { { "honza/vim-snippets", rtp = "." } },
-        --config = function()
-            --vim.g.UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
-            --vim.g.UltiSnipsJumpForwardTrigger = "<Plug>(ultisnips_jump_forward)"
-            --vim.g.UltiSnipsJumpBackwardTrigger =
-                --"<Plug>(ultisnips_jump_backward)"
-            --vim.g.UltiSnipsListSnippets = "<c-x><c-s>"
-            --vim.g.UltiSnipsRemoveSelectModeMappings = 0
-            --vim.g.UltiSnipsEditSplit='context'
-            --vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit= vim.fn.stdpath('config') .. [[/custom_snippets]]
-        --end,
     })
     use("honza/vim-snippets")
     use("onsails/lspkind-nvim")
@@ -101,6 +91,7 @@ packer.startup(function(use)
             "cpp",
             "cmake",
             "html",
+	    "quarto",
             "markdown",
             "racket",
             "sml",
@@ -133,12 +124,13 @@ packer.startup(function(use)
             require("hop").setup({ keys = "etovxqpdygfblzhckisuran" })
         end,
     })
-    -- Automatically set up your configuration after cloning packer.nvim
+    -- Automatically set up configuration after cloning packer.nvim
     if packer_bootstrap then
         packer.sync()
     end
 end)
 
+-- My custom configuration files
 require("custom_utils")
 require("autocommands")
 require("options")

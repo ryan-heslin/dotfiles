@@ -26,6 +26,7 @@ link_pairs+=(["$DOTFILES_PATH/bash/.bashrc"]="$HOME"
 ["$DOTFILES_PATH/misc/poetry"]="$HOME/.config/pypoetry/config.toml"
 ["$DOTFILES_PATH/misc/jupyter/jupyter_console_config.py"]="$HOME/.jupyter/jupyter_console_config.py"
 ["$DOTFILES_PATH/misc/zathurarc"]="/etc/zathurarc"
+["$DOTFILES_PATH/kitty/kitty.conf"]="$HOME/.config/kitty/kitty.conf"
 )
 
 link () {

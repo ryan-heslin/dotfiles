@@ -1,6 +1,6 @@
 PATH="${RTOOLS40_HOME}/usr/bin;${PATH}"
 #R_LIBS="/usr/local/lib/R/site-library/"
-#R_LIBS_USER=""
+R_LIBS_USER="${HOME}/x86_64-pc-linux-gnu-library/4.2"
 #R_DEFAULT_PACKAGES="datasets","utils","grDevices","graphics","stats","methods","my.templates","nvimcom"
 RETICULATE_AUTOCONFIGURE=FALSE
 RETICULATE_MINICONDA_PATH=/home/rheslin/miniconda

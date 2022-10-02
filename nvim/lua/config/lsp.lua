@@ -135,7 +135,8 @@ on_attach = function(client, bufnr)
     vim.keymap.set(
         { "n", "v" },
         "<leader>e",
-        '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>',
+        '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>'
+        ,
         opts
     )
     vim.keymap.set(
@@ -165,8 +166,7 @@ on_attach = function(client, bufnr)
     vim.cmd([[ command! Format execute 'lua vim.lsp.buf.formatting()' ]])
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
-        if
-            client.supports_method("textDocument/formatting")
+        if client.supports_method("textDocument/formatting")
             and client.name ~= "null-ls"
         then
             vim.api.nvim_clear_autocmds({ group = formatting, buffer = bufnr })
@@ -177,7 +177,7 @@ on_attach = function(client, bufnr)
             })
         end
 
-        if client.resolved_capabilities.document_highlight then
+        if client.server_capabilities.document_highlight then
             vim.cmd([[
                  highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
                  highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
@@ -220,6 +220,7 @@ end
 
 local lua_dir = vim.fn.expand("$HOME/.local/bin/lua-language-server")
 local path = vim.fn.split(package.path, ";")
+local bashls = vim.fn.systemlist("which bash-language-server")[1]
 table.insert(path, "lua/?.lua")
 table.insert(path, "lua/?/init.lua")
 
@@ -231,11 +232,11 @@ local servers = {
         end,
         filetypes = { "r", "rmd", "quarto" },
     },
-    pyright = { filetypes = {"python", "quarto"}},
+    pyright = { filetypes = { "python", "quarto" } },
     bashls = { filetypes = { "sh", "bash" } },
     sumneko_lua = {
         Lua = {
-            cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/main.lua" },
+            cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/bin/main.lua" },
             IntelliSense = { traceBeSetted = true },
             color = { mode = "Grammar" },
             completion = {
@@ -335,7 +336,7 @@ for server, settings in pairs(servers) do
 end
 vim.g.lsp_done = true
 vim.wo.signcolumn = "yes"
---vim.lsp.set_log_level('debug')
+vim.lsp.set_log_level('debug')
 --end
 --
 

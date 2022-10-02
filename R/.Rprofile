@@ -1,4 +1,4 @@
-
+.libPaths(new = "~/R/x86_64-pc-linux-gnu-library/4.2")
 # Set options
 local({
   default_packages <- character()

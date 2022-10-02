@@ -10,8 +10,7 @@ alias gr="git reflog"
 alias gt="git log --all --graph --decorate"
 alias mv="mv -i"
 alias fd="fdfind"
-alias bp="source ~/.bash_profile"
-alias op="open"
+alias bp="source $HOME/.bash_profile"
 alias py="python3"
 alias lf="ls -lAtx --color | egrep -v '^d'"
 alias ls="ls -Atx --color --file-type -w 100"
@@ -21,7 +20,8 @@ alias vmon='VBoxManage startvm "$VM_NAME"'
 alias vmoff='VBoxManage controlvm "$VM_NAME" poweroff'
 alias vmreset='VBoxManage controlvm "$VM_NAME" reset'
 alias redo='sudo $(history -p \!\!)'
-alias luamake='/home/rheslin/lua-language-server/3rd/luamake/luamake'
+alias luamake="$HOME/lua-language-server/3rd/luamake/luamake"
+alias kitty="env LIBGL_ALWAYS_SOFTWARE=1 $HOME/.local/kitty.app/bin/kitty "
 
 # From https://stackoverflow.com/questions/66382994/how-to-start-fzf-from-another-directory-the-the-current-working-directory
 # restore fzf default options ('fzf clear')

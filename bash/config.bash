@@ -35,7 +35,7 @@ export LIBVA_DRIVERS_PATH='/usr/local/lib/dri'
 export QUARTO_PYTHON="$(which python3.10)"
 set -a
 #Concealed for security
-[ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" || echo 'You should totally do Advent of Code!'
+[ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env" 
 set +a
 #export FZF_CTRL_T_COMMAND="FZF_DEFAULT_COMMAND"
 #export FZF_ALT_C_COMMAND="fdfind -t d . $HOME"
