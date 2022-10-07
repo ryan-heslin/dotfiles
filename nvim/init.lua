@@ -116,6 +116,12 @@ packer.startup(function(use)
     use("frazrepo/vim-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("makerj/vim-pdf")
+    use ({
+        'numToStr/Comment.nvim',
+        config = function()
+            require('Comment').setup()
+        end
+    })
     use({
         "phaazon/hop.nvim",
         branch = "v2", -- optional but strongly recommended

@@ -2,44 +2,53 @@ vim.o.t_EI = [[\e[2 q]]
 if last_filetype == nil then
     last_filetype = {}
 end
+
 -- Standard autocommands
 -- NB table of autocmd args takes group argument for augroup
+-- Global highlight group parameters
+highlight_params = {
+    NormalFloat = { bg = "#1f2335" },
+    FloatBorder = { fg = "white", bg = "#1f2335" },
+    Pmenu = { bg = "#1f2335" },
+    PmenuSel = { bg = "#cca300" },
+    PmenuSBar = { bg = "white" },
+    PmenuThumb = { bg = "#cca300" },
+    rGlobEnvFun = { ctermfg = 117, fg = "#87d7ff", italic = true },
+    LspReferenceRead = { fg = "LightGreen", bg = "Yellow" },
+    LspReferenceWrite = { fg = "Yellow", bg = "Yellow" },
+    LspSignatureActiveParameters = { fg = "Green" },
+    ColorColumn = { bg = "MistyRose" },
+    CmpItemAbbr = { fg = "wheat" },
+    CmpItemAbbrMatch = { bg = nil, fg = "#569cd6" },
+    CmpItemAbbrMatchFuzzy = { bg = nil, fg = "#569cd6" },
+    CmpItemKindFunction = { bg = nil, fg = "#c586c0" },
+    CmpItemKindMethod = { bg = nil, fg = "#c586c0" },
+    CmpItemKindVariable = { bg = nil, fg = "#9cdcfe" },
+    CmpItemKindKeyword = { bg = nil, fg = "#d4d4d4" },
+    CmpItemMenu = { bg = "#507b96" },
+    SignColumn = { bg = "#cca300" },
+    LineNR = { fg = "#cca300" },
+    CursorLineNR = { bold = true, fg = "#cca300", bg = "RoyalBlue1" },
+    LineNRBelow = { fg = "#ccffcc" },
+    LineNRAbove = { fg = "#ff8080" }
+}
 vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
-    command = [[
-highlight NormalFloat guibg=#1f2335
-highlight FloatBorder guifg=white guibg=#1f2335
-highlight Pmenu guibg=#1f2335
-highlight PmenuSel guibg=#cca300
-highlight PmenuSBar guibg=white
-highlight PmenuThumb guibg=#cca300
-highlight rGlobEnvFun ctermfg=117 guifg=#87d7ff cterm=italic gui=italic
-highlight LspReferenceRead guifg=LightGreen guibg=Yellow
-highlight LspReferenceWrite guifg=Yellow guibg=Yellow
-highlight LspSignatureActiveParameters guifg=Green
-highlight ColorColumn guibg=MistyRose
-highlight CmpItemAbbr guifg=wheat
-highlight CmpItemAbbrMatch guibg=NONE guifg=#569CD6
-highlight CmpItemAbbrMatchFuzzy guibg=NONE guifg=#569CD6
-highlight CmpItemKindFunction guibg=NONE guifg=#C586C0
-highlight CmpItemKindMethod guibg=NONE guifg=#C586C0
-highlight CmpItemKindVariable guibg=NONE guifg=#9CDCFE
-highlight CmpItemKindKeyword guibg=NONE guifg=#D4D4D4
-highlight CmpItemMenu guibg=#507b96
-highlight SignColumn guibg=#cca300
-highlight LineNR guifg=#cca300
-highlight CursorLineNR gui=bold guifg=#cca300 guibg=RoyalBlue1
-highlight LineNRBelow guifg= #ccffcc
-highlight LineNRAbove guifg=#ff8080
-let g:rainbow_active = 1
-let g:rainbow_guifgs = ['RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick']
-let g:rainbow_ctermfgs = ['lightblue', 'lightgreen', 'yellow', 'red', 'magenta']
-]],
+    callback = function()
+        for group, params in pairs(highlight_params) do
+            vim.api.nvim_set_hl(0, group, params)
+        end
+        -- Configure rainbow parentheses
+        vim.g.rainbow_active = 1
+        vim.g.rainbow_guifgs = { 'LightRed', 'RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick', 'SeaGreen',
+            'LightYellow', 'LightCyan' }
+        vim.g.rainbow_ctermfgs = { 'lightblue', 'lightgreen', 'yellow', 'red', 'magenta' }
+    end
 })
 
 vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
-    command = 'silent! lua vim.highlight.on_yank {higroup="IncSearch", timeout=150, on_macro = true}',
+    callback = function() vim.highlight.on_yank({ higroup = "IncSearch", timeout = 300, on_macro = true }) end,
 })
 -- Remember cursor position color
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -53,11 +62,11 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_augroup("Terminal", { clear = true })
-vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = "*",
-    group = "Terminal",
-    command = [[if &buftype == 'terminal' | :startinsert | endif]],
-})
+--vim.api.nvim_create_autocmd("BufEnter", {
+--pattern = "*",
+--group = "Terminal",
+--command = [[if &buftype == 'terminal' | :startinsert | endif]],
+--})
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     group = "Terminal",
@@ -142,11 +151,11 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 -- Trailing * in pattern matches /, unlike vanilla Bash
 --
-vim.api.nvim_create_autocmd("BufReadPre", {
-    pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
-    command = 'let R_path="~/R-4.1.0/bin"',
-    desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
-})
+--vim.api.nvim_create_autocmd("BufReadPre", {
+    --pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
+    --command = 'let R_path="~/R-4.1.0/bin"',
+    --desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
+--})
 vim.api.nvim_create_autocmd("BufEnter", {
     callback = M.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
@@ -165,11 +174,12 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
         vim.bo.filetype = "quarto"
     end,
     pattern = { "*.Qmd", "*.qmd" },
+    desc = "Set Quarto filetype"
 })
 --vim.api.nvim_create_autocmd("FileType sql,mysql,plsql,sqlite", {
-    --function()
-        --require("cmp").setup.buffer({ sources = { { name = "vim-dadbod" } } })
-    --end,
+--function()
+--require("cmp").setup.buffer({ sources = { { name = "vim-dadbod" } } })
+--end,
 --})
 local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
 vim.api.nvim_create_autocmd("ColorScheme *", {
@@ -186,7 +196,7 @@ vim.api.nvim_create_autocmd("ColorScheme *", {
  \ | highlight self ctermfg=Yellow guifg=Yellow
  \ | highlight call ctermfg=Blue guifg=RoyalBlue3
  \ | highlight method guifg=DarkOrchid3
-]=],
+]=]  ,
     group = pycolors,
     pattern = "*.py",
 })

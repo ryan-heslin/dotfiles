@@ -163,7 +163,7 @@ on_attach = function(client, bufnr)
         [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]],
         opts
     )
-    vim.cmd([[ command! Format execute 'lua vim.lsp.buf.formatting()' ]])
+    vim.cmd([[ command! Format execute 'lua vim.lsp.buf.format({async = false})' ]])
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
         if client.supports_method("textDocument/formatting")
@@ -173,7 +173,7 @@ on_attach = function(client, bufnr)
             vim.api.nvim_create_autocmd("BufWritePre", {
                 group = formatting,
                 buffer = bufnr,
-                callback = vim.lsp.buf.formatting_seq_sync,
+                callback = vim.lsp.buf.format,
             })
         end
 
@@ -218,22 +218,25 @@ on_attach = function(client, bufnr)
     --
 end
 
+-- Ensuring relevant server paths are known
 local lua_dir = vim.fn.expand("$HOME/.local/bin/lua-language-server")
 local path = vim.fn.split(package.path, ";")
+-- Maybe add failsafe here
 local bashls = vim.fn.systemlist("which bash-language-server")[1]
 table.insert(path, "lua/?.lua")
 table.insert(path, "lua/?/init.lua")
 
 local servers = {
+    bashls = { filetypes = { "sh", "bash" }, cmd = bashls },
+    pyright = { filetypes = { "python", "quarto" } },
     r_language_server = {
-        root_dir = function(fname)
-            return require("lspconfig.util").find_git_ancestor(fname)
-                or vim.loop.os_homedir()
-        end,
+        --root_dir = function(fname)
+        --   return require("lspconfig.util").find_git_ancestor(fname)
+        --      or vim.loop.os_homedir()
+        --end,
         filetypes = { "r", "rmd", "quarto" },
     },
-    pyright = { filetypes = { "python", "quarto" } },
-    bashls = { filetypes = { "sh", "bash" } },
+    racket_langserver = { filetypes = { "racket", "scheme" } },
     sumneko_lua = {
         Lua = {
             cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/bin/main.lua" },

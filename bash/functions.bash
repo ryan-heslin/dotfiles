@@ -69,7 +69,12 @@ R -e "library(shiny); runApp(port = 9999, launch.browser = FALSE); rstudioapi::v
 
 # cd into chosen dir
 d(){
-  cd "$(fd --type directory . "$HOME" | fzf)"
+    cd "$(fdfind --type directory --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" | fzf)"
+}
+
+# Open selected with nvim
+nvimd(){
+    nvim "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
 }
 
 open2 () {

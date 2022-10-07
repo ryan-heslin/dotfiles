@@ -1,0 +1,5 @@
+#.gitignore-style ignore file for fdfind
+.git/
+x86*/
+backup/
+

@@ -5,7 +5,8 @@ local({
   if (!"renv" %in% list.dirs(base::.libPaths()[[1]],
     recursive = FALSE, full.names = FALSE
   ) || is.null(renv::project())) {
-    default_packages <- "my.templates"
+    default_packages <- character()
+
   }
   # Add Nvim-R completion and language server requirements if started with Nvim
   if (Sys.getenv("OS") != "Windows_NT") {
@@ -36,7 +37,6 @@ local({
 
 .my_funs <- new.env()
 
-# Convert R function to UltiSnips snippet
 .my_funs$q2 <- function() quit(save = "no")
 
 .my_funs$my_theme <- function() {

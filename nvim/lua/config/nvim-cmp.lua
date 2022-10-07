@@ -285,7 +285,7 @@ cmp_config.setup.cmdline("@", {
 
 cmp_config.setup.cmdline("/", {
     sources = {
-        { name = "buffer", opts = { keyword_pattern = [=[[^[:blank:]].*]=] } },
+        { name = "buffer", options = { keyword_pattern = [=[[^[:blank:]].*]=] } },
     },
 })
 
