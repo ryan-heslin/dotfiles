@@ -8,9 +8,9 @@ local sources = {
 
     --null_ls.builtins.diagnostics.jsonlint.with({
     --prefer_local = '/usr/bin/jsonlint'}),
-    null_ls.builtins.diagnostics.luacheck,
+    -- null_ls.builtins.diagnostics.luacheck,
     null_ls.builtins.diagnostics.markdownlint,
-    null_ls.builtins.diagnostics.vint,
+    -- null_ls.builtins.diagnostics.vint,
     null_ls.builtins.formatting.black,
     null_ls.builtins.formatting.fixjson,
     null_ls.builtins.formatting.latexindent,

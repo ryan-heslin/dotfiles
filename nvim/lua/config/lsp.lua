@@ -135,8 +135,7 @@ on_attach = function(client, bufnr)
     vim.keymap.set(
         { "n", "v" },
         "<leader>e",
-        '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>'
-        ,
+        '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>',
         opts
     )
     vim.keymap.set(
@@ -163,10 +162,13 @@ on_attach = function(client, bufnr)
         [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]],
         opts
     )
-    vim.cmd([[ command! Format execute 'lua vim.lsp.buf.format({async = false})' ]])
+    vim.cmd(
+        [[ command! Format execute 'lua vim.lsp.buf.format({async = false})' ]]
+    )
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
-        if client.supports_method("textDocument/formatting")
+        if
+            client.supports_method("textDocument/formatting")
             and client.name ~= "null-ls"
         then
             vim.api.nvim_clear_autocmds({ group = formatting, buffer = bufnr })
@@ -185,10 +187,8 @@ on_attach = function(client, bufnr)
                  ]])
 
             -- Trigger document highlighting on holding cursor
-            local doc_highlight = vim.api.nvim_create_augroup(
-                "LSPDocumentHighlight",
-                {}
-            )
+            local doc_highlight =
+                vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
             vim.api.nvim_clear_autocmds({
                 group = LSPDocumentHighlight,
                 buffer = bufnr,
@@ -339,7 +339,7 @@ for server, settings in pairs(servers) do
 end
 vim.g.lsp_done = true
 vim.wo.signcolumn = "yes"
-vim.lsp.set_log_level('debug')
+vim.lsp.set_log_level("debug")
 --end
 --
 

@@ -2,6 +2,20 @@ M = {}
 -- Records most recent window, buffer filetype, etc.
 recents = { window = nil, filetype = {}, terminal = {} }
 
+-- Default option values
+M.defaults = { operatorfunc = "v:lua.require'nvim-surround'.normal_callback" }
+
+-- Set default option recorded in global table
+M.restore_default = function(option)
+    if M.defaults[option] == nil then
+        print("No recorded default for " .. option)
+    else
+        pcall(function()
+            vim.go[option] = M.defaults[option]
+        end, "Unknown option " .. option)
+    end
+end
+
 M.record_file_name = function()
     if vim.bo.filetype ~= "" then
         recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
@@ -36,11 +50,10 @@ end
 -- Returns function that retrieves table element keyed to filetype, then calls another function with that value
 M.switch_filetype = function(mapping, default)
     return function(func)
-        local mapping = mapping
         return function(...)
             local value = mapping[vim.bo.filetype]
             if value == nil then
-                local default = M.default_arg(default, nil)
+                default = M.default_arg(default, nil)
                 value = M.default_arg(value, default)
             end
             return func(value, ...)
@@ -292,12 +305,8 @@ M.win_exec = function(keys, dir)
         keys = vim.fn.input("Window command: ")
     end
     local count = vim.v.count1
-    local command = string.gsub(
-        M.t(keys),
-        "^normal%s",
-        "normal " .. tostring(count),
-        1
-    )
+    local command =
+        string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
     -- If window targeted by number instead of relative direction, just execute command
     if type(dir) == "number" then
         vim.fn.win_execute(dir, command)
@@ -332,17 +341,21 @@ M.term_setup = function(commands)
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
-M.term_exec = function(keys, scroll_down)
+M.term_exec = function(keys, scroll_down, use_count)
     if vim.g.last_terminal_chan_id == nil then
         return false
     end
-    local count = vim.v.count1
-    local command = keys
+
+    --Use count only if specified
+    use_count = M.default_arg(use_count, true)
     scroll_down = M.default_arg(scroll_down, true)
-    if vim.fn.stridx(keys, [[\]]) ~= -1 then
-        command = M.t(keys)
-    end
-    --vim.fn.chansend(vim.g.last_terminal_chan_id, M.t('<CR>'))
+    local count = (use_count and vim.v.count1) or 1
+    local command = (vim.fn.stridx(keys, [[\]]) ~= -1 and M.t(keys)) or keys
+    print(vim.inspect(command))
+
+    -- if vim.fn.stridx(keys, [[\]]) ~= -1 then
+    --     command = M.t(keys)
+    -- end
     for _ = 1, count, 1 do
         vim.fn.chansend(vim.g.last_terminal_chan_id, command)
     end
@@ -355,6 +368,7 @@ M.term_exec = function(keys, scroll_down)
             { vim.api.nvim_buf_line_count(vim.g.last_terminal_buf_id), 1 }
         )
     end
+    return command
 end
 
 --Substitute default value for omitted argument
@@ -661,22 +675,83 @@ end
 M.yank_visual = function(register)
     register = register or '"'
     -- Only use quote mark notation if not using unnamed register
-    sub = register ~= '"' and '"' .. register or ""
+    sub = (register ~= '"' and '"' .. register) or ""
     vim.cmd("normal " .. sub .. "gvy")
     return vim.fn.getreg(register)
 end
-M.yank_visual = M.with_register(yank_visual)
+M.yank_visual = M.with_register(M.yank_visual, "z")
 
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
 M.visual_search = function(target)
     target = target or "/"
-    text = vim.fn.substitute(yank_visual(), [[\_s\+]], " ", "g")
+    text = vim.fn.substitute(M.yank_visual(), [[\_s\+]], " ", "g")
     pcall(function()
         vim.fn.setreg(target, text)
         vim.cmd("normal n")
     end, print("No matches"))
 end
 
+-- Extract text from the latest motion; 
+-- intended to help define custom operators
+M.capture_motion_text = function(type)
+    local start_pos = vim.api.nvim_buf_get_mark(0, "[")
+    --(row, col)
+    local end_pos = vim.api.nvim_buf_get_mark(0, "]")
+    local text
+
+    -- Mark positions are 1-indexed, text extractors 0-indexed, go figure
+    if type == "char" or type == "block" then
+        text = vim.api.nvim_buf_get_text(
+            0,
+            start_pos[1] - 1,
+            start_pos[2],
+            end_pos[1] - 1,
+            end_pos[2] + 1,
+            {}
+        )
+    elseif type == "line" then
+        text =
+            vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1] - 1, {})
+    else
+        print("Unknown selection type " .. type)
+        return nil
+    end
+
+    return (type == "char" and text[1]) or table.concat(text, "\n")
+end
+
+M.term_motion_impl = function(type)
+    local text = M.capture_motion_text(type)
+
+    -- Need special escaping for Python files
+    if vim.bo.filetype == "python" or vim.bo.filetype == "quarto" then
+        vim.fn["slime#send"]("%cpaste -q\n")
+        vim.fn["slime#send"](collapse_text(text))
+        vim.fn["slime#send"]("\n--\n")
+    else
+        M.term_exec(text, true, false)
+    end
+end
+
+M.define_operator = function(func, name, err)
+    return function(type)
+        if type == nil or type == "" then
+            vim.go.operatorfunc = "v:lua." .. name
+            return "g@"
+        end
+
+        local out = pcall(func(type), err)
+        M.restore_default("operatorfunc")
+
+        return out
+    end
+end
+
+M.term_motion = M.define_operator(
+    M.term_motion_impl,
+    "M.term_motion",
+    "Error sending text to terminal"
+)
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
 M.file_exists = function(name)
     if name == nil then
@@ -709,9 +784,13 @@ M.save_session = function()
         return
     end
     local this_session = vim.g.current_session
-        or (vim.v.this_session ~= nil and vim.v.this_session ~= "" and vim.fn.systemlist( --Check if session file exists with current session name
-            'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
-        )[1])
+        or (
+            vim.v.this_session ~= nil
+            and vim.v.this_session ~= ""
+            and vim.fn.systemlist( --Check if session file exists with current session name
+                'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
+            )[1]
+        )
         or nil
     -- If no current session name found, prompt user for one, warning if already in use
     local name_provided = false
@@ -750,9 +829,8 @@ M.load_session = function()
         return
     end
     -- Shell-quote for safety
-    local latest_session = vim.fn.systemlist(
-        "lastn " .. session_dir .. " 1 echo"
-    )[1]
+    local latest_session =
+        vim.fn.systemlist("lastn " .. session_dir .. " 1 echo")[1]
     local session_name = vim.fn.systemlist(
         "basename -s '.vim' " .. M.surround_string(latest_session, "'")
     )[1]
@@ -1218,7 +1296,6 @@ M.grow_list = function()
     --3 if 2 does, c if d does, etc.)
     --To be triggered by insert mapping
 end
-
 
 M.extract_to_default_arg = function(name)
     name = name or vim.fn.expand("<cword>")

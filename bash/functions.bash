@@ -77,6 +77,9 @@ nvimd(){
     nvim "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
 }
 
+batd(){
+    bat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
+}
 open2 () {
 	touch "$1" && nvim "$1"
 }

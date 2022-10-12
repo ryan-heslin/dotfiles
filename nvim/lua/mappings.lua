@@ -689,3 +689,4 @@ vim.keymap.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
 vim.keymap.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
 vim.keymap.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
 
+vim.keymap.set({ "n", "v" }, "<C-s>", M.term_motion, {expr = true})

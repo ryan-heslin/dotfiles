@@ -62,11 +62,16 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_augroup("Terminal", { clear = true })
---vim.api.nvim_create_autocmd("BufEnter", {
---pattern = "*",
---group = "Terminal",
---command = [[if &buftype == 'terminal' | :startinsert | endif]],
---})
+vim.api.nvim_create_autocmd("BufEnter", {
+pattern = "*",
+group = "Terminal",
+callback = function() 
+    if vim.o.buftype == "terminal" then 
+        vim.cmd.startinsert()
+    end 
+end
+--[[if &buftype == 'terminal' | :startinsert | endif]],
+})
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
     group = "Terminal",
@@ -152,9 +157,9 @@ vim.api.nvim_create_autocmd("FileType", {
 -- Trailing * in pattern matches /, unlike vanilla Bash
 --
 --vim.api.nvim_create_autocmd("BufReadPre", {
-    --pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
-    --command = 'let R_path="~/R-4.1.0/bin"',
-    --desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
+--pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
+--command = 'let R_path="~/R-4.1.0/bin"',
+--desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
 --})
 vim.api.nvim_create_autocmd("BufEnter", {
     callback = M.record_file_name,

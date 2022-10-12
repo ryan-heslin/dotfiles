@@ -91,7 +91,7 @@ packer.startup(function(use)
             "cpp",
             "cmake",
             "html",
-	    "quarto",
+            "quarto",
             "markdown",
             "racket",
             "sml",
@@ -116,11 +116,11 @@ packer.startup(function(use)
     use("frazrepo/vim-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("makerj/vim-pdf")
-    use ({
-        'numToStr/Comment.nvim',
+    use({
+        "numToStr/Comment.nvim",
         config = function()
-            require('Comment').setup()
-        end
+            require("Comment").setup()
+        end,
     })
     use({
         "phaazon/hop.nvim",
@@ -159,6 +159,9 @@ require("abbrev")
 require("vimscript")
 require("mappings")
 require("syntax")
+
+-- Manually reset operatorfunc
+M.restore_default("operatorfunc")
 
 -- From https://superuser.com/questions/345520/vim-number-of-total-buffers
 -- Remove all trailing whitespace by pressing C-S

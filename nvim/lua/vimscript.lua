@@ -1,6 +1,8 @@
 --For special global variable denoting Lua functions callable from Vimscript
 --
 --Suggested by official guide: Print lua objects
+_G.my_utils = {}
+_G.my_utils.term_motion = M.term_motion
 
 function _G.put(...)
     local objects = {}
