@@ -228,6 +228,7 @@ table.insert(path, "lua/?/init.lua")
 
 local servers = {
     bashls = { filetypes = { "sh", "bash" }, cmd = bashls },
+    marksman = {},
     pyright = { filetypes = { "python", "quarto" } },
     r_language_server = {
         --root_dir = function(fname)
@@ -290,7 +291,7 @@ vim.diagnostic.config({
     --format = format_diagnostic,
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
+capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
 local handlers = {
     ["textDocument/signatureHelp"] = vim.lsp.with(
@@ -339,7 +340,7 @@ for server, settings in pairs(servers) do
 end
 vim.g.lsp_done = true
 vim.wo.signcolumn = "yes"
-vim.lsp.set_log_level("debug")
+vim.lsp.set_log_level("error")
 --end
 --
 

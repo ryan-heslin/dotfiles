@@ -68,6 +68,19 @@ R -e "library(shiny); runApp(port = 9999, launch.browser = FALSE); rstudioapi::v
 }
 
 # cd into chosen dir
+#
+
+fsearch (){
+
+    #TODO generate fdfind commands
+    local name="$1"
+    local cmd="$2"
+    local args=( "$@" )
+    shift 1
+    local types=( "${$args[@]/#/--type }" )
+
+}
+
 d(){
     cd "$(fdfind --type directory --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" | fzf)"
 }
@@ -78,8 +91,9 @@ nvimd(){
 }
 
 batd(){
-    bat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
+    batcat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
 }
+
 open2 () {
 	touch "$1" && nvim "$1"
 }

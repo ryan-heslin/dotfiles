@@ -1,4 +1,4 @@
--- Partly taken fom the wiki 
+-- Partly taken fom the wiki
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
     local max_size = M.default_arg(max_size, 1024 * 1024)
@@ -43,6 +43,7 @@ sources = {
     { name = "dictionary", keyword_length = 2 },
     { name = "path", keyword_length = 2, priority = 7 },
     { name = "tags", ft = { "r", "rmd", "python" } },
+    { name = "treesitter" },
     { name = "nvim_lua" },
     { name = "ultisnips" },
     { name = "calc" },
@@ -64,7 +65,8 @@ local has_any_words_before = function()
     end
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0
-        and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]
+        and vim.api
+                .nvim_buf_get_lines(0, line - 1, line, true)[1]
                 :sub(col, col)
                 :match("%s")
             == nil
@@ -115,6 +117,11 @@ end
 function M.jump_backwards(fallback)
     M.compose({ "jump_backwards", "select_prev_item" })(fallback)
 end
+
+local t = function(str)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
 cmp_config.setup({
     completion = {
         completeopt = "menu,menuone,preview,noselect",
@@ -220,22 +227,24 @@ cmp_config.setup({
                         behavior = cmp_config.SelectBehavior.Insert,
                     })
                 elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    vim.api.nvim_feedkeys(
-                        M.t("<Plug>(ultisnips_jump_forward)"),
-                        "m",
-                        true
-                    )
+                    -- vim.api.nvim_feedkeys(
+                    --     t("<Plug>(ultisnips_jump_forward)"),
+                    --     "m",
+                    --     true
+                    -- )
+                    cmp_ultisnips_mappings.expand_or_jump_forwards()
                 else
                     fallback()
                 end
             end,
             s = function(fallback)
                 if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    vim.api.nvim_feedkeys(
-                        M.t("<Plug>(ultisnips_jump_forward)"),
-                        "m",
-                        true
-                    )
+                    -- vim.api.nvim_feedkeys(
+                    --     t("<Plug>(ultisnips_jump_forward)"),
+                    --     "m",
+                    --     true
+                    -- )
+                    cmp_ultisnips_mappings.expand_or_jump_forwards()
                 else
                     fallback()
                 end
@@ -285,7 +294,12 @@ cmp_config.setup.cmdline("@", {
 
 cmp_config.setup.cmdline("/", {
     sources = {
-        { name = "buffer", options = { keyword_pattern = [=[[^[:blank:]].*]=] } },
+        {
+            name = "buffer",
+            options = { keyword_pattern = [=[[^[:blank:]].*]=] },
+        },
+        { name = "nvim_lsp_document_symbol" },
+        { name = "nvim_lsp_signature_help" },
     },
 })
 

@@ -30,7 +30,7 @@ highlight_params = {
     LineNR = { fg = "#cca300" },
     CursorLineNR = { bold = true, fg = "#cca300", bg = "RoyalBlue1" },
     LineNRBelow = { fg = "#ccffcc" },
-    LineNRAbove = { fg = "#ff8080" }
+    LineNRAbove = { fg = "#ff8080" },
 }
 vim.api.nvim_create_autocmd("ColorScheme", {
     pattern = "*",
@@ -40,15 +40,30 @@ vim.api.nvim_create_autocmd("ColorScheme", {
         end
         -- Configure rainbow parentheses
         vim.g.rainbow_active = 1
-        vim.g.rainbow_guifgs = { 'LightRed', 'RoyalBlue3', 'DarkOrange3', 'DarkOrchid3', 'FireBrick', 'SeaGreen',
-            'LightYellow', 'LightCyan' }
-        vim.g.rainbow_ctermfgs = { 'lightblue', 'lightgreen', 'yellow', 'red', 'magenta' }
-    end
+        vim.g.rainbow_guifgs = {
+            "LightRed",
+            "RoyalBlue3",
+            "DarkOrange3",
+            "DarkOrchid3",
+            "FireBrick",
+            "SeaGreen",
+            "LightYellow",
+            "LightCyan",
+        }
+        vim.g.rainbow_ctermfgs =
+            { "lightblue", "lightgreen", "yellow", "red", "magenta" }
+    end,
 })
 
 vim.api.nvim_create_autocmd("TextYankPost", {
     pattern = "*",
-    callback = function() vim.highlight.on_yank({ higroup = "IncSearch", timeout = 300, on_macro = true }) end,
+    callback = function()
+        vim.highlight.on_yank({
+            higroup = "IncSearch",
+            timeout = 300,
+            on_macro = true,
+        })
+    end,
 })
 -- Remember cursor position color
 vim.api.nvim_create_autocmd("BufReadPost", {
@@ -63,14 +78,14 @@ vim.api.nvim_create_autocmd(
 
 vim.api.nvim_create_augroup("Terminal", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
-pattern = "*",
-group = "Terminal",
-callback = function() 
-    if vim.o.buftype == "terminal" then 
-        vim.cmd.startinsert()
-    end 
-end
---[[if &buftype == 'terminal' | :startinsert | endif]],
+    pattern = "*",
+    group = "Terminal",
+    callback = function()
+        if vim.o.buftype == "terminal" then
+            vim.cmd.startinsert()
+        end
+    end    --[[if &buftype == 'terminal' | :startinsert | endif]]
+,
 })
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
@@ -116,14 +131,19 @@ vim.api.nvim_create_autocmd("User TelescopePreviewerLoaded", {
 vim.api.nvim_create_autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if vim.b.source_on_save ~= 0 and (vim.bo.filetype == "r" or vim.b.source_on_save == 1) then
+        if
+            vim.b.source_on_save ~= 0
+            and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
+        then
             M.refresh()
         end
     end,
 })
 vim.api.nvim_create_autocmd("FileType anki_vim", {
     pattern = "*",
-    callback = function() vim.b.UltiSnipsSnippetDirectories = vim.g.UltiSnipsSnippetDirectories end
+    callback = function()
+        vim.b.UltiSnipsSnippetDirectories = vim.g.UltiSnipsSnippetDirectories
+    end,
 })
 
 vim.api.nvim_create_autocmd("VimLeavePre", {
@@ -146,6 +166,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 -- Save latest Rmd file for automatic knitting
 vim.api.nvim_create_autocmd("FileType", {
+    -- From https://github.com/neovim/neovim/issues/20455
     pattern = "*",
     callback = function()
         if vim.bo.filetype == "rmd" then
@@ -179,7 +200,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
         vim.bo.filetype = "quarto"
     end,
     pattern = { "*.Qmd", "*.qmd" },
-    desc = "Set Quarto filetype"
+    desc = "Set Quarto filetype",
 })
 --vim.api.nvim_create_autocmd("FileType sql,mysql,plsql,sqlite", {
 --function()
@@ -187,6 +208,15 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
 --end,
 --})
 local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
+-- From https://github.com/neovim/neovim/issues/20455
+vim.api.nvim_create_autocmd("WinClosed", {
+    callback = function(args)
+        if vim.api.nvim_get_current_win() ~= tonumber(args.match) then
+            return
+        end
+        vim.cmd.wincmd("p")
+    end,
+})
 vim.api.nvim_create_autocmd("ColorScheme *", {
     command = [=[
    highlight pythonImportedObject ctermfg=127 guifg=127
@@ -201,7 +231,7 @@ vim.api.nvim_create_autocmd("ColorScheme *", {
  \ | highlight self ctermfg=Yellow guifg=Yellow
  \ | highlight call ctermfg=Blue guifg=RoyalBlue3
  \ | highlight method guifg=DarkOrchid3
-]=]  ,
+]=],
     group = pycolors,
     pattern = "*.py",
 })
