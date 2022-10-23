@@ -1,4 +1,5 @@
 .libPaths(new = "~/R/x86_64-pc-linux-gnu-library/4.2")
+
 # Set options
 local({
   default_packages <- character()
@@ -12,12 +13,12 @@ local({
   if (Sys.getenv("OS") != "Windows_NT") {
     default_packages <- c(
       default_packages, "nvimcom",
-      "languageserver", "lintr", "styler"
+      "languageserver", "lintr"
     )
   }
-  if (interactive()) {
-    require(usethis, quietly = TRUE)
-  }
+  # if (interactive()) {
+  #   require(usethis, quietly = TRUE)
+  # }
 
   options(
     defaultPackages = c(
@@ -83,21 +84,6 @@ local({
   })
 }
 
-# Create active binding to function that updates a server for a blogdown site
-.my_funs$update_website <- function(envir = globalenv()) {
-  if (!requireNamespace("blogdown", quietly = TRUE)) {
-    stop("blogdown is not installed")
-  }
-  update_website_impl <- function() {
-    blogdown::stop_server()
-    blogdown::build_site()
-    blogdown::serve_site()
-  }
-  makeActiveBinding("bd",
-    fun = update_website_impl,
-    env = envir
-  )
-}
 .my_funs$knit2dir <-
   function(dir = getwd(),
            out = file.path(dir, "outputs"),
@@ -175,33 +161,8 @@ local({
     }
   }
 
-.my_funs$switch_project <- function(project, stem = "~/R/Projects") {
-  .my_funs$rstudio_wrap(
-    expr = tryCatch(rstudioapi::openProject(paste0(
-      stem,
-      "/", project, "/", project, ".Rproj"
-    )),
-    error = function(e) cat("Project", project, "does not exist", "\n")
-    ), project = NULL, stem = "~/R/Projects"
-  )
-}
 
 
-.my_funs$rstudio_wrap <- function(expr, ..., .env = globalenv()) {
-  fun_args <- list(...)
-  expr <- substitute(expr)
-  fun_body <- bquote(
-    {
-      if (rstudioapi::isAvailable()) {
-        .(expr)
-      } else {
-        cat("RStudio not running\n")
-      }
-    },
-    splice = TRUE
-  )
-  as.function(c(fun_args, fun_body), envir = .env)
-}
 
 
 .my_funs$source2 <- function(...) {
@@ -210,15 +171,8 @@ local({
 
 
 .my_funs$clear <- function(envir = parent.frame()) rm(list = ls(envir = envir))
-.my_funs$dput2assign <- function(dat, name) {
-  name <- substitute(name)
-  bquote(.(name) <- .(dput(dat)))
-}
 
 
-.my_funs$rm2 <- function(file) {
-  system2("rm", args = file)
-}
 
 .my_funs$test_print_sections <- function() {
   system("rm test.Rmd")
@@ -365,69 +319,11 @@ local({
 }
 
 
-#' Borrowed from Advanced R
-#'
-#' @param expr
-#' @param new
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$with_dir <- function(expr, dir) {
-  if (interactive()) {
-    while (!dir.exists(dir)) {
-      dir <-
-        readline(prompt = paste0("'", dir, "'", " does not exist. Enter correct directory: "))
-    }
-  } else if (!dir.exists(dir)) {
-    stop(dir, "does not exist")
-  }
-  old <- getwd()
-  setwd(dir)
-  eval(expr, envir = parent.frame())
-  on.exit(setwd(old))
-}
 
 
 
-# allowConsole = FALSE
-.my_funs$documentId2 <- function() {
-  rstudioapi::documentId(allowConsole = FALSE)
-}
 
 
-#' Close the Last n Open Documents
-#'
-#' @param n
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$close_n <- function(n = Inf) {
-  force(n)
-  inner <- function() {
-    if (n > 0 && !is.null(documentId2())) {
-      rstudioapi::documentClose(id = NULL, save = TRUE)
-      n <<- n - 1L
-      inner()
-    }
-  }
-  inner()
-}
-
-#' Quietly Source all Modified Functions in an Environment
-#'
-#' @param envir
-#'
-#' @return
-#' @export
-#'
-#' @examples
-.my_funs$source_all <- function(envir = globalenv()) {
-  invisible(sapply(lsf.str(envir = envir), get))
-}
 
 #' Find the Next Numeric File Prefix in a Directory
 #'
@@ -564,30 +460,6 @@ local({
 }
 
 # Generate snippet for n x m matrix
-.my_funs$fill_mat <- function(dims, file = "") {
-  # Fill with space and & for LaTeX entry
-  mat <-
-    matrix(paste0("${", 1:prod(dims), ":", 1:prod(dims), "}"),
-      nrow = dims[1],
-      byrow = TRUE
-    )
-
-  mat <-
-    apply(mat, MARGIN = 1, function(x) {
-      paste0("\t\t", paste(x, collapse = " & "))
-    })
-
-  mat <-
-    paste0(mat, c(rep("\\\\\\\\", times = length(mat) - 1), "")) # both cat and snippet parse escapes,
-  # so we need 2^3 backslashes
-  snip <- paste0("snippet ", dims[1], "x", dims[2])
-  cat(
-    c(snip, "\t\\begin{bmatrix}", mat, "\t\\end{bmatrix}"),
-    sep = "\n",
-    file = file,
-    append = TRUE
-  )
-}
 
 
 .my_funs$install.packages2 <- function(package) {
@@ -610,28 +482,6 @@ local({
 registerS3method("print", "debuggerclass", .my_funs$print.debuggerclass)
 
 # Return elements containing vectors  of differing length
-.my_funs$differing_lengths <- function(lst) {
-  lst[sapply(lst, function(x) {
-    length(unique(lengths(x))) > 1L
-  })]
-}
-
-# My preferred Rmarkdown chunk options
-.my_funs$CHUNK_OPTS <-
-  list(
-    echo = TRUE,
-    comment = "",
-    fig.pos = "",
-    warning = FALSE,
-    fig.align = "center"
-  )
-# Make R prompt print directory relative to HOME, updating
-# on directory change
-.my_funs$setwd2 <- function(dir) {
-  home <- Sys.getenv("HOME")
-  setwd(dir)
-  options(prompt = paste0(file.path(basename(home), dir), "> "))
-}
 
 # Copy dependencies of a package to another directory
 .my_funs$populate_library <- function(package, target_dir = getwd(),

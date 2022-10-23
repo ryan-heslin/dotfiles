@@ -273,6 +273,15 @@ cmp_config.setup({
 
 --Extra completion sources
 
+for _, cmd_type in ipairs({ ":", "/", "?", "@" }) do
+    cmp_config.setup.cmdline(cmd_type, {
+        sources = {
+            { name = "buffer" },
+            { name = "cmdline_history" },
+        },
+    })
+end
+
 cmp_config.setup.cmdline(":", {
     sources = {
         { name = "cmdline" },
@@ -282,22 +291,24 @@ cmp_config.setup.cmdline(":", {
 
 cmp_config.setup.cmdline("?", {
     sources = {
-        { name = "buffer" },
+        { name = "nvim_lsp_document_symbol" },
+        { name = "nvim_lsp_signature_help" },
     },
 })
 
-cmp_config.setup.cmdline("@", {
-    sources = {
-        { name = "buffer" },
-    },
-})
+-- cmp_config.setup.cmdline("@", {
+--     sources = {
+--         { name = "buffer" },
+--         {name = "cmdline_history"}
+--     },
+-- })
 
 cmp_config.setup.cmdline("/", {
     sources = {
-        {
-            name = "buffer",
-            options = { keyword_pattern = [=[[^[:blank:]].*]=] },
-        },
+        -- {
+        --     name = "buffer",
+        --     options = { keyword_pattern = [=[[^[:blank:]].*]=] },
+        -- },
         { name = "nvim_lsp_document_symbol" },
         { name = "nvim_lsp_signature_help" },
     },
@@ -311,7 +322,7 @@ local spell_sources = {
     priority = 5,
     keyword_pattern = word_regex,
 }
---TODO add dictionary
+
 table.insert(sources, spell_sources)
 table.insert(sources, { name = "dictionary", keyword_length = 2 })
 for _, ft in ipairs(spell_filetypes) do

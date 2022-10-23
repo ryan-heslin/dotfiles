@@ -232,8 +232,7 @@ M.count_bufs_by_type = function(loaded_only)
     }
     local buftypes = vim.api.nvim_list_bufs()
     for _, bufname in pairs(buftypes) do
-        if
-            (not loaded_only or vim.api.nvim_buf_is_loaded(bufname)) and bufname
+        if (not loaded_only or vim.api.nvim_buf_is_loaded(bufname)) and bufname
         then
             local buftype = vim.api.nvim_buf_get_option(bufname, "buftype")
             buftype = buftype ~= "" and buftype or "normal"
@@ -300,21 +299,27 @@ M.get_opposite_window = function(dir)
     return dir_pairs[dir]
 end
 
-M.win_exec = function(keys, dir)
+M.win_exec = function(keys, direction)
+    if direction == nil then
+        return
+    end
     if keys == nil then
         keys = vim.fn.input("Window command: ")
     end
+
     local count = vim.v.count1
+    --TODO handle if command string has count
     local command =
-        string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
+    string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
     -- If window targeted by number instead of relative direction, just execute command
-    if type(dir) == "number" then
-        vim.fn.win_execute(dir, command)
+    if type(direction) == "number" then
+        vim.fn.win_execute(direction, command)
         return
     end
+
     -- Switch to window, execute command, switch back
     local this_window = vim.api.nvim_win_get_number(0)
-    vim.cmd("wincmd " .. dir)
+    vim.cmd("wincmd " .. direction)
     print(command)
     vim.cmd(command)
     vim.cmd(this_window .. "wincmd w")
@@ -427,18 +432,17 @@ M.toggle_opt = function(opt, val1, val2)
     else
         print(
             "Don't know how to handle option "
-                .. opt
-                .. " with value"
-                .. str(vim.o[opt])
+            .. opt
+            .. " with value"
+            .. str(vim.o[opt])
         )
     end
 end
 -- Count each value of a given option across all buffers
 M.summarize_option = function(opt)
-    if
-        not pcall(function()
-            vim.api.nvim_buf_get_option(0, opt)
-        end)
+    if not pcall(function()
+        vim.api.nvim_buf_get_option(0, opt)
+    end)
     then
         print("Invalid option " .. opt)
         return
@@ -491,23 +495,23 @@ M.add_abbrev = function(abbrev, expansion)
     if expansion == nil then
         local expansion = vim.fn.input(
             "Enter expansion for abbreviation "
-                .. M.surround_string(abbrev, '"', '"')
-                .. ": "
+            .. M.surround_string(abbrev, '"', '"')
+            .. ": "
         )
     end
     -- vim command to sub in new abbreviation at end of abbreviation chunk
     local cmd = [[$-1 s/$/\rinoreabbrev ]] .. abbrev .. " " .. expansion .. "/"
     local cmd = (
         "nvim -c '"
-        .. cmd
-        .. "' -c 'wq' /home/rheslin/dotfiles/nvim/lua/abbrev.lua"
-    )
+            .. cmd
+            .. "' -c 'wq' /home/rheslin/dotfiles/nvim/lua/abbrev.lua"
+        )
     vim.fn.system(cmd)
     print(
         "\nAdded abbreviation "
-            .. M.surround_string(expansion, '"', '"')
-            .. " for "
-            .. M.surround_string(abbrev, '"', '"')
+        .. M.surround_string(expansion, '"', '"')
+        .. " for "
+        .. M.surround_string(abbrev, '"', '"')
     )
 end
 
@@ -691,7 +695,7 @@ M.visual_search = function(target)
     end, print("No matches"))
 end
 
--- Extract text from the latest motion; 
+-- Extract text from the latest motion;
 -- intended to help define custom operators
 M.capture_motion_text = function(type)
     local start_pos = vim.api.nvim_buf_get_mark(0, "[")
@@ -711,7 +715,7 @@ M.capture_motion_text = function(type)
         )
     elseif type == "line" then
         text =
-            vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1] - 1, {})
+        vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1] - 1, {})
     else
         print("Unknown selection type " .. type)
         return nil
@@ -785,9 +789,9 @@ M.save_session = function()
     end
     local this_session = vim.g.current_session
         or (
-            vim.v.this_session ~= nil
+        vim.v.this_session ~= nil
             and vim.v.this_session ~= ""
-            and vim.fn.systemlist( --Check if session file exists with current session name
+            and vim.fn.systemlist(--Check if session file exists with current session name
                 'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
             )[1]
         )
@@ -811,8 +815,8 @@ M.save_session = function()
     if name_provided and M.file_exists(path) then
         local choice = vim.fn.input(
             "Session "
-                .. M.surround_string(current_session)
-                .. " already exists. Overwrite (y to overwrite, any other key to abort)? "
+            .. M.surround_string(current_session)
+            .. " already exists. Overwrite (y to overwrite, any other key to abort)? "
         )
         if choice ~= "y" then
             return
@@ -830,7 +834,7 @@ M.load_session = function()
     end
     -- Shell-quote for safety
     local latest_session =
-        vim.fn.systemlist("lastn " .. session_dir .. " 1 echo")[1]
+    vim.fn.systemlist("lastn " .. session_dir .. " 1 echo")[1]
     local session_name = vim.fn.systemlist(
         "basename -s '.vim' " .. M.surround_string(latest_session, "'")
     )[1]
@@ -842,8 +846,8 @@ M.load_session = function()
     if vim.fn.filereadable(latest_session) ~= 1 then
         print(
             "Session file "
-                .. M.surround_string(latest_session)
-                .. " does not exist or cannot be read"
+            .. M.surround_string(latest_session)
+            .. " does not exist or cannot be read"
         )
         return
     end
@@ -868,10 +872,10 @@ M.knit = function(file, quiet, view_result)
     args = quiet and "--silent " .. args or args
     local outfile = vim.fn.system(
         [[R ]]
-            .. args
-            .. [[ 'cat(rmarkdown::render("]]
-            .. file
-            .. [["), "\n") &']]
+        .. args
+        .. [[ 'cat(rmarkdown::render("]]
+        .. file
+        .. [["), "\n") &']]
     )
     -- Bail out on knit error
     -- if vim.v:shell_error != 0 then
@@ -901,8 +905,7 @@ M.count_pairs = function(str, char, close)
             open = open - 1
         end
         --TODO find correct stopping condition
-        if
-            open < 1
+        if open < 1
             and not string.find(string.sub(str, i + 1, -1), "%" .. close)
         then
             return i
@@ -927,9 +930,9 @@ M.match_paren = function()
     vim.fn.setline(
         ".",
         string.sub(line, 1, vim.fn.col(".") - 1)
-            .. string.sub(remainder, 1, i)
-            .. close
-            .. string.sub(remainder, i + 1, -1)
+        .. string.sub(remainder, 1, i)
+        .. close
+        .. string.sub(remainder, i + 1, -1)
     )
 end
 --if string.find(remainder,  pattern ) then
@@ -1018,10 +1021,10 @@ M.open_in_hidden = function(pattern)
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
         cmd = cmd
-                .. (
-                    files[i] ~= current_file
-                    and M.surround_string(files[i], " ", "")
-                )
+            .. (
+            files[i] ~= current_file
+                and M.surround_string(files[i], " ", "")
+            )
             or ""
     end
 
@@ -1051,8 +1054,7 @@ M.clean_buffers = function(remove_nonempty)
     for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
         if not vim.api.nvim_buf_is_loaded(bufnr) then
             local buf_name = vim.api.nvim_buf_get_name(bufnr)
-            if
-                ignore_nonempty
+            if ignore_nonempty
                 or buf_name == ""
                 or buf_name == "[Scratch]"
                 or buf_name == "[No Name]"
@@ -1110,8 +1112,7 @@ end
 -- Check conditions for saving session
 M.do_save_session = function(min_buffers)
     min_buffers = M.default_arg(min_buffers, 2)
-    if
-        M.count_bufs_by_type(true)["normal"] >= min_buffers
+    if M.count_bufs_by_type(true)["normal"] >= min_buffers
         and M.summarize_option("ft")["anki_vim"] == nil
     then
         M.save_session()
@@ -1159,11 +1160,10 @@ M.open_uri_under_cursor = function()
 
     -- consider anything that looks like string/string a github link
     local regex_plugin_url = "[%a%d%-%.%_]*%/[%a%d%-%.%_]*"
-    if
-        open_uri(
-            "https://github.com/"
-                .. string.match(word_under_cursor, regex_plugin_url)
-        )
+    if open_uri(
+        "https://github.com/"
+        .. string.match(word_under_cursor, regex_plugin_url)
+    )
     then
         return
     end
@@ -1226,12 +1226,12 @@ function M.create_tags_for_yanked_columns(df)
         --append column names to file
         vim.cmd(
             "RSend "
-                .. string.format(
-                    [[cat(paste(colnames(%s), "'%s'", sep=" <- "), sep = "\n", file= "%s", append = TRUE)]],
-                    df,
-                    df,
-                    newfile
-                )
+            .. string.format(
+                [[cat(paste(colnames(%s), "'%s'", sep=" <- "), sep = "\n", file= "%s", append = TRUE)]],
+                df,
+                df,
+                newfile
+            )
         )
     end
 
@@ -1270,9 +1270,9 @@ function M.create_tags_for_yanked_columns(df)
     -- This actually stores tags
     vim.cmd(
         [[!ctags -a --language-force=]]
-            .. ft_mapping[ft]
-            .. " "
-            .. newfile_shell_escaped
+        .. ft_mapping[ft]
+        .. " "
+        .. newfile_shell_escaped
     ) -- let ctags tag current newtag file
 
     vim.api.nvim_win_set_buf(0, bufid)
@@ -1336,11 +1336,10 @@ M.clean_definition = function(name)
     line = vim.fn.getline(".")
     -- in function call, so replace name = 5 with name = name
     local trailing_comma = string.match(line, ",%s*$")
-    if
-        trailing_comma
+    if trailing_comma
         or string.match(line, "^[a-zA-Z_.]+%(")
         or (
-            vim.fn.line(".") > 1
+        vim.fn.line(".") > 1
             and string.match(vim.fn.getline(vim.fn.line(".") - 1), ",%s*$")
         )
     then

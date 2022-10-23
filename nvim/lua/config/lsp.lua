@@ -163,7 +163,7 @@ on_attach = function(client, bufnr)
         opts
     )
     vim.cmd(
-        [[ command! Format execute 'lua vim.lsp.buf.format({async = false})' ]]
+        [[ command! Format execute 'lua vim.lsp.buf.format({async = false, timeout = 10000})' ]]
     )
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
@@ -175,42 +175,46 @@ on_attach = function(client, bufnr)
             vim.api.nvim_create_autocmd("BufWritePre", {
                 group = formatting,
                 buffer = bufnr,
-                callback = vim.lsp.buf.format,
+                callback = function() vim.lsp.buf.format({async = false, timeout = 10000}) end,
             })
         end
 
         if client.server_capabilities.document_highlight then
-            vim.cmd([[
-                 highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
-                 highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
-                 highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
-                 ]])
+            local ls_highlight = vim.api.nvim_create_namespace("ls_highlight")
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceRead", {cterm="bold", gui="Bold", ctermbg="yellow", guifg="SlateBlue", guibg="#ffff99"})
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceText", {cterm="bold", gui="Bold", ctermbg="red", guifg="SlateBlue", guibg="MidnightBlue"})
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceWrite", {cterm="bold", gui="Bold", ctermbg="yellow", guifg="DarkSlateBlue", guibg="#MistyRose"})
+            --vim.cmd([[
+                 --highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
+                 --highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
+                 --highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
+             --    ]])
 
             -- Trigger document highlighting on holding cursor
             local doc_highlight =
                 vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
             vim.api.nvim_clear_autocmds({
-                group = LSPDocumentHighlight,
+                group = doc_highlight,
                 buffer = bufnr,
             })
             vim.api.nvim_create_autocmd("CursorHold", {
                 callback = vim.lsp.buf.document_highlight,
-                group = LSPDocumentHighlight,
+                group = doc_highlight,
                 buffer = bufnr,
             })
             vim.api.nvim_create_autocmd("CursorHoldI", {
                 callback = vim.lsp.buf.document_highlight,
-                group = LSPDocumentHighlight,
+                group = doc_highlight,
                 buffer = bufnr,
             })
             vim.api.nvim_create_autocmd("CursorMoved", {
                 callback = vim.lsp.buf.clear_references,
-                roup = LSPDocumentHighlight,
+                roup = doc_highlight,
                 buffer = bufnr,
             })
             vim.api.nvim_create_autocmd("CursorMovedI", {
                 callback = vim.lsp.buf.clear_references,
-                augroup = LSPDocumentHighlight,
+                augroup = doc_highlight,
                 buffer = bufnr,
             })
         end
