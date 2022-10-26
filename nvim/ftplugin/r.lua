@@ -7,7 +7,7 @@ local inline_send = function()
     vim.cmd("RSend " .. vim.fn.getreg("z"))
 end
 --My utility functions
-inline_send = M.with_register(M.with_position(inline_send),"z")
+inline_send = M.with_register(M.with_position(inline_send), "z")
 
 local opts = { noremap = true, silent = true, buffer = true }
 vim.keymap.set("n", [[\kk]], inline_send, opts)
@@ -44,14 +44,8 @@ vim.keymap.set(
 )
 
 --Break substrings after commas into new lines
-vim.cmd([[autocmd! VimResized * vim.g.R_Rconsole_width = winwidth(0) / 4]])
+--vim.cmd([[autocmd! VimResized * vim.g.R_Rconsole_width = winwidth(0) / 4]])
 vim.cmd([[
 inoreabbrev T TRUE
 inoreabbrev FA FALSE
 ]])
-
-
---vim.b.ale_set_balloons = 1
---vim.b.ale_change_sign_column_color = 1
---vim.b.ale_set_highlights = 1
---vim.b.ale_virtualtext_cursor = 1

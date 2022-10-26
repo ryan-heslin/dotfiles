@@ -43,9 +43,6 @@ local format_diagnostic = function(diagnostic)
         )
         return ""
     end
-    --print(space)
-    --print(string.len(diagnostic.message))
-    -- Does not seem to work
     return message
 end
 
@@ -58,110 +55,46 @@ on_attach = function(client, bufnr)
     --or is it vim.v.lua.vim.lsp.lua.R_set_omnifunc
     --end
 
-    local opts = { noremap = true, silent = true }
-    vim.keymap.set(
-        { "n", "v" },
-        "gD",
-        "<cmd>lua vim.lsp.buf.declaration()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "gd",
-        "<cmd>lua vim.lsp.buf.definition()<CR>",
-        opts
-    )
-    vim.keymap.set({ "n", "v" }, "K", "<cmd>lua vim.lsp.buf.hover()<CR>", opts)
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>gi",
-        "<cmd>lua vim.lsp.buf.implementation()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<C-k>",
-        "<cmd>lua vim.lsp.buf.signature_help()<CR>",
-        opts
-    )
+    vim.wo.signcolumn = "yes"
+    local opts = { noremap = true, silent = true, buffer = bufnr }
+    vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
+    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
+    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+    vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+    vim.keymap.set({ "n", "v" }, "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set({ "n", "v" }, "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set({ "n", "v" }, "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>gi", vim.lsp.buf.implementation, opts)
+    vim.keymap.set({ "n", "v" }, "<C-k>", vim.lsp.buf.signature_help, opts)
     vim.keymap.set(
         { "n", "v" },
         "<leader>wa",
-        "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>",
+        vim.lsp.buf.add_workspace_folder,
         opts
     )
     vim.keymap.set(
         { "n", "v" },
         "<leader>wr",
-        "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>",
+        vim.lsp.buf.remove_workspace_folder,
         opts
     )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>wl",
-        "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>D",
-        "<cmd>lua vim.lsp.buf.type_definition()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>rn",
-        "<cmd>lua vim.lsp.buf.rename()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "gr",
-        "<cmd>lua vim.lsp.buf.references()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>ca",
-        "<cmd>lua vim.lsp.buf.code_action()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        "v",
-        "<leader>ca",
-        "<cmd>lua vim.lsp.buf.range_code_action()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>e",
-        '<cmd>lua vim.diagnostic.open_float(nil, {header = "Line Diagnostics", format = format_diagnostic, scope = "line"})<CR>',
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "[d",
-        "<cmd>lua vim.diagnostic.goto_prev()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "]d",
-        "<cmd>lua vim.diagnostic.goto_next()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>q",
-        "<cmd>lua vim.diagnostic.set_loclist()<CR>",
-        opts
-    )
-    vim.keymap.set(
-        { "n", "v" },
-        "<leader>so",
-        [[<cmd>lua require('telescope.builtin').lsp_document_symbols()<CR>]],
-        opts
-    )
+    vim.keymap.set({ "n", "v" }, "<leader>wl", function()
+        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+    end, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>D", vim.lsp.buf.type_definition, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>rn", vim.lsp.buf.rename, opts)
+    vim.keymap.set({ "n", "v" }, "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>a", vim.lsp.buf.code_action, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>e", function()
+        vim.diagnostic.open_float(nil, {
+            header = "Line Diagnostics",
+            --format = format_diagnostic,
+            scope = "line",
+        })
+    end, opts)
+    vim.keymap.set({ "n", "v" }, "<leader>so", function()
+        require("telescope.builtin").lsp_document_symbols()
+    end, opts)
     vim.cmd(
         [[ command! Format execute 'lua vim.lsp.buf.format({async = false, timeout = 10000})' ]]
     )
@@ -175,20 +108,37 @@ on_attach = function(client, bufnr)
             vim.api.nvim_create_autocmd("BufWritePre", {
                 group = formatting,
                 buffer = bufnr,
-                callback = function() vim.lsp.buf.format({async = false, timeout = 10000}) end,
+                callback = function()
+                    vim.lsp.buf.format({ async = false, timeout = 10000 })
+                end,
             })
         end
 
-        if client.server_capabilities.document_highlight then
+        if client.server_capabilities.documentHighlightProvider then
             local ls_highlight = vim.api.nvim_create_namespace("ls_highlight")
-            vim.api.nvim_set_hl(ls_highlight, "LspReferenceRead", {cterm="bold", gui="Bold", ctermbg="yellow", guifg="SlateBlue", guibg="#ffff99"})
-            vim.api.nvim_set_hl(ls_highlight, "LspReferenceText", {cterm="bold", gui="Bold", ctermbg="red", guifg="SlateBlue", guibg="MidnightBlue"})
-            vim.api.nvim_set_hl(ls_highlight, "LspReferenceWrite", {cterm="bold", gui="Bold", ctermbg="yellow", guifg="DarkSlateBlue", guibg="#MistyRose"})
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceRead", {
+                bold = true,
+                --ctermbg = "yellow",
+                fg = "SlateBlue",
+                bg = "#808000",
+            })
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceText", {
+                bold = true,
+                --ctermbg = "red",
+                fg = "SlateBlue",
+                bg = "MidnightBlue",
+            })
+            vim.api.nvim_set_hl(ls_highlight, "LspReferenceWrite", {
+                bold = true,
+                --ctermbg = "yellow",
+                fg = "DarkSlateBlue",
+                bg = "MistyRose",
+            })
             --vim.cmd([[
-                 --highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
-                 --highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
-                 --highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
-             --    ]])
+            --highlight LspReferenceRead cterm=bold gui=Bold ctermbg=yellow guifg=SlateBlue guibg=#ffff99
+            --highlight LspReferenceText cterm=bold gui=Bold ctermbg=red guifg=SlateBlue guibg=MidnightBlue
+            --highlight LspReferenceWrite cterm=bold gui=Bold ctermbg=red guifg=DarkSlateBlue guibg=MistyRose
+            --    ]])
 
             -- Trigger document highlighting on holding cursor
             local doc_highlight =
@@ -209,13 +159,35 @@ on_attach = function(client, bufnr)
             })
             vim.api.nvim_create_autocmd("CursorMoved", {
                 callback = vim.lsp.buf.clear_references,
-                roup = doc_highlight,
+                group = doc_highlight,
                 buffer = bufnr,
             })
             vim.api.nvim_create_autocmd("CursorMovedI", {
                 callback = vim.lsp.buf.clear_references,
-                augroup = doc_highlight,
+                group = doc_highlight,
                 buffer = bufnr,
+            })
+        end
+
+        if false and client.name == "r_language_server" then
+            vim.api.nvim_create_autocmd("CursorHold", {
+                buffer = bufnr,
+                callback = function()
+                    local float_opts = {
+                        focusable = false,
+                        close_events = {
+                            "BufLeave",
+                            "CursorMoved",
+                            "InsertEnter",
+                            "FocusLost",
+                        },
+                        border = "rounded",
+                        source = "always",
+                        prefix = " ",
+                        --scope = 'cursor',
+                    }
+                    vim.diagnostic.open_float(nil, float_opts)
+                end,
             })
         end
     end
@@ -235,10 +207,6 @@ local servers = {
     marksman = {},
     pyright = { filetypes = { "python", "quarto" } },
     r_language_server = {
-        --root_dir = function(fname)
-        --   return require("lspconfig.util").find_git_ancestor(fname)
-        --      or vim.loop.os_homedir()
-        --end,
         filetypes = { "r", "rmd", "quarto" },
     },
     racket_langserver = { filetypes = { "racket", "scheme" } },
@@ -296,6 +264,7 @@ vim.diagnostic.config({
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
 --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
 local handlers = {
     ["textDocument/signatureHelp"] = vim.lsp.with(
@@ -308,9 +277,10 @@ local handlers = {
     ["textDocument/publishDiagnostics"] = vim.lsp.with(
         vim.lsp.diagnostic.on_publish_diagnostics,
         {
-            --virtual_text = {
-            --   source = 'if_many',
-            --format = format_diagnostic},
+            virtual_text = {
+                source = "if_many",
+                format = format_diagnostic,
+            },
             update_in_insert = true,
             underline = true,
             severity_sort = true,
@@ -342,9 +312,8 @@ for server, settings in pairs(servers) do
         },
     })
 end
-vim.g.lsp_done = true
-vim.wo.signcolumn = "yes"
-vim.lsp.set_log_level("error")
+--vim.g.lsp_done = true
+vim.lsp.set_log_level("debug")
 --end
 --
 

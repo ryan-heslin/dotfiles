@@ -1,24 +1,29 @@
--- Patterns to match chunk beginning and end lines
 --
--- TODO use unpack to handle parser with multiple return values
+
+get_single_line = function(buffer, line)
+    return vim.api.nvim_buf_get_lines(buffer, line - 1, line, {})
+end
 
 -- Form text into newline-separated string, adding
--- space to ensure last line is evaluated
+-- extra to ensure last line is evaluated
 collapse_text = function(text)
     table.insert(text, " ")
     return table.concat(text, "\n")
 end
 
+-- Compose functions to parse buffer text and to send it to a REPL
 create_send_function = function(parser, sender)
     return function(...)
         local result = parser(...)
         return sender(result)
     end
 end
+
+-- Patterns to match chunk beginning and end lines
 chunk_start = "^%s*```{python.*$"
 -- Vim pattern, not Lua
 any_chunk_start = [[^\s*```{[a-z]\+]]
-chunk_end = "^%s*```$"
+chunk_end = "^%s*```%s*$"
 
 -- Send a code chunk to a slime REPL
 run_current_chunk = function(buffer)
@@ -32,7 +37,6 @@ run_current_chunk = function(buffer)
     local last_line = vim.fn.line("$")
     -- This function is 0-indexed
     local buffer_lines = vim.api.nvim_buf_get_lines(buffer, 0, last_line, {})
-    local error_prefix = "Invalid line: "
     -- Both loops include current line
     -- Find nearest chunk start
     local nearest_start = get_table_match_index(
@@ -44,6 +48,7 @@ run_current_chunk = function(buffer)
         chunk_end
     )
     if nearest_start == nil then
+        print("Could not find chunk start from cursor position")
         return
     end
 
@@ -56,9 +61,10 @@ run_current_chunk = function(buffer)
         chunk_start
     )
     if nearest_end == nil then
+        print("Could not find chunk end from cursor position")
         return
     end
-    -- Fail on empty chunk
+    -- Fail silently  on empty chunk
     if nearest_end - nearest_start < 2 then
         return
     end
@@ -67,7 +73,7 @@ run_current_chunk = function(buffer)
     return nearest_start + 1, nearest_end - 1
 end
 
--- Gets first index of table that matches pattern, or nil if an "abort" pattern is encountered before it
+-- Get index of first table element that matches pattern, or nil if an "abort" pattern is encountered before it
 get_table_match_index =
     function(lines, start, stop, step, match_pattern, abort_pattern)
         local line
@@ -89,19 +95,15 @@ function parse_code_chunks(buffer, stop_line)
     if buffer == nil then
         buffer = 0
     end
-    local buffer_lines = vim.api.nvim_buf_get_lines(
-        buffer,
-        0,
-        vim.fn.line("$"),
-        {}
-    )
+    local buffer_lines =
+        vim.api.nvim_buf_get_lines(buffer, 0, vim.fn.line("$"), {})
     if stop_line == nil then
         stop_line = table.getn(buffer_lines)
     end
     local code = {}
     local chunk_started, chunk_ended
     local in_chunk = false
-    -- Iterate over whole table even if stop_line specified in order to run contaiing
+    -- Iterate over whole table even if stop_line specified in order to run containing
     -- chunk if stop_line part of a chunk
     for i, line in ipairs(buffer_lines) do
         chunk_started = string.match(line, chunk_start)
@@ -136,31 +138,23 @@ function parse_code_chunks(buffer, stop_line)
         end
         --local slime_config = vim.api.nvim_buf_get_var(buffer, "slime_config")
     end
-    --IPython indent escaping
-    --table.insert(code, 1,"%cpaste -q\n" )
-    --table.insert(code, "--\n")
     return code
-    --return ["%cpaste -q\n", g:slime_dispatch_ipython_pause, a:text, "--\n"]
-end
-
--- Disable autoindent to send text, to prevent indentation errors
-toggle_autoindent = function(func)
-    return function(...)
-        M.term_exec("%autoindent on")
-        local out = func(...)
-        --M.term_exec("%autoindent on")
-        return out
-    end
 end
 
 run_all_chunks = create_send_function(parse_code_chunks, function(text)
-    -- Janky but partially working
+    vim.fn["slime#send"](collapse_text(text))
+end)
+
+-- Use special IPython escape magic to send Python code
+-- Currently broken by IPython update 8.2.0;
+-- see https://github.com/ipython/ipython/issues/13622
+run_all_chunks_ipython = create_send_function(parse_code_chunks, function(text)
     vim.fn["slime#send"]("%cpaste -q\n")
     vim.fn["slime#send"](collapse_text(text))
     vim.fn["slime#send"]("\n--\n")
 end)
 
-run_current_chunks_above = create_send_function(function()
+run_chunks_above = create_send_function(function()
     return parse_code_chunks(
         0,
         vim.fn.line(".", vim.fn.bufwinid(vim.api.nvim_buf_get_name(0)))
@@ -177,12 +171,7 @@ run_line = function(buffer)
     local buffer_name = vim.api.nvim_buf_get_name(buffer)
     -- bufwinid takes a buffer name, not number
     local current_line = vim.fn.line(".", vim.fn.bufwinid(buffer_name))
-    local line = vim.api.nvim_buf_get_lines(
-        buffer,
-        current_line - 1,
-        current_line,
-        {}
-    )
+    local line = get_single_line(buffer, current_line)
     vim.fn["slime#send"](collapse_text(line))
 end
 
@@ -211,9 +200,11 @@ extract_text_object = function(buffer, text_object)
     vim.fn.setreg("z", old_register)
     return text .. "\n "
 end
+
 run_paragraph = create_send_function(function()
     return extract_text_object(nil, "ip")
 end, vim.fn["slime#send"])
+
 run_word = create_send_function(function()
     return extract_text_object(nil, "iW")
 end, vim.fn["slime#send"])
@@ -227,7 +218,6 @@ parse_visual_selection = function(buffer)
     -- Define visual registers "'<", "'>" marking selection bounds
     -- If either missing, return empty string
     -- Get visual mode (char, line, block)
-    local mode = vim.fn.visualmode()
     local visual_start = "'<"
     local visual_end = "'>"
     local start_line = vim.fn.line(visual_start)
@@ -238,12 +228,8 @@ parse_visual_selection = function(buffer)
     if end_line < start_line then
         start_line, end_line = end_line, start_line
     end
-    local selected_lines = vim.api.nvim_buf_get_lines(
-        buffer,
-        start_line - 1,
-        end_line,
-        {}
-    )
+    local selected_lines =
+        vim.api.nvim_buf_get_lines(buffer, start_line - 1, end_line, {})
     --print(vim.inspect(selected_lines))
     local n_lines = table.getn(selected_lines)
     -- If only one line selected, start and end col both occur on it, hence
@@ -253,23 +239,13 @@ parse_visual_selection = function(buffer)
     else
         -- Trim non-selected parts of start and end lines
         selected_lines[1] = string.sub(selected_lines[1], start_col)
-        selected_lines[n_lines] = string.sub(
-            selected_lines[n_lines],
-            1,
-            end_col
-        )
+        selected_lines[n_lines] =
+            string.sub(selected_lines[n_lines], 1, end_col)
     end
     return selected_lines
-    --if mode == "v" then
-    --elseif mode == "V" then
-    --elseif mode == "^V" then
-    --else
-    --print("Invalid visual mode " .. mode)
-    --return ""
-    --end
 end
 
-send_visual_selection = create_send_function(
+run_visual_selection = create_send_function(
     parse_visual_selection,
     function(text)
         vim.fn["slime#send"](collapse_text(text))
@@ -300,7 +276,7 @@ end
 -- Find chunk by chunk name
 -- If duplicate names, finds first, going down and wrapping
 find_named_chunk = function(name)
-    local pattern = [[^\s*```{.*\s*]] .. name .. [[}\s*$]]
+    local pattern = [[^\s*```{.*\s\+]] .. name .. [[\s*}\s*$]]
     local flags = "w" -- Wrap
     return vim.fn.search(pattern, flags)
 end
@@ -322,13 +298,9 @@ end
 run_next_chunk = function()
     local next_chunk_start = find_chunk(1)
 
-    -- Do not run if no next chunk found (i.e., cursor in last chunk in buffer)
+    -- Do not run if no next chunk found (i.e., cursor in last chunk in buffer or below)
     if next_chunk_start ~= 0 then
         run_current_chunk()
     end
 end
---TODO:
--- 1. Jump to chunks by name/position (absolute or relative)
--- 2.  Run next chunk
---
 -- TODO parse specific languages

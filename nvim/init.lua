@@ -37,6 +37,12 @@ packer.startup(function(use)
         end,
     })
     use("kassio/neoterm")
+    use({
+        "lewis6991/gitsigns.nvim",
+        config = function()
+            require("gitsigns").setup()
+        end,
+    })
     use("jpalardy/vim-slime")
     use("sillybun/vim-repl")
     use("hanschen/vim-ipython-cell")
@@ -56,6 +62,7 @@ packer.startup(function(use)
     use("jez/vim-better-sml")
     use("neovim/nvim-lspconfig")
     use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
+    use("nvim-treesitter/nvim-treesitter-textobjects")
     use("REditorSupport/languageserver")
     use("hrsh7th/nvim-cmp")
     use("hrsh7th/cmp-nvim-lsp")
@@ -126,6 +133,7 @@ packer.startup(function(use)
             require("Comment").setup()
         end,
     })
+    --use("ggandor/leap.nvim")
     use({
         "phaazon/hop.nvim",
         branch = "v2", -- optional but strongly recommended
@@ -141,7 +149,7 @@ packer.startup(function(use)
 end)
 
 -- My custom configuration files
-require("custom_utils")
+M = require("custom_utils")
 require("autocommands")
 require("options")
 require("commands")
@@ -155,7 +163,8 @@ require("config/lsp_signature")
 require("config/Nvim-R")
 require("config/UltiSnips")
 require("config/vim-slime")
-require("config/treesitter")
+require("config/nvim-treesitter")
+require("config/nvim-treesitter-textobjects")
 require("config/hop")
 require("quarto")
 require("config/nvim-surround")
