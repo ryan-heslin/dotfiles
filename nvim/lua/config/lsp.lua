@@ -313,7 +313,7 @@ for server, settings in pairs(servers) do
     })
 end
 --vim.g.lsp_done = true
-vim.lsp.set_log_level("debug")
+vim.lsp.set_log_level("error")
 --end
 --
 
