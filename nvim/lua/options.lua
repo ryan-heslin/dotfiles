@@ -1,7 +1,7 @@
 vim.cmd("filetype plugin indent on")
-vim.cmd("syntax enable")
-vim.cmd("colorscheme OceanicNext")
-vim.g.text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
+vim.cmd.syntax("enable")
+vim.cmd.colorscheme("OceanicNext")
+text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
 --For now, enabling this (to use lua filtetype detection file in addition to .vim
 --version) just slows startup
 --vim.g.do_filetype_lua = 1
@@ -41,11 +41,12 @@ vim.o.breakindent = true
 vim.opt.breakindentopt:append({ "shift:2", "min:10" })
 
 vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
+
 -- Line numbers & indentation
 vim.opt.backspace:append({ "indent", "eol", "start" })
 vim.o.hidden = true
 vim.o.wrapscan = true
-vim.opt.shortmess:append({ a = True })
+vim.opt.shortmess:append({ a = true })
 vim.o.showbreak = ">>"
 vim.o.laststatus = 2
 vim.o.number = true
@@ -98,7 +99,7 @@ vim.o.undofile = true
 vim.o.confirm = true
 vim.o.autowrite = true
 vim.o.swapfile = false
-vim.g.python3_host_prog = [[/usr/bin/python3]]
+vim.g.python3_host_prog = "/usr/bin/python3"
 vim.cmd([[
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
   \,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor

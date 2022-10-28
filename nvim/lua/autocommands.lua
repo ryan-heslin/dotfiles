@@ -76,6 +76,7 @@ vim.api.nvim_create_autocmd(
     { pattern = "*", command = [[normal! zr]] }
 )
 
+-- Configure terminal on enter
 vim.api.nvim_create_augroup("Terminal", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*",
@@ -84,8 +85,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
         if vim.o.buftype == "terminal" then
             vim.cmd.startinsert()
         end
-    end    --[[if &buftype == 'terminal' | :startinsert | endif]]
-,
+    end,
 })
 vim.api.nvim_create_autocmd("TermOpen", {
     pattern = "*",
@@ -152,8 +152,6 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
         M.do_save_session()
     end,
 })
---autocmd! FileChangedShell *.pdf v:fcs_choice]]})
---Maybe utils not sourced at this point?
 vim.api.nvim_create_autocmd("VimEnter", {
     pattern = "*",
     callback = function()
@@ -175,13 +173,6 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
     desc = "Record latest Rmarkdown file for automatic knitting",
 })
--- Trailing * in pattern matches /, unlike vanilla Bash
---
---vim.api.nvim_create_autocmd("BufReadPre", {
---pattern = "~/R/Projects/spring_22/assistantship/textCF/*",
---command = 'let R_path="~/R-4.1.0/bin"',
---desc = "Point Nvim-R to old R executable for renv-controlled project built with old R version",
---})
 vim.api.nvim_create_autocmd("BufEnter", {
     callback = M.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
@@ -207,7 +198,8 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
 --require("cmp").setup.buffer({ sources = { { name = "vim-dadbod" } } })
 --end,
 --})
-local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
+--
+--local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
 -- From https://github.com/neovim/neovim/issues/20455
 vim.api.nvim_create_autocmd("WinClosed", {
     callback = function(args)
@@ -217,21 +209,21 @@ vim.api.nvim_create_autocmd("WinClosed", {
         vim.cmd.wincmd("p")
     end,
 })
-vim.api.nvim_create_autocmd("ColorScheme *", {
-    command = [=[
-   highlight pythonImportedObject ctermfg=127 guifg=127
- \ | highlight pythonImportedFuncDef ctermfg=127 guifg=127
- \ | highlight pythonImportedClassDef ctermfg=127 guifg=127
- \ | syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
- \ | syntax match self /\(\W\|^\)\@<=self\(\.\)\@=/
- \ | syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
- \ | syntax match method /\v[[:alnum:]_]\.\zs[[:alnum:]_]+\ze\(/
- \ | syntax match call /\v([(, ]|^)\zs[[:alnum:]_]+\ze\s*\(/
- \ | highlight def link pythonFunction Function
- \ | highlight self ctermfg=Yellow guifg=Yellow
- \ | highlight call ctermfg=Blue guifg=RoyalBlue3
- \ | highlight method guifg=DarkOrchid3
-]=],
-    group = pycolors,
-    pattern = "*.py",
-})
+-- vim.api.nvim_create_autocmd("ColorScheme *", {
+--     command = [=[
+--    highlight pythonImportedObject ctermfg=127 guifg=127
+--  \ | highlight pythonImportedFuncDef ctermfg=127 guifg=127
+--  \ | highlight pythonImportedClassDef ctermfg=127 guifg=127
+--  \ | syntax match Type /\v\.[a-zA-Z0-9_]+\ze(\[|\s|$|,|\]|\)|\.|:)/hs=s+1
+--  \ | syntax match self /\(\W\|^\)\@<=self\(\.\)\@=/
+--  \ | syntax match pythonFunction /\v[[:alnum:]_]+\ze(\s?\()/
+--  \ | syntax match method /\v[[:alnum:]_]\.\zs[[:alnum:]_]+\ze\(/
+--  \ | syntax match call /\v([(, ]|^)\zs[[:alnum:]_]+\ze\s*\(/
+--  \ | highlight def link pythonFunction Function
+--  \ | highlight self ctermfg=Yellow guifg=Yellow
+--  \ | highlight call ctermfg=Blue guifg=RoyalBlue3
+--  \ | highlight method guifg=DarkOrchid3
+-- ]=],
+--     group = pycolors,
+--     pattern = "*.py",
+-- })

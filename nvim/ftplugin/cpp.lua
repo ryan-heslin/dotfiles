@@ -1,1 +1,1 @@
-vim.cmd('inoreabbrev rexp // [[Rcpp::export]]')
+vim.cmd.inoreabbrev("rexp // [[Rcpp::export]]")

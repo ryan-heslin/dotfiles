@@ -100,7 +100,8 @@ on_attach = function(client, bufnr)
     )
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     if client then
-        if client.supports_method("textDocument/formatting")
+        if
+            client.supports_method("textDocument/formatting")
             and client.name ~= "null-ls"
         then
             vim.api.nvim_clear_autocmds({ group = formatting, buffer = bufnr })
@@ -141,7 +142,7 @@ on_attach = function(client, bufnr)
 
             -- Trigger document highlighting on holding cursor
             local doc_highlight =
-            vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
+                vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
             vim.api.nvim_clear_autocmds({
                 group = doc_highlight,
                 buffer = bufnr,

@@ -175,7 +175,3 @@ require("syntax")
 
 -- Manually reset operatorfunc
 M.restore_default("operatorfunc")
-
--- From https://superuser.com/questions/345520/vim-number-of-total-buffers
--- Remove all trailing whitespace by pressing C-S
---nnoremap <C-S> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>

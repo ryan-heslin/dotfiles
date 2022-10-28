@@ -1,304 +1,68 @@
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;;]],
-    [[$$<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;_]],
-    [[__<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;*]],
-    [[**<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "n",
-    [[\:]],
-    [[:RSend<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "n",
-    [[;M]],
-    [[I<CR><CR>$$<CR><CR>$$<Esc>ki]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;\]],
-    [[<esc>A\\<esc>j]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[~~]],
-    [[\sim<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;th]],
-    [[\theta]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;m]],
-    [[\mu]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;a]],
-    [[\alpha]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;be]],
-    [[\beta]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;de]],
-    [[\delta]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;s]],
-    [[\sigma]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ss]],
-    [[\sigma^2]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ep]],
-    [[\epsilon]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;S]],
-    [[\Sigma]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;la]],
-    [[\lambda]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;L]],
-    [[\Lambda]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;g]],
-    [[\gamma]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;G]],
-    [[\Gamma]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ph]],
-    [[\phi]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;pi]],
-    [[\pi]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;[]],
-    [[\[<cr><cr>\]<Esc>ki<tab>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;E]],
-    [[E[]<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;c]],
-    [[^]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;inv]],
-    [[^{-1}]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;h]],
-    [[\hat{}<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ba]],
-    [[\bar{}<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;frac]],
-    [[\frac{}{<++>}<Esc>ba]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;lr]],
-    [[\left(\right)<Esc>bba]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;xx]],
-    [[X_1,<Space>\ldots<Space>,X_n<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;si]],
-    [[\overset{\text{iid}}{\sim}<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;yy]],
-    [[Y_1,<Space>\ldots<Space>,Y_n<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;su]],
-    [[\sum_{i=<++>}^{<++>}<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;pr]],
-    [[\prod_{i=<++>}^{<++>}<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;te]],
-    [[\text{}<Esc>i]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ri]],
-    [[\rightarrow<Space>\infty<Space>]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
+local opts = { noremap = true, silent = true, buffer = true }
+local km = vim.keymap
+-- Many of these are copied from a source I failed to note
+km.set("i", [[;;]], [[$$<Esc>i]], opts)
+km.set("i", [[;_]], [[__<Esc>i]], opts)
+km.set("i", [[;*]], [[**<Esc>i]], opts)
+km.set("n", [[;M]], [[I<CR><CR>$$<CR><CR>$$<Esc>ki]], opts)
+km.set("i", [[;\]], [[<esc>A\\<esc>j]], opts)
+km.set("i", [[~~]], [[\sim<Space>]], opts)
+km.set("i", [[;th]], [[\theta]], opts)
+km.set("i", [[;m]], [[\mu]], opts)
+km.set("i", [[;a]], [[\alpha]], opts)
+km.set("i", [[;be]], [[\beta]], opts)
+km.set("i", [[;de]], [[\delta]], opts)
+km.set("i", [[;s]], [[\sigma]], opts)
+km.set("i", [[;ss]], [[\sigma^2]], opts)
+km.set("i", [[;ep]], [[\epsilon]], opts)
+km.set("i", [[;S]], [[\Sigma]], opts)
+km.set("i", [[;la]], [[\lambda]], opts)
+km.set("i", [[;L]], [[\Lambda]], opts)
+km.set("i", [[;g]], [[\gamma]], opts)
+km.set("i", [[;G]], [[\Gamma]], opts)
+km.set("i", [[;ph]], [[\phi]], opts)
+km.set("i", [[;pi]], [[\pi]], opts)
+km.set("i", [[;[]], [[\[<cr><cr>\]<Esc>ki<tab>]], opts)
+km.set("i", [[;E]], [[E[]<Esc>i]], opts)
+km.set("i", [[;c]], [[^]], opts)
+km.set("i", [[;inv]], [[^{-1}]], opts)
+km.set("i", [[;h]], [[\hat{}<Esc>i]], opts)
+km.set("i", [[;ba]], [[\bar{}<Esc>i]], opts)
+km.set("i", [[;frac]], [[\frac{}{<++>}<Esc>ba]], opts)
+km.set("i", [[;lr]], [[\left(\right)<Esc>bba]], opts)
+km.set("i", [[;xx]], [[X_1,<Space>\ldots<Space>,X_n<Space>]], opts)
+km.set("i", [[;si]], [[\overset{\text{iid}}{\sim}<Space>]], opts)
+km.set("i", [[;yy]], [[Y_1,<Space>\ldots<Space>,Y_n<Space>]], opts)
+km.set("i", [[;su]], [[\sum_{i=<++>}^{<++>}<Space>]], opts)
+km.set("i", [[;pr]], [[\prod_{i=<++>}^{<++>}<Space>]], opts)
+km.set("i", [[;te]], [[\text{}<Esc>i]], opts)
+km.set("i", [[;ri]], [[\rightarrow<Space>\infty<Space>]], opts)
+km.set(
+
     "i",
     [[;ho]],
     [[H_0:<Space><++>=0\text{ vs. }H_A:<Space><++>\neq<Space>0]],
-    { noremap = true, silent = true }
+    opts
 )
-vim.api.nvim_buf_set_keymap(
-    0,
+km.set(
+
     "i",
     [[;ali]],
     [[\[<CR>\begin{aligned}<CR><CR>\end{aligned}<CR>\]<Esc>2kA&<Space>]],
-    { noremap = true, silent = true }
+    opts
 )
-vim.api.nvim_buf_set_keymap(
-    0,
+km.set(
+
     "i",
     [[;enum]],
     [[\begin{enumerate}<cr><cr>\end{enumerate}<esc>ki<tab>\item]],
-    { noremap = true, silent = true }
+    opts
 )
-vim.api.nvim_buf_set_keymap(
-    0,
+km.set(
     "i",
     [[;ta]],
     [[\begin{tabular}{<++>}<CR><CR>\end{tabular}<Esc>ki]],
-    { noremap = true, silent = true }
+    opts
 )
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ca]],
-    [[\begin{cases}<CR><CR>\end{cases}<Esc>ki]],
-    { noremap = true, silent = true }
-)
-vim.api.nvim_buf_set_keymap(
-    0,
-    "i",
-    [[;ce]],
-    [[\begin{center}<CR><CR>\end{center}<Esc>ki]],
-    { noremap = true, silent = true }
-)
-
-vim.b.surround_101 = "\\begin{\1environment: \1}\r\\end{\1\1}"
-vim.b.surround_108 = "\\\1command: \1{\r}"
+km.set("i", [[;ca]], [[\begin{cases}<CR><CR>\end{cases}<Esc>ki]], opts)
+km.set("i", [[;ce]], [[\begin{center}<CR><CR>\end{center}<Esc>ki]], opts)

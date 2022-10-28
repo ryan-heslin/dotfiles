@@ -503,7 +503,7 @@ km.set(
 --Collapse last paste with literal newlines
 km.set("n", "<leader>jj", function()
     return M.modify_register(function(x)
-        string.gsub(x, [=[\n]=], [=[\\n]=])
+        return string.gsub(x, [=[\n]=], [=[\\n]=])
     end)
 end)
 

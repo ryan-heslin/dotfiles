@@ -6,7 +6,7 @@ local home_path = function()
 end
 
 -- Lightly modified from defaults
- require("lualine").setup({
+require("lualine").setup({
     options = {
         icons_enabled = true,
         theme = "gruvbox_dark",
@@ -26,7 +26,7 @@ end
             {
                 "diagnostics",
                 update_in_insert = true,
-                sources = { "nvim_lsp",  "ale" },
+                sources = { "nvim_lsp", "ale" },
             },
         },
         lualine_c = { { "filename", newfile_status = true } },

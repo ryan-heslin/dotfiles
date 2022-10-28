@@ -5,13 +5,14 @@
 --vim.g.UliSnipsListSnippets='<F2>'
 --vim.g.UltiSnipsRemoveSelectModeMappings = 0
 --
-local UltiSnips = vim.fn.stdpath('config') .. [[/custom_snippets]]
+local UltiSnips = vim.fn.stdpath("config") .. "/custom_snippets"
 vim.g.UltiSnipsExpandTrigger = "tab"
 vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
-vim.g.UltiSnipsJumpBackwardTrigger =
-    "<S-Tab>"
+vim.g.UltiSnipsJumpBackwardTrigger = "<S-Tab>"
 vim.g.UltiSnipsListSnippets = "<c-x><c-s>"
 vim.g.UltiSnipsRemoveSelectModeMappings = 0
-vim.g.UltiSnipsEditSplit='context'
-vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit= UltiSnips
-vim.cmd([=[let g:UltiSnipsSnippetDirectories =  ["UltiSnips", stdpath('config') . '/custom_snippets']]=])
+vim.g.UltiSnipsEditSplit = "context"
+vim.g.UltiSnipsSnippetStorageDirectoryForUltiSnipsEdit = UltiSnips
+vim.cmd(
+    [=[let g:UltiSnipsSnippetDirectories =  ["UltiSnips", stdpath('config') . '/custom_snippets']]=]
+)

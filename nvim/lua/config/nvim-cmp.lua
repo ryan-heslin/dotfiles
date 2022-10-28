@@ -1,9 +1,9 @@
 -- Partly taken fom the wiki
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
-    local max_size = M.default_arg(max_size, 1024 * 1024)
-    local ignore_hidden = M.default_arg(hidden, true)
-    local filetype = M.default_arg(vim.bo.filetype)
+    max_size = M.default_arg(max_size, 1024 * 1024)
+    ignore_hidden = M.default_arg(ignore_hidden, true)
+    filetype = M.default_arg(vim.bo.filetype)
     return (not ignore_hidden or vim.api.nvim_buf_is_loaded(bufnr))
         and vim.api.nvim_buf_get_offset(
             bufnr,
@@ -53,11 +53,6 @@ sources = {
     --},
     --get_bufnrs = {function() return get_bufnrs() end}
 }
---require('telescope').load_extension('fzf')
-local check_back_space = function()
-    local col = vim.fn.col(".") - 1
-    return col == 0 or vim.fn.getline("."):sub(col, col):match("%s") ~= nil
-end
 
 local has_any_words_before = function()
     if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
@@ -116,10 +111,6 @@ end
 
 function M.jump_backwards(fallback)
     M.compose({ "jump_backwards", "select_prev_item" })(fallback)
-end
-
-local t = function(str)
-    return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
 
 cmp_config.setup({
@@ -227,11 +218,6 @@ cmp_config.setup({
                         behavior = cmp_config.SelectBehavior.Insert,
                     })
                 elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    -- vim.api.nvim_feedkeys(
-                    --     t("<Plug>(ultisnips_jump_forward)"),
-                    --     "m",
-                    --     true
-                    -- )
                     cmp_ultisnips_mappings.expand_or_jump_forwards()
                 else
                     fallback()
@@ -239,11 +225,6 @@ cmp_config.setup({
             end,
             s = function(fallback)
                 if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    -- vim.api.nvim_feedkeys(
-                    --     t("<Plug>(ultisnips_jump_forward)"),
-                    --     "m",
-                    --     true
-                    -- )
                     cmp_ultisnips_mappings.expand_or_jump_forwards()
                 else
                     fallback()

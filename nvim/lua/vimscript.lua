@@ -17,7 +17,7 @@ end
 
 function _G.refresh(file)
     -- https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
-    local file = file or vim.fn.expand("%:p")
+    file = file or vim.fn.expand("%:p")
     local extension = vim.bo.filetype
     local cmd = ""
     if extension == "R" or extension == "r" then

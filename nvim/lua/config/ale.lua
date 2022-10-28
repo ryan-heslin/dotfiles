@@ -17,15 +17,5 @@ vim.g.ale_linters = {
 }
 vim.g.ale_warn_about_trailing_whitespace = 0
 vim.g.ale_warn_about_trailing_blank_lines = 0
---let g:ale_r_lintr_options='lintr::with_defaults(absolute_path_linter = absolute_path_linter(lax = FALSE),
---\ cyclocomp_linter = cyclocomp_linter(20),
---\ implicit_integer_linter = implicit_integer_linter(),
---\ line_length_linter(120),
---\ object_usage_linter = object_usage_linter(),
---\ spaces_left_parentheses_linter = spaces_left_parentheses_linter(),
---\ unneeded_concatenation_linter = unneeded_concatenation_linter()
---\ )'
---let g:ale_r_lintr_options='lintr::with_defaults()'
 --highlight ALEErrorSign guifg=Red
 --highlight ALEWarningSign guifg=Yellow
-
