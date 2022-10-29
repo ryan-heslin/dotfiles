@@ -133,7 +133,7 @@ packer.startup(function(use)
             require("Comment").setup()
         end,
     })
-    --use("ggandor/leap.nvim")
+    use("ggandor/leap.nvim")
     use({
         "phaazon/hop.nvim",
         branch = "v2", -- optional but strongly recommended
@@ -166,6 +166,7 @@ require("config/vim-slime")
 require("config/nvim-treesitter")
 require("config/nvim-treesitter-textobjects")
 require("config/hop")
+require("config/leap")
 require("quarto")
 require("config/nvim-surround")
 require("abbrev")

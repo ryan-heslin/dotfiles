@@ -457,7 +457,6 @@ km.set({ "n" }, "<Leader>tP", 'bdwmzF,b"ydww', opts)
 km.set({ "n" }, "<Leader>em", function()
     vim.cmd.Embrace()
 end, opts)
-km.set({ "n" }, "<Leader>ss", "Ea)<C-o>B(<left>", opts)
 km.set({ "i" }, "<C-(>", ":normal i( | lua M.match_paren()", opts)
 km.set("n", "<Leader>LL", function()
     vim.lsp.set_log_level("debug")
@@ -534,4 +533,24 @@ km.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
 km.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
 km.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
 
+km.set({ "n", "v" }, "<Leader>ll", "<plug>(leap-forward-to)", { remap = true })
+km.set({ "n", "v" }, "<Leader>LL", "<plug>(leap-backward-to)", { remap = true })
+km.set(
+    { "n", "v" },
+    "<Leader>ww",
+    "<plug>(leap-cross-window)",
+    { remap = true }
+)
+km.set(
+    { "n", "v" },
+    "<Leader>jj",
+    "<plug>(leap-forward-till)",
+    { remap = true }
+)
+km.set(
+    { "n", "v" },
+    "<Leader>JJ",
+    "<plug>(leap-backward-till)",
+    { remap = true }
+)
 km.set({ "n", "v" }, "<C-s>", M.term_motion, { expr = true })

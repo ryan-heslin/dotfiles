@@ -1027,11 +1027,9 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file) and M.surround_string(
-            files[i],
-            " ",
-            ""
-        ) or ""
+        cmd = cmd .. (files[i] ~= current_file)
+                and M.surround_string(files[i], " ", "")
+            or ""
     end
 
     -- Return if only current file detected
@@ -1473,6 +1471,14 @@ M.setenv = function(variable, value, quote)
         value = M.surround_string(value, "'")
     end
     vim.fn.system("export " .. variable .. "=" .. value)
+end
+
+M.set = function(keys)
+    local out = {}
+    for _, k in ipairs(keys) do
+        out[k] = true
+    end
+    return out
 end
 
 return M

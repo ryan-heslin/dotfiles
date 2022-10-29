@@ -1,3 +1,28 @@
+local exclusions = M.set({ "r", "lua" })
+local do_format = function()
+    vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
+end
+
+local create_formatter = function(excludes)
+    -- Disable null-ls formatting for certain filetypes
+    excludes = M.set(excludes)
+    local filter = function(client)
+        return not (
+                client.name == "null-ls"
+                and excludes[vim.api.nvim_buf_get_option(0, "filetype")]
+            )
+    end
+
+    return function()
+        vim.lsp.buf.format({
+            async = false,
+            timeout_ms = 10000,
+            filter = filter,
+        })
+    end
+end
+local formatter = create_formatter(exclusions)
+
 local formatting = vim.api.nvim_create_augroup("LspFormatting", {})
 local format_diagnostic = function(diagnostic)
     --They seem to be indices of global diagnostics table?
@@ -95,22 +120,27 @@ on_attach = function(client, bufnr)
     vim.keymap.set({ "n", "v" }, "<leader>so", function()
         require("telescope.builtin").lsp_document_symbols()
     end, opts)
-    vim.cmd(
-        [[ command! Format execute 'lua vim.lsp.buf.format({async = false, timeout = 10000})' ]]
+    vim.api.nvim_create_user_command(
+        "Format",
+        formatter,
+        { desc = "Format current buffer with attached language server" }
     )
+
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
+    -- Don't use null-ls to format for filetypes with formatters already set
     if client then
         if
             client.supports_method("textDocument/formatting")
-            and client.name ~= "null-ls"
+            and not (
+                client.name == "null-ls"
+                and exclusions[vim.api.nvim_buf_get_option(0, "filetype")]
+            )
         then
             vim.api.nvim_clear_autocmds({ group = formatting, buffer = bufnr })
             vim.api.nvim_create_autocmd("BufWritePre", {
                 group = formatting,
                 buffer = bufnr,
-                callback = function()
-                    vim.lsp.buf.format({ async = false, timeout = 10000 })
-                end,
+                callback = do_format,
             })
         end
 
