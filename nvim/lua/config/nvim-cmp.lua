@@ -306,6 +306,8 @@ local spell_sources = {
 
 table.insert(sources, spell_sources)
 table.insert(sources, { name = "dictionary", keyword_length = 2 })
+-- TODO autocommand triggering natural language sources on Treesitter comment
+-- StartInsert?
 for _, ft in ipairs(spell_filetypes) do
     cmp_config.setup.filetype(
         ft,

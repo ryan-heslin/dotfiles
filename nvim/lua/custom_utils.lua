@@ -38,11 +38,14 @@ end
 -- Decorator to execute function, then return cursor to original position
 M.with_position = function(func)
     return function(...)
-        vim.api.nvim_buf_set_mark(0, "`", vim.fn.line("."), vim.fn.col("."), {})
-        local out = func(...)
-        vim.cmd("normal ``")
-        vim.api.nvim_buf_del_mark(0, "`")
-        return out
+        local old_line = vim.fn.line(".")
+        local old_col = vim.fn.col(".")
+        -- vim.api.nvim_buf_set_mark(0, "`", vim.fn.line("."), vim.fn.col("."), {})
+        local result = func(...)
+        vim.fn.setpos(old_line, old_col)
+        -- vim.cmd("normal ``")
+        -- vim.api.nvim_buf_del_mark(0, "`")
+        return result
     end
 end
 
@@ -363,7 +366,6 @@ M.term_setup = function()
     vim.cmd("vsplit")
     vim.cmd([[normal l]])
     vim.cmd("term")
-    --vim.cmd("normal iipython")
     vim.cmd([[normal k]])
     M.term_exec("ipython")
 end
@@ -699,7 +701,7 @@ M.yank_visual = function(register)
     register = register or '"'
     -- Only use quote mark notation if not using unnamed register
     sub = (register ~= '"' and '"' .. register) or ""
-    vim.cmd("normal " .. sub .. "gvy")
+    vim.cmd.normal(" " .. sub .. "gvy")
     return vim.fn.getreg(register)
 end
 M.yank_visual = M.with_register(M.yank_visual, "z")
@@ -714,17 +716,23 @@ M.visual_search = function(target)
     end, print("No matches"))
 end
 
+-- Get start and end of operator-pending register
+M.get_operator_pos = function(buffer)
+    local start_pos = vim.api.nvim_buf_get_mark(buffer, "[")
+    --(row, col)
+    local end_pos = vim.api.nvim_buf_get_mark(buffer, "]")
+    return start_pos, end_pos
+end
+
 -- Extract text from the latest motion;
 -- intended to help define custom operators
-M.capture_motion_text = function(type)
-    local start_pos = vim.api.nvim_buf_get_mark(0, "[")
+M.capture_motion_text = function(buffer, type)
+    local start_pos, end_pos = M.get_operator_pos(buffer)
     --(row, col)
-    local end_pos = vim.api.nvim_buf_get_mark(0, "]")
-    local text
     -- Mark positions are 1-indexed, text extractors 0-indexed, go figure
     if type == "char" or type == "block" then
         text = vim.api.nvim_buf_get_text(
-            0,
+            buffer,
             start_pos[1] - 1,
             start_pos[2],
             end_pos[1] - 1,
@@ -732,18 +740,22 @@ M.capture_motion_text = function(type)
             {}
         )
     elseif type == "line" then
-        text =
-            vim.api.nvim_buf_get_lines(0, start_pos[1] - 1, end_pos[1] - 1, {})
+        text = vim.api.nvim_buf_get_lines(
+            buffer,
+            start_pos[1] - 1,
+            end_pos[1] - 1,
+            {}
+        )
     else
         print("Unknown selection type " .. type)
         return nil
     end
 
-    return (type == "char" and text[1]) or table.concat(text, "\n")
+    return table.concat(text, "\n")
 end
 
 M.term_motion_impl = function(type)
-    local text = M.capture_motion_text(type)
+    local text = M.capture_motion_text(vim.api.nvim_get_current_buf(), type)
 
     -- Need special escaping for Python files
     if vim.bo.filetype == "python" or vim.bo.filetype == "quarto" then
@@ -754,6 +766,148 @@ M.term_motion_impl = function(type)
         M.term_exec(text, true, false)
     end
 end
+
+-- Creates a function that implements an operator that takes two motions,
+-- then swaps text selected by the first one with the second
+-- Cross-buffer capable
+M.swap_impl_factory = function()
+    local memo = {}
+    -- Helper to replace text in correct position
+    local replace_text = function(target_buffer, start, ends, text)
+        local start_row, start_col = unpack(start)
+        local end_row, end_col = unpack(ends)
+        -- To reset these registers after pasting text
+        -- Maybe pcall wrapper?
+        local old_put_start = vim.api.nvim_buf_get_mark(target_buffer, "[")
+        local old_put_end = vim.api.nvim_buf_get_mark(target_buffer, "]")
+        print(vim.inspect(text))
+        -- Clear text and replace
+        -- print(start_row)
+        -- print(start_col)
+        -- print(end_row)
+        -- print(end_col)
+        vim.api.nvim_buf_set_text(
+            target_buffer,
+            start_row,
+            start_col,
+            end_row,
+            end_col,
+            {}
+        )
+        vim.api.nvim_buf_set_text(
+            target_buffer,
+            start_row,
+            start_col,
+            start_row,
+            start_col,
+            text
+        )
+
+        -- -- Manually reset marks to their values before the pasting just done
+        vim.api.nvim_buf_set_mark(
+            target_buffer,
+            "[",
+            old_put_start[1],
+            old_put_start[2],
+            {}
+        )
+        vim.api.nvim_buf_set_mark(
+            target_buffer,
+            "]",
+            old_put_end[1],
+            old_put_end[2],
+            {}
+        )
+    end
+
+    -- Change indices of row-col tuples as required
+    local correct_positions = function(start_pos, end_pos)
+        start_pos[1] = start_pos[1] - 1
+        end_pos[1] = end_pos[1] - 1
+        --start_pos[2] = math.max(start_pos[2] - 1, 0)
+        end_pos[2] = math.min(end_pos[2] + 1, vim.fn.col("$") - 1)
+        return start_pos, end_pos
+    end
+
+    local swap = function(selection_type)
+        local n_captured = #memo
+        local current_buffer = vim.api.nvim_get_current_buf()
+        if n_captured > 2 then
+            print(
+                "Cannot store more than 2 text selections, but have "
+                    .. n_captured
+            )
+            memo = {}
+            return
+        end
+
+        local new_text = M.capture_motion_text(current_buffer, selection_type)
+        -- Newlines disallowed by API function, so split into   table
+        if type(new_text) == "string" then
+            if string.match(new_text, "\n") then
+                processed_text = M.str_split(new_text, "\n")
+            else
+                processed_text = { new_text }
+            end
+        end
+
+        local start_pos, end_pos =
+            correct_positions(M.get_operator_pos(current_buffer))
+
+        -- No stored text to swap with, so add to cache with position data
+        if n_captured < 2 then
+            table.insert(memo, {
+                current_buffer,
+                { start_pos = start_pos, end_pos = end_pos },
+                processed_text,
+            })
+            n_captured = n_captured + 1
+        end
+        --print("n_captured " .. n_captured)
+        if n_captured == 2 then
+            local old_buffer = memo[1][1]
+            local old_positions = memo[1][2]
+            local old_text = memo[1][3]
+            --print(old_text)
+            --(tostring(vim.inspect(memo)))
+            -- print(tostring(vim.inspect(old_text)))
+            -- Text to replace is that recently captured
+            --
+            -- Clear cache if error
+            local result, err = pcall(function()
+                replace_text(
+                    old_buffer,
+                    old_positions["start_pos"],
+                    old_positions["end_pos"],
+                    processed_text
+                )
+            end)
+            if not result then
+                memo = {}
+                print("Error inserting text")
+                print(err)
+                return
+            end
+
+            -- Have to refresh location because position will have changed after
+            -- old replacement (if both are in same buffer)
+            local new_buffer = memo[2][1]
+            local new_start, new_end =
+                correct_positions(M.get_operator_pos(new_buffer))
+            result, err = pcall(function()
+                replace_text(new_buffer, new_start, new_end, old_text)
+            end)
+            if not result then
+                print("Error inserting text")
+                print(err)
+            end
+            memo = {}
+        end
+    end
+    return swap
+end
+
+M.swap_impl = M.swap_impl_factory()
 
 M.define_operator = function(func, name, err)
     return function(type)
@@ -775,18 +929,41 @@ M.term_motion = M.define_operator(
     "Error sending text to terminal"
 )
 
+M.swap =
+    M.define_operator(M.swap_impl, "M.swap", "Error swapping text selections")
+
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
-M.file_exists = function(name)
-    if name == nil then
+-- Also returns false for directory that does exist
+M.file_exists = function(path)
+    if path == nil then
         return false
     end
-    local f = io.open(name, "r")
+    path = vim.fn.expand(path)
+    local f = io.open(path, "r")
     if f ~= nil then
         io.close(f)
         return true
     else
         return false
     end
+end
+
+-- Check if path is valid directory
+-- From https://stackoverflow.com/questions/2833675/using-lua-check-if-file-is-a-directory
+M.dir_exists = function(path)
+    if path == nil then
+        return false
+    end
+    path = vim.fn.expand(path)
+    local f = io.open(path, "r")
+    if f == nil then
+        return false
+    end
+
+    local _, _, code = f:read(1)
+    io.close(f)
+
+    return code == 21 -- Is directory error
 end
 
 M.make_session = function()
@@ -804,6 +981,10 @@ M.save_session = function()
     local session_dir = os.getenv("VIM_SESSION_DIR")
     if session_dir == nil then
         print("Session directory not specified")
+        return
+    end
+    if not M.dir_exists(session_dir) then
+        print("Session directory " .. session_dir(" does not exist"))
         return
     end
     local this_session = vim.g.current_session
@@ -849,6 +1030,10 @@ M.load_session = function()
     local session_dir = os.getenv("VIM_SESSION_DIR")
     if session_dir == nil then
         print("Session directory not specified")
+        return
+    end
+    if not M.dir_exists(session_dir) then
+        print("Session directory " .. session_dir(" does not exist"))
         return
     end
     -- Shell-quote for safety
@@ -994,13 +1179,14 @@ M.print_table = function(table)
 end
 
 -- Standard string split. Credit https://stackoverflow.com/questions/1426954/split-string-in-lua
-M.str_split = function(string, sep)
-    sep = sep or " "
-    local out = {}
-    for str in string.gmatch(string, sep) do
-        table.insert(out, str)
+M.str_split = function(a_string, sep)
+    sep = sep or "%s"
+    local result = {}
+    local pattern = "([^" .. sep .. "]+)"
+    for str in string.gmatch(a_string, pattern) do
+        table.insert(result, str)
     end
-    return out
+    return result
 end
 
 -- Evaluate inline R code chunk
@@ -1473,12 +1659,22 @@ M.setenv = function(variable, value, quote)
     vim.fn.system("export " .. variable .. "=" .. value)
 end
 
+--Basic set data type implementation, suggested by docs
 M.set = function(keys)
     local out = {}
     for _, k in ipairs(keys) do
         out[k] = true
     end
     return out
+end
+
+-- Roxygen generation
+-- parse_query({lang}, {query}) to create query from string
+-- Query:iter_captures({self}, {node}, {source}, {start}, {stop})
+-- start, stop as line bounds of function signature
+
+M.promote = function(x)
+    return (type(x) == "table" and x) or { x }
 end
 
 return M

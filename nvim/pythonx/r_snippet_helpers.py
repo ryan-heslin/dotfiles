@@ -1,6 +1,7 @@
 import re
-from regex import sub as rsub
+
 from all_snippet_helpers import *
+from regex import sub as rsub
 
 # Produce roxygen documentation
 def render_roxygen(snip, args, signature, line):
@@ -33,12 +34,14 @@ def render_roxygen(snip, args, signature, line):
     snip.expand_anon("\n" + "\n".join(text) + "\n")
 
 
+# Obtains name of an R function given its line number
 def get_function_name(snip, line):
     fun_line = line if re.match("[^<]+<-", snip.buffer[snip.line]) else line - 1
     fun = re.match(r"^\s*([^ ]+).*", snip.buffer[fun_line])
     return fun.group(1) if fun else None
 
 
+# Get argument names from function signature
 def extract_args(snip, start, fun):
     line = snip.buffer[start]
     # Handle signatures that flow ove multiple lines: not as annoying as feared!
@@ -59,14 +62,14 @@ def extract_args(snip, start, fun):
     return args, signature
 
 
-# Helper to compose these tasks
+# Helper to compose Roxygen generation
 def document(snip):
     # Get rid of trigger
     line = get_definition(snip)
     # Bail out if no match
     if line is None:
         snip.cursor.set(snip.line, snip.column)
-        return None
+        return
     fun = get_function_name(snip, line)
     args, signature = extract_args(snip, line, fun)
     render_roxygen(snip, args, signature, line)

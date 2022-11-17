@@ -240,6 +240,7 @@ local servers = {
         filetypes = { "r", "rmd", "quarto" },
     },
     racket_langserver = { filetypes = { "racket", "scheme" } },
+    ruby_ls = {},
     sumneko_lua = {
         Lua = {
             cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/bin/main.lua" },

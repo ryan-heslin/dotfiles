@@ -4,6 +4,7 @@ from regex import sub as rsub
 from all_snippet_helpers import *
 from r_snippet_helpers import *
 
+# Unfinished attempt at dynamic snippet expansion
 def extend_snippet(snip, fmt, end, end_code = ""):
     #next_tabstop = len(snip.t) + 1
     fmt = end if snip.tabstops[snip.tabstop - 1].current_text == end_code else fmt

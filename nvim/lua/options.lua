@@ -14,7 +14,7 @@ let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"
 let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 ]])
-vim.g["$BASH_ENV"] = vim.fn.expand("$HOME/dotfiles/bash/.bash_profile")
+--vim.g["$BASH_ENV"] = vim.fn.expand("$HOME/dotfiles/bash/.bash_profile")
 
 vim.o.runtimepath = vim.o.runtimepath
     .. ","
@@ -58,7 +58,7 @@ vim.o.softtabstop = 4
 vim.o.shiftwidth = 4
 vim.o.autoindent = true
 vim.o.cursorcolumn = true
-vim.o.cmdheight = 3
+vim.o.cmdheight = 1
 vim.o.si = true --Smart indentation
 vim.o.ruler = true
 vim.o.updatetime = 2000 --Milliseconds, for cursor hold events

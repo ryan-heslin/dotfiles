@@ -554,3 +554,4 @@ km.set(
     { remap = true }
 )
 km.set({ "n", "v" }, "<C-s>", M.term_motion, { expr = true })
+km.set({ "n", "v" }, "<C-j>", M.swap, { expr = true })
