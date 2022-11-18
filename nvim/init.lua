@@ -94,6 +94,7 @@ packer.startup(function(use)
     use("vim-pandoc/vim-pandoc-syntax")
     use("nvim-lualine/lualine.nvim")
     use("kyazdani42/nvim-web-devicons")
+    use("rareitems/anki.nvim")
     -- Filetypes that lack language servers
     use({
         "dense-analysis/ale",
@@ -166,6 +167,7 @@ require("config/nvim-treesitter")
 require("config/nvim-treesitter-textobjects")
 require("config/hop")
 require("config/leap")
+require("config/anki")
 require("quarto")
 require("config/nvim-surround")
 require("abbrev")
