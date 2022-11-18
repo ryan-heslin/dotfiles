@@ -127,9 +127,10 @@ M.set_term_opts = function()
     vim.wo.spell = false
     vim.wo.signcolumn = "no"
     -- Globals respectively indicating  buffer, channel, and window ID of last terminal entered
-    vim.g.last_terminal_buf_id = vim.fn.bufnr()
-    vim.g.last_terminal_chan_id = vim.b.terminal_job_id
-    vim.g.last_terminal_win_id = vim.fn.bufwinid(vim.g.last_terminal_buf_id)
+    term_state = (term_state == nil and {}) or term_state
+    term_state["last_terminal_buf_id"] = vim.fn.bufnr()
+    term_state["last_terminal_chan_id"] = vim.b.terminal_job_id
+    term_state["last_terminal_win_id"] = vim.fn.win_getid()
 end
 
 -- Yank text at end of terminal buffer
@@ -137,7 +138,7 @@ end
 M.term_yank = function(term_id, prompt_pattern, offset)
     prompt_pattern = M.default_arg(prompt_pattern, [[>\s[^ ]\+]])
     offset = M.default_arg(offset, -1)
-    term_id = M.default_arg(term_id, vim.g.last_terminal_win_id)
+    term_id = M.default_arg(term_id, term_state["last_terminal_win_id"])
     -- Find most recent line with terminal prompt
     local prompt_line = tonumber(
         string.gsub(
@@ -155,7 +156,7 @@ M.term_yank = function(term_id, prompt_pattern, offset)
         return ""
     end
     local text = vim.api.nvim_buf_get_lines(
-        vim.g.last_terminal_buf_id,
+        term_state["last_terminal_buf_id"],
         prompt_line,
         offset,
         true
@@ -372,7 +373,7 @@ end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 M.term_exec = function(keys, scroll_down, use_count)
-    if vim.g.last_terminal_chan_id == nil then
+    if term_state["last_terminal_chan_id"] == nil then
         return false
     end
 
@@ -387,15 +388,18 @@ M.term_exec = function(keys, scroll_down, use_count)
     --     command = M.t(keys)
     -- end
     for _ = 1, count, 1 do
-        vim.fn.chansend(vim.g.last_terminal_chan_id, command)
+        vim.fn.chansend(term_state["last_terminal_chan_id"], command)
     end
-    vim.fn.chansend(vim.g.last_terminal_chan_id, M.t("<CR>"))
+    vim.fn.chansend(term_state["last_terminal_chan_id"], M.t("<CR>"))
     -- Scroll down if argument specified, useful for long input
-    if scroll_down then
+    if scroll_down and term_state["last_terminal_win_id"] ~= nil then
         --vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
         vim.api.nvim_win_set_cursor(
-            vim.g.last_terminal_win_id,
-            { vim.api.nvim_buf_line_count(vim.g.last_terminal_buf_id), 1 }
+            term_state["last_terminal_win_id"],
+            {
+                vim.api.nvim_buf_line_count(term_state["last_terminal_buf_id"]),
+                1,
+            }
         )
     end
     return command
@@ -1213,9 +1217,11 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file)
-                and M.surround_string(files[i], " ", "")
-            or ""
+        cmd = cmd .. (files[i] ~= current_file) and M.surround_string(
+            files[i],
+            " ",
+            ""
+        ) or ""
     end
 
     -- Return if only current file detected
