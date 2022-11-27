@@ -82,12 +82,13 @@ vim.api.nvim_create_autocmd("BufEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
-        if vim.o.buftype == "terminal" then
+        if vim.bo.buftype == "terminal" then
             vim.cmd.startinsert()
         end
     end,
 })
-vim.api.nvim_create_autocmd("TermOpen", {
+-- May need TermEnter if opening multiple buffers of same terminal
+vim.api.nvim_create_autocmd("TermEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()

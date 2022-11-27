@@ -1,0 +1,18 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\begin{document}
+%%MODELNAME Basic
+%%DECKNAME Probability
+%%TAGS
+%Front
+Geometric PMF
+%Front
+%Back
+\[P_X(k) = \begin{cases}
+p(1-p)^{k-1} & k \geq 1 \\
+0 & \text{otherwise}
+\end{cases}\]
+Number of trials until first success, or negative binomial with \(m = 1\)
+%Back
+\end{document}

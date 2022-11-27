@@ -136,6 +136,9 @@ end
 -- Yank text at end of terminal buffer
 -- There must be a better way to do this
 M.term_yank = function(term_id, prompt_pattern, offset)
+    if term_state == nil then
+        return
+    end
     prompt_pattern = M.default_arg(prompt_pattern, [[>\s[^ ]\+]])
     offset = M.default_arg(offset, -1)
     term_id = M.default_arg(term_id, term_state["last_terminal_win_id"])
@@ -240,13 +243,12 @@ M.count_bufs_by_type = function(loaded_only)
     return count
 end
 
--- Change to buffer matching a regular expression
-M.switch_to_buffer = function(pattern)
-    -- Match all by default
+M.get_matching_buffers = function(pattern)
     pattern = M.default_arg(pattern, ".*")
     local buffers = vim.api.nvim_list_bufs()
     local matches = {}
     local valid_buffers = {}
+
     for _, buf in ipairs(buffers) do
         if
             vim.api.nvim_buf_is_loaded(buf)
@@ -254,12 +256,19 @@ M.switch_to_buffer = function(pattern)
         then
             local buf_name = vim.api.nvim_buf_get_name(buf)
             if string.match(buf_name, pattern) then
-                buf_name = buf_name == "" and "<unnamed>" or buf_name
+                buf_name = (buf_name == "" and "<unnamed>") or buf_name
                 table.insert(valid_buffers, buf)
                 table.insert(matches, buf_name)
             end
         end
     end
+    return valid_buffers, matches
+end
+
+-- Change to buffer matching a regular expression
+M.switch_to_buffer = function(pattern)
+    -- Match all by default
+    valid_buffers, matches = M.get_matching_buffers(pattern)
 
     if valid_buffers == {} then
         print("No active buffers matched " .. pattern)
@@ -335,7 +344,6 @@ M.win_exec = function(keys, direction)
     end
 
     local count = vim.v.count1
-    --TODO handle if command string has count
     local command =
         string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
     -- If window targeted by number instead of relative direction, just execute command
@@ -363,17 +371,18 @@ M.win_put = function(register, win_id)
     vim.fn.win_execute(win_id, command)
 end
 
+-- Start new terminal buffer
 M.term_setup = function()
-    vim.cmd("vsplit")
+    vim.cmd.vsplit()
     vim.cmd([[normal l]])
-    vim.cmd("term")
+    vim.cmd.terminal()
     vim.cmd([[normal k]])
-    M.term_exec("ipython")
+    M.win_exec("startinsert", "l")
 end
 
 -- Building on https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 M.term_exec = function(keys, scroll_down, use_count)
-    if term_state["last_terminal_chan_id"] == nil then
+    if term_state == nil or term_state["last_terminal_chan_id"] == nil then
         return false
     end
 
@@ -394,26 +403,24 @@ M.term_exec = function(keys, scroll_down, use_count)
     -- Scroll down if argument specified, useful for long input
     if scroll_down and term_state["last_terminal_win_id"] ~= nil then
         --vim.fn.win_execute(vim.g.last_terminal_win_id, " normal G")
-        vim.api.nvim_win_set_cursor(
-            term_state["last_terminal_win_id"],
-            {
-                vim.api.nvim_buf_line_count(term_state["last_terminal_buf_id"]),
-                1,
-            }
-        )
+        vim.api.nvim_win_set_cursor(term_state["last_terminal_win_id"], {
+            vim.api.nvim_buf_line_count(term_state["last_terminal_buf_id"]),
+            1,
+        })
     end
     return command
 end
 
 --Substitute default value for omitted argument
 M.default_arg = function(arg, default)
-    local out
-    if arg ~= nil then
-        out = arg
-    else
-        out = default
-    end
-    return out
+    return (arg == nil and default) or arg
+    -- local out
+    -- if arg ~= nil then
+    --     out = arg
+    -- else
+    --     out = default
+    -- end
+    -- return out
 end
 
 -- double controls whether to concatenate if string already has prefix/suffix

@@ -4,5 +4,7 @@ require("anki").setup({
     models = {
         -- Here you specify which notetype should be associated with which deck
         Basic = "Probability",
+        ["Basic (and reversed card)"] = "Probability",
+        Cloze = "Probability",
     },
 })

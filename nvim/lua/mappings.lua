@@ -43,10 +43,10 @@ end, opts)
 
 -- Scroll last terminal window up-down
 km.set({ "n", "v" }, "<C-PageDown>", function()
-    M.win_exec("normal 3j", vim.g.last_terminal_win_id)
+    M.win_exec("normal 3j", term_state["last_terminal_win_id"])
 end, opts)
 km.set({ "n", "v" }, "<C-PageUp>", function()
-    M.win_exec("normal 3k", vim.g.last_terminal_win_id)
+    M.win_exec("normal 3k", term_state["last_terminal_win_id"])
 end, opts)
 --
 --all these to scroll window by position up/down
@@ -306,7 +306,7 @@ km.set({ "n", "v" }, "<leader>fl", [[:s/\%>80v,\zs\s*\ze/\re  /g<CR>]], opts)
 
 -- Yank from terminal
 km.set({ "n" }, "<Leader>ty", function()
-    vim.fn.win_execute(vim.g.last_terminal_win_id, "normal 0ElvGy")
+    vim.fn.win_execute(term_state["last_terminal_win_id"], "normal 0ElvGy")
 end, opts)
 
 -- Insert section headings below cursor
@@ -466,7 +466,8 @@ end, opts)
 km.set(
     { "n", "v" },
     "<leader>ll",
-    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=],
+    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=]
+    ,
     opts
 )
 km.set({ "i", "n", "v" }, "<C-%>>", function()
