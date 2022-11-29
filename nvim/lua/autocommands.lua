@@ -210,6 +210,23 @@ vim.api.nvim_create_autocmd("WinClosed", {
         vim.cmd.wincmd("p")
     end,
 })
+-- From https://www.reddit.com/r/neovim/comments/u24o3m/how_to_make_ctrli_work_in_neovim/
+-- vim.api.nvim_create_autocmd("UIEnter", {
+--     pattern = "*",
+--     callback = function()
+--         if vim.v.event.chan == vim.fn.expand("#") then
+--             vim.fn.chansend(vim.v.stderr, "\x1b[>1u")
+--         end
+--     end,
+-- })
+-- vim.api.nvim_create_autocmd("UILeave", {
+--     pattern = "*",
+--     function()
+--         if vim.v.event.chan == vim.fn.expand("#") then
+--             vim.fn.chansend(vim.v.stderr, "\x1b[<1u")
+--         end
+--     end,
+-- })
 -- vim.api.nvim_create_autocmd("ColorScheme *", {
 --     command = [=[
 --    highlight pythonImportedObject ctermfg=127 guifg=127

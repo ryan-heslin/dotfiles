@@ -13,7 +13,7 @@ vim.keymap.set({ "n", "v" }, [[\l]], "<cmd>lua run_line()<CR>", opts)
 vim.keymap.set(
     { "n", "v" },
     [[\ss]],
-    "<cmd>lua send_visual_selection()<CR>",
+    "<cmd>lua run_visual_selection()<CR>",
     opts
 )
 vim.keymap.set(

@@ -315,12 +315,12 @@ km.set({ "n" }, "<Leader>sel", ':<C-U>call functions#Sections("a")<CR>', opts)
 
 km.set({ "n", "v", "i" }, "<Leader>nj", M.no_jump, opts)
 
-km.set(
-    { "n" },
-    "<Leader>pd",
-    '^yiWoprinM.t(paste("<C-o>p<space>=",<space><C-o>p))<Esc>k^',
-    opts
-)
+-- km.set(
+--     { "n" },
+--     "<Leader>pd",
+--     '^yiWoprinM.t(paste("<C-o>p<space>=",<space><C-o>p))<Esc>k^',
+--     opts
+-- )
 km.set({ "n" }, "<Leader>rs", function()
     vim.fn["UltiSnips#RefreshSnippets"]()
 end, opts)
@@ -337,6 +337,7 @@ vim.api.nvim_set_keymap("i", ";O", "<Esc>O", opts)
 
 km.set({ "t" }, "<Esc>", "<C-\\><C-n>", opts)
 --vim.api.nvim_set_keymap('t',  '<C-r>', "'<C-\\><C-n>' . nr2char(getchar()) . 'pi'", {noremap = true, silent = true, expr = true})
+--Terminal pasting
 km.set({ "t" }, "<C-p>", "<C-\\><C-n>pi", opts)
 
 -- Terminal paste most recent filename
@@ -466,8 +467,7 @@ end, opts)
 km.set(
     { "n", "v" },
     "<leader>ll",
-    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=]
-    ,
+    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=],
     opts
 )
 km.set({ "i", "n", "v" }, "<C-%>>", function()
