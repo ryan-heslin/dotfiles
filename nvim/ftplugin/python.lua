@@ -30,7 +30,7 @@ vim.keymap.set("n", [[\q]], [[:SlimeSend1 exit<CR>]], opts)
 vim.keymap.set("n", [[\pp]], [[yiW:SlimeSend1 print(<C-r><C-w>)<CR>]], opts)
 vim.keymap.set("n", [[\o]], ":SlimeRegionSend<CR>", opts)
 vim.keymap.set("n", [[\b]], [[:SlimeParagraphSend<CR>]], opts)
---vim.keymap.set("n", [[\l]], "<Plug>SlimeLineSend<CR>", opts)
+vim.keymap.set("n", [[\ll]], "<Plug>SlimeLineSend<CR>", opts)
 vim.keymap.set("n", [[\m]], "<Plug>SlimeMotionSend<CR>", opts)
 
 -- Set or remove breakpoints

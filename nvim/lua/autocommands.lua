@@ -3,6 +3,8 @@ if last_filetype == nil then
     last_filetype = {}
 end
 
+local autocmd = vim.api.nvim_create_autocmd
+
 -- Standard autocommands
 -- NB table of autocmd args takes group argument for augroup
 -- Global highlight group parameters
@@ -32,7 +34,7 @@ highlight_params = {
     LineNRBelow = { fg = "#ccffcc" },
     LineNRAbove = { fg = "#ff8080" },
 }
-vim.api.nvim_create_autocmd("ColorScheme", {
+autocmd("ColorScheme", {
     pattern = "*",
     callback = function()
         for group, params in pairs(highlight_params) do
@@ -55,7 +57,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     end,
 })
 
-vim.api.nvim_create_autocmd("TextYankPost", {
+autocmd("TextYankPost", {
     pattern = "*",
     callback = function()
         vim.highlight.on_yank({
@@ -66,19 +68,16 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     end,
 })
 -- Remember cursor position color
-vim.api.nvim_create_autocmd("BufReadPost", {
+autocmd("BufReadPost", {
     pattern = "*",
     command = [[ if line("'\"") > 0 && line("'\"") <= line("$") | execute "normal! g`\"" | endif ]],
 })
 -- Unfold on enter
-vim.api.nvim_create_autocmd(
-    "BufReadPost",
-    { pattern = "*", command = [[normal! zr]] }
-)
+autocmd("BufReadPost", { pattern = "*", command = [[normal! zr]] })
 
 -- Configure terminal on enter
 vim.api.nvim_create_augroup("Terminal", { clear = true })
-vim.api.nvim_create_autocmd("BufEnter", {
+autocmd("BufEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
@@ -88,28 +87,28 @@ vim.api.nvim_create_autocmd("BufEnter", {
     end,
 })
 -- May need TermEnter if opening multiple buffers of same terminal
-vim.api.nvim_create_autocmd("TermEnter", {
+autocmd("TermEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
         M.set_term_opts()
     end,
 })
-vim.api.nvim_create_autocmd(
+autocmd(
     "TermEnter",
     { pattern = "*", group = "Terminal", command = "startinsert" }
 )
 
 -- Toggle cursorline
 vim.api.nvim_create_augroup("Cursor", { clear = true })
-vim.api.nvim_create_autocmd("InsertEnter", {
+autocmd("InsertEnter", {
     pattern = "*",
     group = "Cursor",
     callback = function()
         vim.o.cursorline = true
     end,
 })
-vim.api.nvim_create_autocmd("InsertLeave", {
+autocmd("InsertLeave", {
     pattern = "*",
     group = "Cursor",
     callback = function()
@@ -117,11 +116,11 @@ vim.api.nvim_create_autocmd("InsertLeave", {
     end,
 })
 
-vim.api.nvim_create_autocmd(
+autocmd(
     "BufReadPost quickfix",
     { pattern = "*", command = [[nnoremap <buffer> <CR> <CR>]] }
 )
-vim.api.nvim_create_autocmd("User TelescopePreviewerLoaded", {
+autocmd("User TelescopePreviewerLoaded", {
     pattern = "*",
     callback = function()
         vim.wo.wrap = true
@@ -129,7 +128,7 @@ vim.api.nvim_create_autocmd("User TelescopePreviewerLoaded", {
 })
 
 -- Automatically source on save
-vim.api.nvim_create_autocmd("BufWritePost", {
+autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
         if
@@ -140,20 +139,20 @@ vim.api.nvim_create_autocmd("BufWritePost", {
         end
     end,
 })
-vim.api.nvim_create_autocmd("FileType anki_vim", {
+autocmd("FileType anki_vim", {
     pattern = "*",
     callback = function()
         vim.b.UltiSnipsSnippetDirectories = vim.g.UltiSnipsSnippetDirectories
     end,
 })
 
-vim.api.nvim_create_autocmd("VimLeavePre", {
+autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
         M.do_save_session()
     end,
 })
-vim.api.nvim_create_autocmd("VimEnter", {
+autocmd("VimEnter", {
     pattern = "*",
     callback = function()
         if vim.fn.argc() == 0 then
@@ -164,7 +163,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
     desc = "Load latest session on startup if no arguments provided",
 })
 -- Save latest Rmd file for automatic knitting
-vim.api.nvim_create_autocmd("FileType", {
+autocmd("FileType", {
     -- From https://github.com/neovim/neovim/issues/20455
     pattern = "*",
     callback = function()
@@ -174,12 +173,12 @@ vim.api.nvim_create_autocmd("FileType", {
     end,
     desc = "Record latest Rmarkdown file for automatic knitting",
 })
-vim.api.nvim_create_autocmd("BufEnter", {
+autocmd("BufEnter", {
     callback = M.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
     pattern = "*",
 })
-vim.api.nvim_create_autocmd("WinLeave", {
+autocmd("WinLeave", {
     callback = function()
         recents["window"] = vim.fn.win_getid()
     end,
@@ -187,14 +186,14 @@ vim.api.nvim_create_autocmd("WinLeave", {
     pattern = "*",
 })
 
-vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
+autocmd({ "BufEnter", "BufNewFile" }, {
     callback = function()
         vim.bo.filetype = "quarto"
     end,
     pattern = { "*.Qmd", "*.qmd" },
     desc = "Set Quarto filetype",
 })
---vim.api.nvim_create_autocmd("FileType sql,mysql,plsql,sqlite", {
+--autocmd("FileType sql,mysql,plsql,sqlite", {
 --function()
 --require("cmp").setup.buffer({ sources = { { name = "vim-dadbod" } } })
 --end,
@@ -202,7 +201,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "BufNewFile" }, {
 --
 --local pycolors = vim.api.nvim_create_augroup("Pycolors", { clear = true })
 -- From https://github.com/neovim/neovim/issues/20455
-vim.api.nvim_create_autocmd("WinClosed", {
+autocmd("WinClosed", {
     callback = function(args)
         if vim.api.nvim_get_current_win() ~= tonumber(args.match) then
             return
@@ -211,7 +210,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
     end,
 })
 -- From https://www.reddit.com/r/neovim/comments/u24o3m/how_to_make_ctrli_work_in_neovim/
--- vim.api.nvim_create_autocmd("UIEnter", {
+-- autocmd("UIEnter", {
 --     pattern = "*",
 --     callback = function()
 --         if vim.v.event.chan == vim.fn.expand("#") then
@@ -219,7 +218,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
 --         end
 --     end,
 -- })
--- vim.api.nvim_create_autocmd("UILeave", {
+-- autocmd("UILeave", {
 --     pattern = "*",
 --     function()
 --         if vim.v.event.chan == vim.fn.expand("#") then
@@ -227,7 +226,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
 --         end
 --     end,
 -- })
--- vim.api.nvim_create_autocmd("ColorScheme *", {
+-- autocmd("ColorScheme *", {
 --     command = [=[
 --    highlight pythonImportedObject ctermfg=127 guifg=127
 --  \ | highlight pythonImportedFuncDef ctermfg=127 guifg=127
@@ -244,4 +243,29 @@ vim.api.nvim_create_autocmd("WinClosed", {
 -- ]=],
 --     group = pycolors,
 --     pattern = "*.py",
+-- })
+-- From https://github.com/hrsh7th/nvim-cmp/issues/519#issuecomment-1091109258
+-- autocmd({ "TextChangedI", "TextChangedP" }, {
+--     callback = function()
+--         local line = vim.api.nvim_get_current_line()
+--         local cursor = vim.api.nvim_win_get_cursor(0)[2]
+--
+--         local current = string.sub(line, cursor, cursor + 1)
+--         if current == "." or current == "," or current == " " then
+--             require("cmp").close()
+--         end
+--
+--         local before_line = string.sub(line, 1, cursor + 1)
+--         local after_line = string.sub(line, cursor + 1, -1)
+--         if not string.match(before_line, "^%s+$") then
+--             if
+--                 after_line == ""
+--                 or string.match(before_line, " $")
+--                 or string.match(before_line, "%.$")
+--             then
+--                 require("cmp").complete()
+--             end
+--         end
+--     end,
+--     pattern = "*",
 -- })

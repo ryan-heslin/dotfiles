@@ -43,10 +43,14 @@ end, opts)
 
 -- Scroll last terminal window up-down
 km.set({ "n", "v" }, "<C-PageDown>", function()
-    M.win_exec("normal 3j", term_state["last_terminal_win_id"])
+    if term_state ~= nil then
+        M.win_exec("normal 3j", term_state["last_terminal_win_id"])
+    end
 end, opts)
 km.set({ "n", "v" }, "<C-PageUp>", function()
-    M.win_exec("normal 3k", term_state["last_terminal_win_id"])
+    if term_state ~= nil then
+        M.win_exec("normal 3k", term_state["last_terminal_win_id"])
+    end
 end, opts)
 --
 --all these to scroll window by position up/down
@@ -467,7 +471,8 @@ end, opts)
 km.set(
     { "n", "v" },
     "<leader>ll",
-    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=],
+    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=]
+    ,
     opts
 )
 km.set({ "i", "n", "v" }, "<C-%>>", function()

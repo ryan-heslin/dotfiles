@@ -40,7 +40,7 @@ sources = {
         keyword_length = 3,
         priority = 7,
     },
-    { name = "dictionary", keyword_length = 2 },
+    { name = "dictionary", keyword_length = 2, priority = 6 },
     { name = "path", keyword_length = 2, priority = 7 },
     { name = "tags", ft = { "r", "rmd", "python" } },
     { name = "treesitter" },

@@ -87,11 +87,11 @@ d(){
 
 # Open selected with nvim
 nvimd(){
-    nvim "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
+    nvim "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)"
 }
 
 batd(){
-    batcat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)" 
+    batcat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)"
 }
 
 open2 () {
@@ -551,7 +551,7 @@ get_AoC(){
     fi
     echo "https://adventofcode.com/$year/day/$day/input"
 
-    curl -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
 # Retrieve secret from secret-tool and copy to clipboard
@@ -655,14 +655,14 @@ history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selectio
 
 # Create new quarto file
 qdraft(){
-    local new_file="$(echo ${1} | grep '\.qmd$' || echo "${1}.qmd")" 
+    local new_file="$(echo ${1} | grep '\.qmd$' || echo "${1}.qmd")"
     cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "${new_file}"
     nvim "${new_file}"
 }
 
 # Ready Python files for commit
 prec(){
-    poetry run task format 
+    poetry run task format
     poetry run task sort
     poetry run flake8
 }
