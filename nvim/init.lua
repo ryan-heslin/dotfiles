@@ -127,6 +127,7 @@ packer.startup(function(use)
     use("tpope/vim-dadbod")
     use("frazrepo/vim-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
+    use("LostNeophyte/null-ls-embedded")
     use("makerj/vim-pdf")
     use({
         "numToStr/Comment.nvim",

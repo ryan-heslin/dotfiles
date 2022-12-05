@@ -2,19 +2,21 @@
 
 # Set options
 local({
-  default_packages <- character()
-  if (!"renv" %in% list.dirs(base::.libPaths()[[1]],
-    recursive = FALSE, full.names = FALSE
-  ) || is.null(renv::project())) {
-    default_packages <- character()
-
-  }
+  # default_packages <- character()
+  # if (!"renv" %in% list.dirs(base::.libPaths()[[1]],
+  #   recursive = FALSE, full.names = FALSE
+  # ) || is.null(renv::project())) {
+  #   default_packages <- character()
+  #
+  #}
   # Add Nvim-R completion and language server requirements if started with Nvim
-  if (Sys.getenv("OS") != "Windows_NT") {
-    default_packages <- c(
-      default_packages, "nvimcom",
+  if (Sys.getenv("OS") != "Windows_NT" && !is.null(renv::project())) {
+    extra_packages <- c(
+       "nvimcom",
       "languageserver", "lintr"
     )
+  }else {
+      extra_packages <- character()
   }
   # if (interactive()) {
   #   require(usethis, quietly = TRUE)
@@ -23,7 +25,7 @@ local({
   options(
     defaultPackages = c(
       getOption("defaultPackages"),
-      default_packages
+      extra_packages
     ),
     echo = TRUE,
     error = utils::recover,

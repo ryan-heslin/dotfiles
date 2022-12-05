@@ -11,3 +11,7 @@ set completion-bg #4a5661
 set window-height 800
 set window-width 1000
 set window-title-page true
+
+# https://wiki.archlinux.org/title/zathura#Enable_copy_to_clipboard
+map D set "first-page-column 1:1"
+map <C-d> set "first-page-column 1:2"
