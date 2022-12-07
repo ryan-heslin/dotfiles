@@ -787,7 +787,6 @@ M.swap_impl_factory = function()
     local replace_text = function(target_buffer, start, ends, text)
         local start_row, start_col = unpack(start)
         local end_row, end_col = unpack(ends)
-        -- To reset these registers after pasting text
         -- Maybe pcall wrapper?
         local old_put_start = vim.api.nvim_buf_get_mark(target_buffer, "[")
         local old_put_end = vim.api.nvim_buf_get_mark(target_buffer, "]")
@@ -797,6 +796,7 @@ M.swap_impl_factory = function()
         -- print(start_col)
         -- print(end_row)
         -- print(end_col)
+        -- Clear old before pasting new
         vim.api.nvim_buf_set_text(
             target_buffer,
             start_row,
@@ -805,6 +805,8 @@ M.swap_impl_factory = function()
             end_col,
             {}
         )
+
+        -- TODO fix multiple-line swapping; maybe insert dummy spaces before swap?
         vim.api.nvim_buf_set_text(
             target_buffer,
             start_row,
@@ -861,6 +863,7 @@ M.swap_impl_factory = function()
                 processed_text = { new_text }
             end
         end
+        print(new_text)
 
         local start_pos, end_pos =
             correct_positions(M.get_operator_pos(current_buffer))
@@ -878,6 +881,8 @@ M.swap_impl_factory = function()
         if n_captured == 2 then
             local old_buffer = memo[1][1]
             local old_positions = memo[1][2]
+            local old_start = old_positions["start_pos"]
+            local old_end = old_positions["end_pos"]
             local old_text = memo[1][3]
             --print(old_text)
             --(tostring(vim.inspect(memo)))
@@ -885,14 +890,18 @@ M.swap_impl_factory = function()
             -- Text to replace is that recently captured
             --
             -- Clear cache if error
+            --local old_line_length = vim.fn.col("$")
+
+            old_text = M.map(old_text, M.str_trim)
+            processed_text = M.map(processed_text, M.str_trim)
             local result, err = pcall(function()
-                replace_text(
-                    old_buffer,
-                    old_positions["start_pos"],
-                    old_positions["end_pos"],
-                    processed_text
-                )
+                replace_text(old_buffer, old_start, old_end, processed_text)
             end)
+            -- If swapping on same line, account for offset from swapping old for new, which
+            -- throws off target col indices
+            local line_difference = string.len(M.demote(old_text))
+                - string.len(M.demote(processed_text))
+            print(line_difference)
             if not result then
                 memo = {}
                 print("Error inserting text")
@@ -905,6 +914,18 @@ M.swap_impl_factory = function()
             local new_buffer = memo[2][1]
             local new_start, new_end =
                 correct_positions(M.get_operator_pos(new_buffer))
+            -- Adust indices to account for replacement offset
+            -- TODO test same-line case
+            -- print(vim.inspect(old_start))
+            -- print(vim.inspect(old_end))
+            -- print(vim.inspect(new_start))
+            -- print(vim.inspect(new_end))
+            if
+                M.all_equal(old_start[1], old_end[1], new_start[1], new_end[1])
+            then
+                new_start[2] = new_start[2] - line_difference
+                new_end[2] = new_end[2] - line_difference
+            end
             result, err = pcall(function()
                 replace_text(new_buffer, new_start, new_end, old_text)
             end)
@@ -1688,6 +1709,33 @@ end
 
 M.promote = function(x)
     return (type(x) == "table" and x) or { x }
+end
+
+M.demote = function(x)
+    return (type(x) == "table" and (#x > 0 and x[1]) or x) or x
+end
+
+-- Confirm all values are equal
+M.all_equal = function(...)
+    local args = { ... }
+    while #args > 1 do
+        if args[1] ~= args[2] then
+            return false
+        end
+        table.remove(args, 1)
+    end
+    return true
+end
+
+M.str_trim = function(string)
+    return string.gsub(string.gsub(string, "^%s+", ""), "%s+$", "")
+end
+
+M.map = function(x, f)
+    for i, val in ipairs(x) do
+        x[i] = f(val)
+    end
+    return x
 end
 
 return M
