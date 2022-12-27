@@ -48,15 +48,14 @@ autocmd("ColorScheme", {
             "DarkOrange3",
             "DarkOrchid3",
             "FireBrick",
-            "SeaGreen",
-            "LightYellow",
-            "LightCyan",
+            "Green",
+            "Yellow",
+            "Cyan",
         }
         vim.g.rainbow_ctermfgs =
             { "lightblue", "lightgreen", "yellow", "red", "magenta" }
     end,
 })
-
 autocmd("TextYankPost", {
     pattern = "*",
     callback = function()

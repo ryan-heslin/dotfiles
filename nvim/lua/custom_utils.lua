@@ -719,11 +719,11 @@ M.yank_visual = M.with_register(M.yank_visual, "z")
 
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
 M.visual_search = function(target)
-    target = target or "/"
+    target = M.default_arg(target, "/")
     text = vim.fn.substitute(M.yank_visual(), [[\_s\+]], " ", "g")
     pcall(function()
         vim.fn.setreg(target, text)
-        vim.cmd("normal n")
+        --vim.cmd("normal n")
     end, print("No matches"))
 end
 
