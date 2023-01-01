@@ -463,16 +463,19 @@ km.set({ "n" }, "<Leader>em", function()
     vim.cmd.Embrace()
 end, opts)
 km.set({ "i" }, "<C-(>", ":normal i( | lua M.match_paren()", opts)
-km.set("n", "<Leader>LL", function()
-    vim.lsp.set_log_level("debug")
+km.set("n", "<Leader>lo", function()
+    if require("vim.lsp.log").get_level() ~= "DEBUG" then
+        vim.lsp.set_log_level("DEBUG")
+    else
+        vim.lsp.set_log_level("WARN")
+    end
 end, opts)
 --
 -- Translate Vimscript mapping to Lua with awful regex
 km.set(
     { "n", "v" },
     "<leader>ll",
-    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=]
-    ,
+    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=],
     opts
 )
 km.set({ "i", "n", "v" }, "<C-%>>", function()
