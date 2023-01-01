@@ -414,13 +414,6 @@ end
 --Substitute default value for omitted argument
 M.default_arg = function(arg, default)
     return (arg == nil and default) or arg
-    -- local out
-    -- if arg ~= nil then
-    --     out = arg
-    -- else
-    --     out = default
-    -- end
-    -- return out
 end
 
 -- double controls whether to concatenate if string already has prefix/suffix
@@ -489,7 +482,6 @@ M.summarize_option = function(opt)
     for _, bufname in pairs(vim.api.nvim_list_bufs()) do
         local value = vim.api.nvim_buf_get_option(bufname, opt)
         if summary[value] == nil then
-            --table.insert(summary, value)
             summary[value] = 1
         else
             summary[value] = summary[value] + 1
@@ -708,23 +700,64 @@ M.vec = function()
     M.surround()
 end
 
-M.yank_visual = function(register)
-    register = register or '"'
-    -- Only use quote mark notation if not using unnamed register
-    sub = (register ~= '"' and '"' .. register) or ""
-    vim.cmd.normal(" " .. sub .. "gvy")
-    return vim.fn.getreg(register)
+M.yank_visual = function(buffer)
+    buffer = M.default_arg(buffer, 0)
+    -- Col value for ">" mark in linewise selection
+    local linewise_col = 2 ^ 31 - 1
+    -- register = register or '"'
+    -- -- Only use quote mark notation if not using unnamed register
+    -- sub = (register ~= '"' and '"' .. register) or ""
+    --vim.cmd.normal(" " .. sub .. "gvy")
+    --1, 0-indexed tuple
+    -- local left = vim.api.nvim_buf_get_mark(buffer, "'<")
+    -- local right = vim.api.nvim_buf_get_mark(buffer, "'>")
+    local left_line = vim.fn.line("'<")
+    local left_col = vim.fn.col("'<")
+    local right_line = vim.fn.line("'>")
+    local right_col = vim.fn.col("'>")
+
+    -- No recorded selection
+    -- if left == { 0, 0 } or right == { 0, 0 } then
+    --     return nil
+    -- end
+
+    local text
+    -- print(vim.inspect(left))
+    -- print(vim.inspect(right))
+    if right_col ~= linewise_col then
+        text = vim.api.nvim_buf_get_text(
+            buffer,
+            left_line - 1,
+            math.max(left_col - 1, 0),
+            right_line - 1,
+            right_col,
+            {}
+        )
+    else
+        text = vim.api.nvim_buf_get_lines(
+            buffer,
+            left_line - 1,
+            right_line - 1,
+            {}
+        )
+    end
+    if type(text) == "table" then
+        text = table.concat(text, "\n")
+    end
+    return text
+
+    --return vim.fn.getreg(register)
 end
-M.yank_visual = M.with_register(M.yank_visual, "z")
+--M.yank_visual = M.with_register(M.yank_visual, "z")
 
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
 M.visual_search = function(target)
+    -- Abort current visual mode
+    vim.cmd.normal(M.t("<Esc>"))
     target = M.default_arg(target, "/")
-    text = vim.fn.substitute(M.yank_visual(), [[\_s\+]], " ", "g")
-    pcall(function()
-        vim.fn.setreg(target, text)
-        --vim.cmd("normal n")
-    end, print("No matches"))
+    local text = M.yank_visual(0)
+    vim.fn.setreg("/", text, "c")
+    return text
 end
 
 -- Get start and end of operator-pending register
