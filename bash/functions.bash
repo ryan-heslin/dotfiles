@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 
-get(){
+# get(){
+# 	z -e open -r -f "$1"
+# }
+#
 
-	z -e open -r -f "$1"
-}
-
-# Help
+# Show command help
 h() {
     which "$1" && "$1" --help | batcat
 }
@@ -27,7 +27,9 @@ cplock() {
 
 # cd to first directory of search result
 cdf(){
-    cd "$(fdfind -type d --color 'never' "$1" | head -n 1)"
+    cd "$(fdfind --type d --color 'never' --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" |
+        grep $1 |
+        head -n 1)"
 }
 
 install(){
@@ -54,21 +56,19 @@ cd "$(find . -type d -printf '%T@ %p\n'  | grep -E -v "$pat" | sort -n | tail -1
 lsempty(){
     find "${1:-.}" -name "${2:-*}" -type f -empty
 }
+
 nvimsess(){
 #TODO parse args, including extra for command
-local session="$1"
-local path="$VIM_SESSION_DIR/$1.vim"
+    local session="$1"
+    local path="$VIM_SESSION_DIR/$1.vim"
 
-[ -f "$path" ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
+    [ -f "$path" ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
 }
 # Test Shiny app. From https://www.r-bloggers.com/2018/09/4-ways-to-be-more-productive-using-rstudios-terminal/
 testapp() {
 appdir="${1:-$PWD}"
 R -e "library(shiny); runApp(port = 9999, launch.browser = FALSE); rstudioapi::viewer('http://127.0.0.1:9999')"
 }
-
-# cd into chosen dir
-#
 
 fsearch (){
 
@@ -81,6 +81,7 @@ fsearch (){
 
 }
 
+# Use FZF to search for directories by name
 d(){
     cd "$(fdfind --type directory --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" | fzf)"
 }
@@ -94,15 +95,11 @@ batd(){
     batcat "$(fdfind --type file --type symlink --ignore-file "$DOTFILES_DIR/misc/.ignore" | fzf)"
 }
 
-open2 () {
-	touch "$1" && nvim "$1"
-}
-
-
 search() {
 	start "https://google.com/search?q=$(echo "$1" | sed -r 's/\s/\+/')"
 }
 
+# Open all
 oa() {
 	local glob="*$1*"
 	open "$1*.$2"
@@ -118,7 +115,6 @@ msearch() {
 }
 
 apply() {
-
 	local cmd="$1"; shift 1
 	local args=( "$@" )
 	for arg in "${args[@]}"; do
@@ -127,13 +123,11 @@ apply() {
 }
 
 mvall() {
-
 	mv *"$1"* "$2"
 }
 
-#ranges don't expand vars
+#Go up number of parent directories
 updir() {
-
   local cmd=".."
   for ((i = 1;i < $1;i++)); do
     cmd="$cmd/.."
@@ -143,23 +137,17 @@ updir() {
 
 #one-comamnd git add, commit, push
 gitf() {
+    if [ $# -eq 0 ]; then
+        echo "No commit message provided"
+    fi
 	git add -A
 	git commit -m "$1"
 	git ls-remote && git push && git reflog
 }
 
 #Replace name placeholder in filenames
-namesub() {
-	local name="ryanheslin"
-	local new="${1/yourname/$name}"
-	mv "$1" "$new"
-	echo "Renamed $1 $new"
-
-}
-
 # cd then list all
 cdl() {
-
 cd "$1"
 ls -a
 }
@@ -185,35 +173,33 @@ rename_exten() {
 local old=$1
 local new=$2
 
-for file in *"$old"; do
+for file in *."$old"; do
 	mv "$file" "${file%.*}.$new" || echo "$file could not be renamed"
-	echo "Renamed $file to ${file%.*}.$new"
+	#echo "Renamed $file to ${file%.*}.$new"
 done
 
 }
 
 # Delete both local and upstream branches
-shear(){
-
-PS3="Type the name of branch $1 to confirm local and upstream deletion: "
-local opts=("$1")
-select opt in "${opts[@]}"
-do
-	case "$opt" in
-		"${opts[1]}")
-			echo "Deleting branch $1"
-			git branch -d "$1"
-			git push origin --delete "$1"
-	;;
-	*) break;;
-	esac
-done
-
-}
-
+# shear(){
+# PS3="Type the name of branch $1 to confirm local and upstream deletion: "
+# local opts=("$1")
+# select opt in "${opts[@]}"
+# do
+# 	case "$opt" in
+# 		"${opts[1]}")
+# 			echo "Deleting branch $1"
+# 			git branch -d "$1"
+# 			git push origin --delete "$1"
+# 	;;
+# 	*) break;;
+# 	esac
+# done
+#
+# }
+#
 #Open by range of numeric prefix
 nfiles(){
-
 local dir="${3:-.}"
 local prefix=( "$(seq -w "$1" "$2")" )
 
@@ -243,12 +229,10 @@ open "$1"
 #Delete misbegotten file
 undo (){
 	find "$1" -maxdepth 1 -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" " | xargs rm -i -V
-
 }
 
 # Get most recent files
 lastn (){
-
 	local n=${2:-1}
 	local cmd="${3:echo}"
 	find "$1" -maxdepth 1 -type f -printf '%T@ %p\n' | sort -rn | head -"$n" | cut -f2- -d" " | xargs "$cmd"
@@ -256,15 +240,13 @@ lastn (){
 
 #Output range of lettered or numbered sections
 sect(){
-local depth=${1:-3}
-shift 1
-local chars=( "$@" )
-# Copied from this hero
-local header="$(eval "printf '#%.0s' {1.."$(($depth))"}") "
-local chars=("${chars[@]/#/$header}")
-
-printf "%s.\n\n" "${chars[@]}"
-
+    local depth=${1:-3}
+    shift 1
+    local chars=( "$@" )
+    # Copied from this hero
+    local header="$(eval "printf '#%.0s' {1.."$(($depth))"}") "
+    local chars=("${chars[@]/#/$header}")
+    printf "%s.\n\n" "${chars[@]}"
 }
 
 # "Git record" - show formatted commits
@@ -293,7 +275,6 @@ knit(){
 
 # Crete new file, opening with comment
 newf(){
-
  if [ ! -f "$1" ]; then
    touch "$1"
    printf "# %s\n# Ryan Heslin\n# %s\n\n" "$(basename "$1")" "$(date +'%m/%d/%Y')" > "$1"
@@ -304,7 +285,6 @@ newf(){
 }
 
 draft2(){
-
   local args=("$@")
   IFS="|"
   #Split filename and arg list by |, then build and execute command
@@ -346,9 +326,11 @@ dbconv(){
 exists(){
     command -v "$1" &>/dev/null
 }
+
 fzn(){
     exists nvim && nvim "$(fzf)"
 }
+#
 # Go into parent directory by name
 cu(){
   cd "${PWD%/$1/*}" && cd "$1"
@@ -358,19 +340,9 @@ cu(){
 li(){
     [ -f "$1" ] && tail -n+"$2" "$1" | head -n"${3:-1}"
 }
-fromc(){
-
-	cat /dev/clipboard > "$1"
-}
-
-toc(){
-
-cat < /dev/clipboard
-}
 
 # rename with
 rewith(){
-
 for file in *"$1"*; do
 	local new="$(echo "$file" | sed  "s/$1/$2/")"
 	mv "$file" "$new"
@@ -417,7 +389,6 @@ complete  -F _sess_complete nvimsess
 
 # Remove all broken symlinks in a directory. See https://linuxize.com/post/how-to-remove-symbolic-links-in-linux/
 delink() {
-
     find "${1:-.}" -xtype l -delete
 }
 
@@ -551,6 +522,7 @@ get_AoC(){
     fi
     echo "https://adventofcode.com/$year/day/$day/input"
 
+    # Eric Wastly would appreciate it if you identified yourself in the download request
     curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
@@ -585,12 +557,12 @@ zotid(){
     zotcli query "$1" | grep -oP "([A-Z0-9]{8})(?=\])"
 }
 
-get627(){
-local file="week$1.Rmd"
-   [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"
-}
+# get627(){
+# local file="week$1.Rmd"
+#    [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"
+# }
 
-# Window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
+# Set window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
 opac(){
     #local level="$(echo "${1:80}" | bc -l)"
     local level=${1:-100}
@@ -605,7 +577,6 @@ opac(){
 rn(){
     mv "${1}" "$(dirname "${1}")/${2}"
 }
-
 
 # Quietly run job and disown
 qz(){
