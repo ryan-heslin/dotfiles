@@ -299,7 +299,7 @@ local spell_filetypes = { "", "rmd", "txt", "pandoc", "quarto" }
 local spell_sources = {
     name = "spell",
     max_item_count = 5,
-    keyword_length = 3,
+    keyword_length = 4,
     priority = 5,
     keyword_pattern = word_regex,
 }
