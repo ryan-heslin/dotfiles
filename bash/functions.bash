@@ -306,9 +306,9 @@ argexec(){
 }
 
 # Copy to xclip
-cc(){
-    cat "$1" | xclip -i -selection clipboard
-}
+# tc(){
+#     cat "$1" | xclip -i -selection clipboard
+# }
 
 # xclip paste
 cv(){

@@ -145,6 +145,10 @@ packer.startup(function(use)
             require("hop").setup({ keys = "etovxqpdygfblzhckisuran" })
         end,
     })
+    use("mfussenegger/nvim-dap")
+    use("mfussenegger/nvim-dap-python")
+    use("rcarriga/nvim-dap-ui")
+    use("theHamsta/nvim-dap-virtual-text")
     -- Automatically set up configuration after cloning packer.nvim
     if packer_bootstrap then
         packer.sync()
