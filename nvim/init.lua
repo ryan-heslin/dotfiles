@@ -125,7 +125,8 @@ packer.startup(function(use)
     use({ "nvim-telescope/telescope.nvim", tag = "0.1.0" })
     use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
     use("tpope/vim-dadbod")
-    use("frazrepo/vim-rainbow")
+    --use("frazrepo/vim-rainbow")
+    use("mrjones2014/nvim-ts-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("LostNeophyte/null-ls-embedded")
     use("makerj/vim-pdf")
@@ -149,7 +150,6 @@ packer.startup(function(use)
         packer.sync()
     end
 end)
-
 -- My custom configuration files
 M = require("custom_utils")
 require("autocommands")

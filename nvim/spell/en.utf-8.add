@@ -124,3 +124,7 @@ subtype
 RStudio
 Neovim
 timesheets
+class
+CSV
+class
+timesheet

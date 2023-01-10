@@ -19,7 +19,7 @@ end, opts)
 -- Interact with terminal buffer
 km.set({ "n" }, "<Leader>te", M.term_edit, opts)
 
--- R history
+-- Save R history
 km.set({ "n" }, "<Leader>tr", function()
     M.term_edit('savehistory("/tmp/history.txt")', "r")
 end, opts)
