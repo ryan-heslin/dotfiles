@@ -155,6 +155,7 @@ packer.startup(function(use)
     end
 end)
 -- My custom configuration files
+vim.g.mapleader = ","
 M = require("custom_utils")
 require("autocommands")
 require("options")
@@ -173,6 +174,10 @@ require("config/nvim-treesitter-textobjects")
 require("config/hop")
 require("config/leap")
 require("config/anki")
+require("config/nvim-dap")
+require("config/nvim-dap-ui")
+require("config/nvim-dap-python")
+require("config/nvim-dap-virtual-text")
 require("quarto")
 require("config/nvim-surround")
 require("abbrev")

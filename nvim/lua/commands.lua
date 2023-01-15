@@ -1,5 +1,4 @@
 -- Custom commands
-
 local create_range = function(line1, line2)
     local out
     if line1 == nil or line2 == nil then
@@ -45,15 +44,3 @@ vim.api.nvim_create_user_command("FZF", function(_)
         sink = "e",
     })
 end, { desc = "Call FZF with defaults set in environment variables" })
---vim.cmd([[
---  command!  -range Embrace <line1>,<line2>s/\v(_|\^)\s*([^{}_\^ \$]+)/\1{\2}/g
---  command! -nargs=1 -range=% Sed <line1>,<line2>s/<args>//g
---  command! -nargs=1 -range=% Grab <line1>,<line2>g/<args>/yank Z
---  Switch window to buffer already open
--- command! -nargs=1 -complete=buffer E edit <args>
---  From https://unix.stackexchange.com/questions/72051/vim-how-to-increase-each-number-in-visual-block
---  Increments all by 1 in visual selection
---  command!-range Inc <line1>,<line2>s/\%V\d\+\%V/\=submatch(0)+1/g
---  Delete buffer without closing window
--- command! BD :bprevious | split | bnext | bdelete
---]])

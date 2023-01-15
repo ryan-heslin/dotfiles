@@ -271,6 +271,8 @@ autocmd("WinClosed", {
 --nvim-dap completion
 autocmd("FileType dap-repl", {
     callback = function()
-        require("dap.ext.autocompl").attach()
+        if use_debug then
+            require("dap.ext.autocompl").attach()
+        end
     end,
 })

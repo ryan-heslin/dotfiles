@@ -704,26 +704,12 @@ M.yank_visual = function(buffer)
     buffer = M.default_arg(buffer, 0)
     -- Col value for ">" mark in linewise selection
     local linewise_col = 2 ^ 31 - 1
-    -- register = register or '"'
-    -- -- Only use quote mark notation if not using unnamed register
-    -- sub = (register ~= '"' and '"' .. register) or ""
-    --vim.cmd.normal(" " .. sub .. "gvy")
-    --1, 0-indexed tuple
-    -- local left = vim.api.nvim_buf_get_mark(buffer, "'<")
-    -- local right = vim.api.nvim_buf_get_mark(buffer, "'>")
     local left_line = vim.fn.line("'<")
     local left_col = vim.fn.col("'<")
     local right_line = vim.fn.line("'>")
     local right_col = vim.fn.col("'>")
 
-    -- No recorded selection
-    -- if left == { 0, 0 } or right == { 0, 0 } then
-    --     return nil
-    -- end
-
     local text
-    -- print(vim.inspect(left))
-    -- print(vim.inspect(right))
     if right_col ~= linewise_col then
         text = vim.api.nvim_buf_get_text(
             buffer,
@@ -1771,4 +1757,6 @@ M.map = function(x, f)
     return x
 end
 
+M.term_toggle = function() end
+--TODO toggle hide/display terminal
 return M

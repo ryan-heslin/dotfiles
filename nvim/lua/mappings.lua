@@ -3,9 +3,10 @@ local opts = { noremap = true, silent = true }
 local km = vim.keymap
 
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
-km.set({ "n" }, "<Leader>!!", function()
+km.set({ "n" }, "<leader>!!", function()
     M.term_exec("\x1b\x5b\x41")
 end, opts)
+km.set({ "n", "v" }, "<leader>tt", M.term_toggle)
 -- Put in last window
 km.set({ "n", "v" }, "<leader>p", function()
     M.win_put(nil, vim.v.register)
@@ -564,3 +565,8 @@ km.set(
 )
 km.set({ "n", "v" }, "<C-s>", M.term_motion, { expr = true })
 km.set({ "n", "v" }, "<C-j>", M.swap, { expr = true })
+
+-- All suggested by repo
+km.set({ "v" }, "<C-e>", function()
+    require("dapui").eval()
+end)
