@@ -1,10 +1,5 @@
 #!/usr/bin/bash
 
-# get(){
-# 	z -e open -r -f "$1"
-# }
-#
-
 # Show command help
 h() {
     which "$1" && "$1" --help | batcat
@@ -14,7 +9,7 @@ h() {
 cplock() {
 
     if [ "$#" -gt 0 ]; then
-        local dirs = "($@)"
+        local dirs="($@)"
     else
         local dirs=(dotfiles misc R sh_utils .venvs Zotero)
     fi
@@ -28,8 +23,8 @@ cplock() {
 # cd to first directory of search result
 cdf(){
     cd "$(fdfind --type d --color 'never' --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" |
-        grep $1 |
-        head -n 1)"
+        grep "$1" |
+        head -n 1)" || exit
 }
 
 install(){
@@ -48,7 +43,7 @@ local defaults=( ".git" ".Rproj" )
 local excludes=( "$@" "${defaults[@]}" )
 local pat="${excludes[*]}"
 echo "$pat"
-cd "$(find . -type d -printf '%T@ %p\n'  | grep -E -v "$pat" | sort -n | tail -1 | cut -f2- -d" ")"
+cd "$(find . -type d -printf '%T@ %p\n'  | grep -E -v "$pat" | sort -n | tail -1 | cut -f2- -d" ")" || exit
 
 }
 
@@ -64,14 +59,8 @@ nvimsess(){
 
     [ -f "$path" ] && nvim "$path" "+source %" "+let g:current_session='$session'" || echo "No session named $session"
 }
-# Test Shiny app. From https://www.r-bloggers.com/2018/09/4-ways-to-be-more-productive-using-rstudios-terminal/
-testapp() {
-appdir="${1:-$PWD}"
-R -e "library(shiny); runApp(port = 9999, launch.browser = FALSE); rstudioapi::viewer('http://127.0.0.1:9999')"
-}
 
 fsearch (){
-
     #TODO generate fdfind commands
     local name="$1"
     local cmd="$2"
@@ -83,7 +72,7 @@ fsearch (){
 
 # Use FZF to search for directories by name
 d(){
-    cd "$(fdfind --type directory --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" | fzf)"
+    cd "$(fdfind --type directory --ignore-file "$DOTFILES_DIR/misc/.ignore" . "$HOME" | fzf)" || exit
 }
 
 # Open selected with nvim
@@ -132,7 +121,7 @@ updir() {
   for ((i = 1;i < $1;i++)); do
     cmd="$cmd/.."
   done
-  cd "$cmd"
+  cd "$cmd" || exit
 }
 
 #one-comamnd git add, commit, push
@@ -148,7 +137,7 @@ gitf() {
 #Replace name placeholder in filenames
 # cd then list all
 cdl() {
-cd "$1"
+cd "$1" || exit
 ls -a
 }
 
@@ -180,24 +169,6 @@ done
 
 }
 
-# Delete both local and upstream branches
-# shear(){
-# PS3="Type the name of branch $1 to confirm local and upstream deletion: "
-# local opts=("$1")
-# select opt in "${opts[@]}"
-# do
-# 	case "$opt" in
-# 		"${opts[1]}")
-# 			echo "Deleting branch $1"
-# 			git branch -d "$1"
-# 			git push origin --delete "$1"
-# 	;;
-# 	*) break;;
-# 	esac
-# done
-#
-# }
-#
 #Open by range of numeric prefix
 nfiles(){
 local dir="${3:-.}"
@@ -215,12 +186,12 @@ grab (){
 
 rmd_head (){
 
-local head="---
+local head='---
 title: \""$2"\"
 author: \"Ryan Heslin\"
 date: \"\`r format(Sys.Date(), '%B %m, %Y')\`\"
 output: ${3:-pdf_document}
----"
+---'
 
 echo -e "$head\n$(cat "$1")" > "$1"
 open "$1"
@@ -244,7 +215,8 @@ sect(){
     shift 1
     local chars=( "$@" )
     # Copied from this hero
-    local header="$(eval "printf '#%.0s' {1.."$(($depth))"}") "
+    local header
+    header="$(eval "printf '#%.0s' {1.."$(($depth))"}") "
     local chars=("${chars[@]/#/$header}")
     printf "%s.\n\n" "${chars[@]}"
 }
@@ -333,7 +305,7 @@ fzn(){
 #
 # Go into parent directory by name
 cu(){
-  cd "${PWD%/$1/*}" && cd "$1"
+  cd "${PWD%/$1/*}" || exit && cd "$1" || exit
 }
 
 #Get line or range of lines
@@ -344,7 +316,8 @@ li(){
 # rename with
 rewith(){
 for file in *"$1"*; do
-	local new="$(echo "$file" | sed  "s/$1/$2/")"
+    local new
+	new="$(echo "$file" | sed "s/$1/$2/")"
 	mv "$file" "$new"
 done
 }
@@ -398,8 +371,9 @@ testPyPi(){
 
 date_before(){
     local target="$1"
-    local now="$(date '+%Y-%m-%d')"
-    if [ "$now" < "$target" ]; then
+    local now
+    now="$(date '+%Y-%m-%d')"
+    if [ "$now" \< "$target" ]; then
         return 1
     else
         return 0
@@ -413,7 +387,8 @@ get_AoC(){
     # Adapted from
     local verbose=false
     local AoC_dir="$HOME/misc/AoC"
-    local current_year=$(date +"%-Y")
+    local current_year
+    current_year=$(date +"%-Y")
     while [ "$#" -gt 0 ]; do
         key="$1"
         case $key in
@@ -476,24 +451,28 @@ get_AoC(){
 
     #TODO fix year substitution
     if [ "${year+x}" = "" ] || [ "${day+x}" = "" ]; then
-        local target="$(date -d "$current_year"-12-01 '+%Y-%m-%d')"
-        local now="$(date '+%Y-%m-%d')"
+        local target
+        target="$(date -d "$current_year"-12-01 '+%Y-%m-%d')"
+        local now
+        now="$(date '+%Y-%m-%d')"
         if [ "${year+x}" = "" ]; then
             local year="$current_year"
         # If before December, default to previous year
-            if [ "$now" < "$target" ]; then
+            if [ "$now" \< "$target" ]; then
                 local year=$(( "$year" - 1 ))
                 echo "$year"
             fi
         fi
         if [ "${day+x}" = "" ]; then
-            local month="$(date '+%m')"
-            if [ "month" -ne 12]; then
+            local month
+            month="$(date '+%m')"
+            if [ "$month" != 12 ]; then
                 echo "Date automatically supplied only in December"
                 return 1
             fi
             # Not zero-padded
-            local day=$(date +"%-e")
+            local day
+            day=$(date +"%-e")
             if [ "$day" -gt 25 ]; then
                 echo "Advent time is past; day is not automatically supplied"
                 return 1
@@ -522,22 +501,26 @@ get_AoC(){
     fi
     echo "https://adventofcode.com/$year/day/$day/input"
 
-    # Eric Wastly would appreciate it if you identified yourself in the download request
+    # Eric Wastl would appreciate it if you identified yourself in the download request
     curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
 }
 
 # Retrieve secret from secret-tool and copy to clipboard
 secretget(){
-    local st="$(which secret-tool)"
-    read -s -p 'Password: ' password
+    local st
+    st="$(which secret-tool)"
+    read -s -p -r 'Password: ' password
     echo ''
-    local secret="$("$st" lookup "$1" "$password")"
+
+    local secret
+    secret="$("$st" lookup "$1" "$password")"
     [ "$secret" != "" ] && cs "$secret" || echo "Secret not found"
 }
 
 # Build Python package and upload to test-PyPi
 rebuild(){
-    local package="$(basename "$(realpath .)")"
+    local package
+    package="$(basename "$(realpath .)")"
     [ -d ."/dist" ] && rm -r "./dist"
     [ -d ."/src/$package.egg-info" ] && rm -r "./src/$package.egg-info"
     python3 -m build || echo "Error building $package"
@@ -546,10 +529,6 @@ rebuild(){
 
 ts(){
     date +"%d-%m-%Y"
-}
-
-delock(){
-    rm -rf "$HOME/$R_USER_LIBRARY0*"
 }
 
 # Get Zotero library IDs corresponding to query
@@ -570,7 +549,7 @@ opac(){
     #    echo "Invalid opacity value $level; must be between 0 and 1"
     #    return
     #fi
-    sh -c "xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * ${level} / 100)))"
+    sh -c "xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * level / 100)))"
 }
 
 # Rename file in directory by different name in same directory
@@ -590,14 +569,9 @@ wbat(){
 
 # Kill last job(s) by search
 kl() {
-pgrep "$1" | tail -n "${2:1}" | kill
+pgrep "$1" | tail -n "${2:1}" | xargs kill
 }
 
-setdiff(){
-    # TODO parse two set arguments
-    declare local -A x
-    declare local -A y
-}
 
 # Git status that excludes output by a regex; useful for filenames
 gse(){
@@ -607,6 +581,7 @@ gse(){
 show(){
 local name="$1"
 local file="$2"
+local printer
 local printer="$()"
 local extension="${file##*.}"
 awk "/^ *$name\(.*?\) *\{ *$/,/^ *} *$/" "$file" | bat -l "$extension"
@@ -626,7 +601,8 @@ history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selectio
 
 # Create new quarto file
 qdraft(){
-    local new_file="$(echo ${1} | grep '\.qmd$' || echo "${1}.qmd")"
+    local new_file
+    new_file="$(echo "${1}" | grep '\.qmd$' || echo "${1}.qmd")"
     cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "${new_file}"
     nvim "${new_file}"
 }

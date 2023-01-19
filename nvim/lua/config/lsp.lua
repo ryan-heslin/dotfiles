@@ -234,6 +234,7 @@ table.insert(path, "lua/?/init.lua")
 
 local servers = {
     bashls = { filetypes = { "sh", "bash" }, cmd = bashls },
+    jsonls = {},
     marksman = {},
     pyright = { filetypes = { "python", "quarto" } },
     r_language_server = {
@@ -295,6 +296,7 @@ vim.diagnostic.config({
 })
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
 local handlers = {
