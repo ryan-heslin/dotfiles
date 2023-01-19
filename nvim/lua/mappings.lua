@@ -6,6 +6,7 @@ local km = vim.keymap
 km.set({ "n" }, "<leader>!!", function()
     M.term_exec("\x1b\x5b\x41")
 end, opts)
+-- Toggle terminal
 km.set({ "n", "v" }, "<leader>tt", M.term_toggle)
 -- Put in last window
 km.set({ "n", "v" }, "<leader>p", function()

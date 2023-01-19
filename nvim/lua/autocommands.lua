@@ -53,7 +53,7 @@ autocmd("ColorScheme", {
             "Cyan",
         }
         vim.g.rainbow_ctermfgs =
-            { "lightblue", "lightgreen", "yellow", "red", "magenta" }
+        { "lightblue", "lightgreen", "yellow", "red", "magenta" }
     end,
 })
 autocmd("TextYankPost", {
@@ -130,8 +130,7 @@ autocmd("User TelescopePreviewerLoaded", {
 autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if
-            vim.b.source_on_save ~= 0
+        if vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
             M.refresh()
@@ -187,7 +186,7 @@ autocmd("WinLeave", {
 
 autocmd({ "BufEnter", "BufNewFile" }, {
     callback = function()
-        vim.bo.filetype = "quarto"
+        vim.bo[0].filetype = "quarto"
     end,
     pattern = { "*.Qmd", "*.qmd" },
     desc = "Set Quarto filetype",

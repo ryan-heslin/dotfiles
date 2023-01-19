@@ -4,7 +4,7 @@ local opts = { silent = true, noremap = true, buffer = true }
 -- Source all relevant ftplugin files
 dofile(vim.api.nvim_get_runtime_file("ftplugin/r.lua", false)[1])
 dofile(vim.api.nvim_get_runtime_file("ftplugin/tex.lua", false)[1])
-dofile(vim.api.nvim_get_runtime_file("ftplugin/md.lua", false)[1])
+dofile(vim.api.nvim_get_runtime_file("ftplugin/pandoc.lua", false)[1])
 dofile(vim.api.nvim_get_runtime_file("ftplugin/rmd.lua", false)[1])
 
 vim.keymap.set({ "n", "v" }, [[\jj]], "<cmd>lua run_current_chunk()<CR>", opts)

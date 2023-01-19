@@ -1757,6 +1757,20 @@ M.map = function(x, f)
     return x
 end
 
-M.term_toggle = function() end
---TODO toggle hide/display terminal
+M.term_toggle = function()
+    if term_state ~= nil then
+        hidden =
+            vim.fn.getbufinfo(term_state["last_terminal_buf_id"])[1]["hidden"]
+        if hidden == 1 then --open if not displayed
+            vim.cmd.vsplit()
+            vim.cmd.buffer(term_state["last_terminal_buf_id"])
+            vim.cmd.normal(M.t("<C-w>L"))
+        else -- close if displayed
+            vim.api.nvim_win_close(term_state["last_terminal_win_id"], false)
+        end
+    else
+        M.term_setup()
+    end
+end
+
 return M
