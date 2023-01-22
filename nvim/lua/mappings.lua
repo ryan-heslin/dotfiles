@@ -223,9 +223,6 @@ end, opts)
 km.set({ "n" }, "<Leader>ws", function()
     require("telescope.builtin").lsp_dynamic_workspace_symbols()
 end, opts)
-km.set({ "n" }, "<Leader>ca", function()
-    require("telescope.builtin").lsp_range_code_actions()
-end, opts)
 km.set({ "n" }, "<Leader>ld", function()
     require("telescope.builtin").diagnostics({ bufnr = 0 })
 end, opts)
@@ -239,6 +236,11 @@ km.set({ "n" }, "<Leader>ld", function()
     require("telescope.builtin").lsp_definitions()
 end, opts)
 km.set({ "n" }, "<Leader>T", ":Telescope ", opts)
+
+local telescope_menu =
+    M.table_menu(require("telescope.builtin"), "Select picker: ")
+km.set({ "n", "v" }, "<Leader>tm", telescope_menu, opts)
+
 --
 --Knit rmarkdown - ugly as sin but works
 km.set({ "n" }, "<Leader>kn", function()

@@ -130,6 +130,7 @@ packer.startup(function(use)
     use("jose-elias-alvarez/null-ls.nvim")
     use("LostNeophyte/null-ls-embedded")
     use("makerj/vim-pdf")
+    use("kosayoda/nvim-lightbulb")
     use({
         "numToStr/Comment.nvim",
         config = function()

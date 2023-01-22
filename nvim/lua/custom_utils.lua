@@ -1264,11 +1264,9 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file) and M.surround_string(
-            files[i],
-            " ",
-            ""
-        ) or ""
+        cmd = cmd .. (files[i] ~= current_file)
+                and M.surround_string(files[i], " ", "")
+            or ""
     end
 
     -- Return if only current file detected
@@ -1702,6 +1700,26 @@ M.choose_picker = function()
             vim.cmd("Telescope " .. choice)
         end
     )
+end
+
+M.table_menu = function(map, prompt, action)
+    local choices = {}
+    for key, _ in pairs(map) do
+        table.insert(choices, key)
+    end
+
+    table.sort(choices)
+    action = M.default_arg(action, function(choice, _)
+        local chosen = map[choice]
+        if chosen == nil then
+            return
+        end
+        map[choice]()
+    end)
+
+    return function()
+        vim.ui.select(choices, prompt, action)
+    end
 end
 
 -- Set environment variable to value

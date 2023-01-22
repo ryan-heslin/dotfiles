@@ -112,7 +112,7 @@ apply() {
 }
 
 mvall() {
-	mv *"$1"* "$2"
+	mv ./*"$1"* "$2"
 }
 
 #Go up number of parent directories
@@ -148,7 +148,7 @@ pat() {
 	then
 		cmd="$2"
 	fi;
-	"$cmd" *"$1"* || echo "No file in $PWD matches pattern $1"
+	"$cmd" ./*"$1"* || echo "No file in $PWD matches pattern $1"
 }
 
 # Rename file referenced by a path
@@ -216,7 +216,7 @@ sect(){
     local chars=( "$@" )
     # Copied from this hero
     local header
-    header="$(eval "printf '#%.0s' {1.."$(($depth))"}") "
+    header="$(eval "printf '#%.0s' {1.."$((depth))"}") "
     local chars=("${chars[@]/#/$header}")
     printf "%s.\n\n" "${chars[@]}"
 }
@@ -305,7 +305,7 @@ fzn(){
 #
 # Go into parent directory by name
 cu(){
-  cd "${PWD%/$1/*}" || exit && cd "$1" || exit
+  cd "${PWD%/"$1"/*}" || exit && cd "$1" || exit
 }
 
 #Get line or range of lines
@@ -582,7 +582,7 @@ show(){
 local name="$1"
 local file="$2"
 local printer
-local printer="$()"
+printer="$()"
 local extension="${file##*.}"
 awk "/^ *$name\(.*?\) *\{ *$/,/^ *} *$/" "$file" | bat -l "$extension"
 }

@@ -3,6 +3,29 @@ if last_filetype == nil then
     last_filetype = {}
 end
 
+--From https://github.com/neovim/nvim-lspconfig/wiki/Code-Actions
+local code_action_listener = function()
+    local context = { diagnostics = vim.lsp.diagnostic.get_line_diagnostics() }
+    local params = vim.lsp.util.make_range_params()
+    params.context = context
+    vim.lsp.buf_request(
+        0,
+        "textDocument/codeAction",
+        params,
+        function(err, _, result)
+            --vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+            --TODO sign for code actions
+            local signs =
+                { Error = " ", Warn = " ", Hint = " ", Info = " " }
+            for type, icon in pairs(signs) do
+                local hl = "DiagnosticSign" .. type
+                vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+            end
+            -- do something with result - e.g. check if empty and show some indication such as a sign
+        end
+    )
+end
+
 local autocmd = vim.api.nvim_create_autocmd
 
 -- Standard autocommands
@@ -16,8 +39,9 @@ highlight_params = {
     PmenuSBar = { bg = "white" },
     PmenuThumb = { bg = "#cca300" },
     rGlobEnvFun = { ctermfg = 117, fg = "#87d7ff", italic = true },
-    LspReferenceRead = { fg = "LightGreen", bg = "Yellow" },
-    LspReferenceWrite = { fg = "Yellow", bg = "Yellow" },
+    LspReferenceRead = { fg = "White", bg = "MistyRose" },
+    LspReferenceWrite = { fg = "White", bg = "LightYellow" },
+    LspReferenceText = { fg = "White", bg = "LightGreen" },
     LspSignatureActiveParameters = { fg = "Green" },
     ColorColumn = { bg = "MistyRose" },
     CmpItemAbbr = { fg = "wheat" },
@@ -53,7 +77,7 @@ autocmd("ColorScheme", {
             "Cyan",
         }
         vim.g.rainbow_ctermfgs =
-        { "lightblue", "lightgreen", "yellow", "red", "magenta" }
+            { "lightblue", "lightgreen", "yellow", "red", "magenta" }
     end,
 })
 autocmd("TextYankPost", {
@@ -130,7 +154,8 @@ autocmd("User TelescopePreviewerLoaded", {
 autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if vim.b.source_on_save ~= 0
+        if
+            vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
             M.refresh()
@@ -275,3 +300,7 @@ autocmd("FileType dap-repl", {
         end
     end,
 })
+autocmd(
+    "CursorHold,CursorHoldI",
+    { pattern = "*", callback = code_action_listener }
+)
