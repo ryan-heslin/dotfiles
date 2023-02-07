@@ -1,4 +1,3 @@
-vim.g.mapleader = ","
 local opts = { noremap = true, silent = true }
 local km = vim.keymap
 
@@ -106,7 +105,6 @@ end, opts)
 
 km.set({ "n" }, "<Leader>te", "<cmd>vsplit<CR>l:terminal<CR>i", opts)
 
---vim.api.nvim_set_keymap('n', '<C-S>', ':let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>', {noremap = true, silent = true}
 km.set({ "n" }, "<Leader>o", "o<Esc>k", opts)
 km.set({ "n" }, "<Leader>O", "O<Esc>j", opts)
 
@@ -187,7 +185,6 @@ vim.api.nvim_set_keymap("n", "<k9>", "zug", opts)
 km.set({ "n" }, "<leader>lp", ":lua print(<C-r>)<CR>", opts)
 -- vimrc access
 km.set({ "n" }, "<Leader>ev", ":split $MYVIMRC<CR>", opts)
---:silent! try | write $MYVIMRC | catch  |  finally  |
 km.set({ "n" }, "<Leader>sv", ":source $MYVIMRC<CR>", { noremap = true })
 km.set({ "n" }, "<space>", "<space> <c-^>", opts)
 km.set({ "n" }, "<leader>tt", function()
@@ -282,12 +279,12 @@ km.set({ "n" }, "\re", function()
     vim.cmd("RSend " .. M.surround_string(vim.fn.getline("."), "(", ")"))
 end, opts)
 
-km.set(
-    { "n" },
-    "<Leader>cv",
-    ":lua vim.cmd[[%normal I<Space><Space><Space><Space> | normal ggG$y<Esc>]]",
-    opts
-)
+-- km.set(
+--     { "n" },
+--     "<Leader>cv",
+--     ":lua vim.cmd[[%normal I<Space><Space><Space><Space> | normal ggG$y<Esc>]]",
+--     opts
+-- )
 -- Surround register with quotes
 km.set({ "n", "v" }, '<leader>"', function()
     M.modify_register(M.surround_string, "+", '"', '"')
@@ -318,8 +315,8 @@ km.set({ "n" }, "<Leader>ty", function()
 end, opts)
 
 -- Insert section headings below cursor
-km.set({ "n" }, "<Leader>sen", ":<C-U>call functions#Sections(1)<CR>", opts)
-km.set({ "n" }, "<Leader>sel", ':<C-U>call functions#Sections("a")<CR>', opts)
+-- km.set({ "n" }, "<Leader>sen", ":<C-U>call functions#Sections(1)<CR>", opts)
+-- km.set({ "n" }, "<Leader>sel", ':<C-U>call functions#Sections("a")<CR>', opts)
 
 km.set({ "n", "v", "i" }, "<Leader>nj", M.no_jump, opts)
 
@@ -344,7 +341,6 @@ vim.api.nvim_set_keymap("i", ";o", "<Esc>o", opts)
 vim.api.nvim_set_keymap("i", ";O", "<Esc>O", opts)
 
 km.set({ "t" }, "<Esc>", "<C-\\><C-n>", opts)
---vim.api.nvim_set_keymap('t',  '<C-r>', "'<C-\\><C-n>' . nr2char(getchar()) . 'pi'", {noremap = true, silent = true, expr = true})
 --Terminal pasting
 km.set({ "t" }, "<C-p>", "<C-\\><C-n>pi", opts)
 
@@ -369,7 +365,6 @@ km.set({ "n" }, "<Leader>bn", ":bnext<CR>", opts)
 km.set({ "n" }, "<Leader>bp", ":bprevious<CR>", opts)
 
 -- Replace
--- TODO fix word replacement
 km.set(
     { "n" },
     "<Leader>rw",
@@ -378,25 +373,25 @@ km.set(
 )
 
 -- <-A-k> remap represents current best attempt at using window for paren matching
-km.set(
-    { "c" },
-    "<-A-h>",
-    '&cedit . "h<C-c>"',
-    { noremap = true, silent = true, expr = true }
-)
-km.set(
-    { "c" },
-    "<-A-j>",
-    '&cedit . "j" . "<C-c>"',
-    { noremap = true, silent = true, expr = true }
-)
-km.set({ "c" }, "<-A-k>", M.t("<C-f>i" .. M.expand_pair("(") .. "<Down>"), opts)
-km.set(
-    { "c" },
-    "<-A-l>",
-    '&cedit . "l" . "<C-c>"',
-    { noremap = true, silent = true, expr = true }
-)
+-- km.set(
+--     { "c" },
+--     "<-A-h>",
+--     '&cedit . "h<C-c>"',
+--     { noremap = true, silent = true, expr = true }
+-- )
+-- km.set(
+--     { "c" },
+--     "<-A-j>",
+--     '&cedit . "j" . "<C-c>"',
+--     { noremap = true, silent = true, expr = true }
+-- )
+-- km.set({ "c" }, "<-A-k>", M.t("<C-f>i" .. M.expand_pair("(") .. "<Down>"), opts)
+-- km.set(
+--     { "c" },
+--     "<-A-l>",
+--     '&cedit . "l" . "<C-c>"',
+--     { noremap = true, silent = true, expr = true }
+-- )
 
 -- Enable delimiter closing for terminal
 --vim.api.nvim_set_keymap('c', "'", [ ''<left> ], {noremap = true, silent = true})
@@ -412,9 +407,6 @@ km.set({ "v" }, ",ty", function()
     M.term_exec(M.yank_visual("+"))
 end, opts)
 km.set({ "t" }, "++", "<Space><bar>><Space>", opts)
-
---vim.api.nvim_set_keymap('c', '(', [[luaeval('M.expand_pair("(")')]], {noremap = true, silent = true, expr = true})
---vim.api.nvim_set_keymap('c', ')', [[luaeval('M.match_pair(")")')]], {noremap = true, silent = true, expr = true})
 
 vim.api.nvim_set_keymap("n", "!!", "@:<CR>", opts)
 
@@ -466,7 +458,9 @@ km.set({ "n" }, "<Leader>tP", 'bdwmzF,b"ydww', opts)
 km.set({ "n" }, "<Leader>em", function()
     vim.cmd.Embrace()
 end, opts)
-km.set({ "i" }, "<C-(>", ":normal i( | lua M.match_paren()", opts)
+--km.set({ "i" }, "<C-(>", ":normal i( | lua M.match_paren()", opts)
+--
+-- Toggle LSP log level
 km.set("n", "<Leader>lo", function()
     if require("vim.lsp.log").get_level() ~= "DEBUG" then
         vim.lsp.set_log_level("DEBUG")
@@ -475,13 +469,6 @@ km.set("n", "<Leader>lo", function()
     end
 end, opts)
 --
--- Translate Vimscript mapping to Lua with awful regex
-km.set(
-    { "n", "v" },
-    "<leader>ll",
-    [=[:s/\v\s*([a-z])noremap\s+([^ ]+)\s+(.*)/vim.api.nvim_set_keymap('\1', [[\2]], [[\3]], {noremap = true, silent = true})/<CR>]=],
-    opts
-)
 km.set({ "i", "n", "v" }, "<C-%>>", function()
     M.match_paren()
 end, { silent = true })
@@ -536,36 +523,16 @@ km.set(
 -- Choose from menu of LSP options
 km.set({ "n", "v" }, "<leader>cp", "<cmd>lua M.choose_picker()")
 
--- hop
-km.set({ "n", "v" }, "<C-h>aa", "<cmd>HopAnywhere<CR>")
-km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
-km.set({ "n", "v" }, "<C-h>ab", "<cmd>HopAnywhereBC<CR>")
-km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
-km.set({ "n", "v" }, "<C-h>c1", "<cmd>HopChar1<CR>")
-km.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
-km.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
-km.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
+-- -- hop
+-- km.set({ "n", "v" }, "<C-h>aa", "<cmd>HopAnywhere<CR>")
+-- km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
+-- km.set({ "n", "v" }, "<C-h>ab", "<cmd>HopAnywhereBC<CR>")
+-- km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
+-- km.set({ "n", "v" }, "<C-h>c1", "<cmd>HopChar1<CR>")
+-- km.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
+-- km.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
+-- km.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
 
-km.set({ "n", "v" }, "<Leader>ll", "<plug>(leap-forward-to)", { remap = true })
-km.set({ "n", "v" }, "<Leader>LL", "<plug>(leap-backward-to)", { remap = true })
-km.set(
-    { "n", "v" },
-    "<Leader>ww",
-    "<plug>(leap-cross-window)",
-    { remap = true }
-)
-km.set(
-    { "n", "v" },
-    "<Leader>jj",
-    "<plug>(leap-forward-till)",
-    { remap = true }
-)
-km.set(
-    { "n", "v" },
-    "<Leader>JJ",
-    "<plug>(leap-backward-till)",
-    { remap = true }
-)
 km.set({ "n", "v" }, "<C-s>", M.term_motion, { expr = true })
 km.set({ "n", "v" }, "<C-j>", M.swap, { expr = true })
 

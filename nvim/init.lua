@@ -103,8 +103,8 @@ packer.startup(function(use)
             "cpp",
             "cmake",
             "html",
-            "quarto",
-            "markdown",
+            --"quarto",
+            --"markdown",
             "racket",
             "sml",
             "tex",
@@ -119,6 +119,8 @@ packer.startup(function(use)
             vim.fn["firenvim#install"](0)
         end,
     })
+    --use("jmbuhr/otter.nvim")
+    --use("quarto-dev/quarto-nvim")
     use("jupyter-vim/jupyter-vim")
     use("rafi/awesome-vim-colorschemes")
     use("nvim-lua/plenary.nvim")
@@ -142,7 +144,6 @@ packer.startup(function(use)
         "phaazon/hop.nvim",
         branch = "v2", -- optional but strongly recommended
         config = function()
-            -- you can configure Hop the way you like here; see :h hop-config
             require("hop").setup({ keys = "etovxqpdygfblzhckisuran" })
         end,
     })
@@ -179,8 +180,9 @@ require("config/nvim-dap")
 require("config/nvim-dap-ui")
 require("config/nvim-dap-python")
 require("config/nvim-dap-virtual-text")
-require("quarto")
+-- require("quarto")
 require("config/nvim-surround")
+--require("config/quarto-nvim")
 require("abbrev")
 require("vimscript")
 require("mappings")

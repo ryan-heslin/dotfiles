@@ -1107,7 +1107,7 @@ M.load_session = function()
     end
     vim.cmd("source " .. latest_session)
     vim.g.current_session = session_name
-    print("Loading session " .. session_name)
+    print("Loading session " .. M.surround_string(session_name))
 end
 
 -- Knit an Rmarkdown file
@@ -1264,9 +1264,11 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file)
-                and M.surround_string(files[i], " ", "")
-            or ""
+        cmd = cmd .. (files[i] ~= current_file) and M.surround_string(
+            files[i],
+            " ",
+            ""
+        ) or ""
     end
 
     -- Return if only current file detected

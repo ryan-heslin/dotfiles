@@ -1,3 +1,4 @@
+local km = vim.keymap
 require("leap").setup({
     max_phase_one_targets = nil,
     highlight_unlabeled_phase_one_targets = true,
@@ -18,3 +19,24 @@ require("leap").setup({
         multi_revert = "<backspace>",
     },
 })
+
+km.set({ "n", "v" }, "<Leader>ll", "<plug>(leap-forward-to)", { remap = true })
+km.set({ "n", "v" }, "<Leader>LL", "<plug>(leap-backward-to)", { remap = true })
+km.set(
+    { "n", "v" },
+    "<Leader>ww",
+    "<plug>(leap-cross-window)",
+    { remap = true }
+)
+km.set(
+    { "n", "v" },
+    "<Leader>jj",
+    "<plug>(leap-forward-till)",
+    { remap = true }
+)
+km.set(
+    { "n", "v" },
+    "<Leader>JJ",
+    "<plug>(leap-backward-till)",
+    { remap = true }
+)
