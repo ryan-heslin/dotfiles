@@ -82,10 +82,6 @@ on_attach = function(client, bufnr)
 
     vim.wo.signcolumn = "yes"
     local opts = { noremap = true, silent = true, buffer = bufnr }
-    vim.keymap.set("n", "<space>e", vim.diagnostic.open_float, opts)
-    vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-    vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-    vim.keymap.set("n", "<space>q", vim.diagnostic.setloclist, opts)
     vim.keymap.set({ "n", "v" }, "gD", vim.lsp.buf.declaration, opts)
     vim.keymap.set({ "n", "v" }, "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set({ "n", "v" }, "K", vim.lsp.buf.hover, opts)

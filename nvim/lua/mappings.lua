@@ -1,6 +1,11 @@
 local opts = { noremap = true, silent = true }
 local km = vim.keymap
 
+km.set("n", "<space>e", vim.diagnostic.open_float, opts)
+km.set("n", "[d", vim.diagnostic.goto_prev, opts)
+km.set("n", "]d", vim.diagnostic.goto_next, opts)
+km.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 km.set({ "n" }, "<leader>!!", function()
     M.term_exec("\x1b\x5b\x41")
