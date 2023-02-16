@@ -16,7 +16,7 @@ local code_action_listener = function()
             --vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
             --TODO sign for code actions
             local signs =
-                { Error = " ", Warn = " ", Hint = " ", Info = " " }
+            { Error = " ", Warn = " ", Hint = " ", Info = " " }
             for type, icon in pairs(signs) do
                 local hl = "DiagnosticSign" .. type
                 vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
@@ -77,7 +77,7 @@ autocmd("ColorScheme", {
             "Cyan",
         }
         vim.g.rainbow_ctermfgs =
-            { "lightblue", "lightgreen", "yellow", "red", "magenta" }
+        { "lightblue", "lightgreen", "yellow", "red", "magenta" }
     end,
 })
 autocmd("TextYankPost", {
@@ -154,8 +154,7 @@ autocmd("User TelescopePreviewerLoaded", {
 autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if
-            vim.b.source_on_save ~= 0
+        if vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
             M.refresh()
