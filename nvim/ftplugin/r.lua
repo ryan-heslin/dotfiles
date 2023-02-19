@@ -8,7 +8,7 @@ local inline_send_impl = function()
 end
 
 --My utility functions
-local inline_send = M.with_register(M.with_position(inline_send_impl), "z")
+local inline_send = U.with_register(U.with_position(inline_send_impl), "z")
 vim.bo.tabstop = 2
 
 vim.keymap.set("n", [[\kk]], inline_send, opts)

@@ -6,7 +6,7 @@
 --vim.g.UltiSnipsRemoveSelectModeMappings = 0
 --
 local UltiSnips = vim.fn.stdpath("config") .. "/custom_snippets"
-vim.g.UltiSnipsExpandTrigger = "tab"
+vim.g.UltiSnipsExpandTrigger = "<Tab>"
 vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
 vim.g.UltiSnipsJumpBackwardTrigger = "<S-Tab>"
 vim.g.UltiSnipsListSnippets = "<c-x><c-s>"

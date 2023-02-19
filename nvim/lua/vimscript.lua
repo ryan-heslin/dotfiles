@@ -2,7 +2,7 @@
 --
 --Suggested by official guide: Print lua objects
 _G.my_utils = {}
-_G.my_utils.term_motion = M.term_motion
+_G.my_utils.term_motion = U.term_motion
 
 function _G.put(...)
     local objects = {}
@@ -38,8 +38,8 @@ end
 
 -- From https://www.vikasraj.dev/blog/vim-dot-repeat
 function _G.__dot_repeat(motion, print_lines, use_count)
-    print_lines = M.default_arg(print_lines, false)
-    use_count = M.default_arg(use_count, false)
+    print_lines = U.default_arg(print_lines, false)
+    use_count = U.default_arg(use_count, false)
     local is_visual = string.match(motion or "", "[vV]") -- 2.
 
     if not is_visual and motion == nil then

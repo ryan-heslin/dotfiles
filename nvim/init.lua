@@ -119,29 +119,29 @@ packer.startup(function(use)
             vim.fn["firenvim#install"](0)
         end,
     })
-    use({
-        "quarto-dev/quarto-nvim",
-        requires = {
-            "jmbuhr/otter.nvim",
-            "neovim/nvim-lspconfig",
-        },
-        config = function()
-            require("quarto").setup({
-                lspFeatures = {
-                    enabled = true,
-                    languages = { "r", "python", "julia" },
-                    diagnostics = {
-                        enabled = true,
-                        triggers = { "BufWrite" },
-                    },
-                    completion = {
-                        enabled = true,
-                    },
-                },
-            })
-        end,
-    })
-    use("jmbuhr/otter.nvim")
+    -- use({
+    --     "quarto-dev/quarto-nvim",
+    --     requires = {
+    --         "jmbuhr/otter.nvim",
+    --         "neovim/nvim-lspconfig",
+    --     },
+    --     config = function()
+    --         require("quarto").setup({
+    --             lspFeatures = {
+    --                 enabled = true,
+    --                 languages = { "r", "python", "julia" },
+    --                 diagnostics = {
+    --                     enabled = true,
+    --                     triggers = { "BufWrite" },
+    --                 },
+    --                 completion = {
+    --                     enabled = true,
+    --                 },
+    --             },
+    --         })
+    --     end,
+    -- })
+    -- use("jmbuhr/otter.nvim")
     use("jupyter-vim/jupyter-vim")
     use("rafi/awesome-vim-colorschemes")
     use("nvim-lua/plenary.nvim")
@@ -178,7 +178,7 @@ packer.startup(function(use)
 end)
 -- My custom configuration files
 vim.g.mapleader = ","
-M = require("custom_utils")
+U = require("custom_utils")
 require("autocommands")
 require("options")
 require("config/cmp-dictionary")
@@ -210,4 +210,4 @@ require("syntax")
 require("commands")
 
 -- Manually reset operatorfunc
-M.restore_default("operatorfunc")
+U.restore_default("operatorfunc")

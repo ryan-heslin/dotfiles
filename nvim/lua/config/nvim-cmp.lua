@@ -1,9 +1,9 @@
 -- Partly taken fom the wiki
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
-    max_size = M.default_arg(max_size, 1024 * 1024)
-    ignore_hidden = M.default_arg(ignore_hidden, true)
-    filetype = M.default_arg(vim.bo.filetype)
+    max_size = U.default_arg(max_size, 1024 * 1024)
+    ignore_hidden = U.default_arg(ignore_hidden, true)
+    filetype = U.default_arg(vim.bo.filetype)
     return (not ignore_hidden or vim.api.nvim_buf_is_loaded(bufnr))
         and vim.api.nvim_buf_get_offset(
             bufnr,
@@ -105,29 +105,26 @@ local cmp_kinds = {
 
 -- From official repo
 local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
-local M = {}
-function M.expand_or_jump_forwards(fallback)
-    M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
-end
-
-function M.jump_backwards(fallback)
-    M.compose({ "jump_backwards", "select_prev_item" })(fallback)
+-- local M = {}
+-- function M.expand_or_jump_forwards(fallback)
+--     M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
+-- end
+--
+-- function M.jump_backwards(fallback)
+--     M.compose({ "jump_backwards", "select_prev_item" })(fallback)
+-- end
+local modes = { "i", "s", "c" }
+local all_modes = function(callback)
+    return cmp_config.config.mapping(callback(), modes)
 end
 
 cmp_config.setup({
     completion = {
         completeopt = "menu,menuone,preview,noselect",
         get_trigger_characters = function(trigger_characters)
-            if false or vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
+            if vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
                 --table.insert(trigger_characters, '$')
                 trigger_characters["$"] = 1
-            end
-            if
-                false
-                or vim.bo.filetype == "tex"
-                or vim.bo.filetype == "rmd"
-            then
-                --table.insert(trigger_characters, '@')
                 trigger_characters["@"] = 1
             end
             return trigger_characters
@@ -184,11 +181,15 @@ cmp_config.setup({
         end,
     },
     mapping = cmp_config.mapping.preset.insert({
-        ["<C-b>"] = cmp_config.mapping.scroll_docs(-4),
-        ["<C-f>"] = cmp_config.mapping.scroll_docs(4),
-        ["<C-n>"] = cmp_config.mapping.select_next_item(),
-        ["<C-h>"] = cmp_config.mapping.select_prev_item(),
-        ["<C-e>"] = cmp_config.mapping.close(),
+        ["<C-b>"] = all_modes(function()
+            cmp_config.mapping.scroll_docs(-4)
+        end),
+        ["<C-f>"] = all_modes(function()
+            cmp_config.mapping.scroll_docs(-4)
+        end),
+        ["<C-n>"] = all_modes(cmp_config.mapping.select_next_item),
+        ["<C-h>"] = all_modes(cmp_config.mapping.select_prev_item),
+        ["<C-e>"] = all_modes(cmp_config.mapping.close),
         ["<CR>"] = cmp_config.mapping.confirm({ select = true }),
         ["<C-Space>"] = cmp_config.mapping(function(fallback)
             if cmp_config.visible() then
@@ -255,47 +256,36 @@ cmp_config.setup({
 
 --Extra completion sources
 
-for _, cmd_type in ipairs({ ":", "/", "?", "@" }) do
-    cmp_config.setup.cmdline(cmd_type, {
-        sources = {
-            { name = "buffer" },
-            { name = "cmdline_history" },
-        },
-    })
-end
-
-cmp_config.setup.cmdline(":", {
+cmp_config.setup.cmdline({ ":" }, {
+    -- mapping = cmp_config.config.mapping.preset.cmdline(),
     sources = {
+        { name = "buffer" },
         { name = "cmdline" },
+        { name = "cmdline_history" },
         { name = "path" },
     },
 })
 
-cmp_config.setup.cmdline("?", {
+cmp_config.setup.cmdline({ "?", "/" }, {
+    -- mapping = cmp_config.config.mapping.preset.cmdline(),
     sources = {
+        { name = "buffer" },
+        { name = "cmdline" },
         { name = "nvim_lsp_document_symbol" },
         { name = "nvim_lsp_signature_help" },
     },
 })
 
--- cmp_config.setup.cmdline("@", {
---     sources = {
---         { name = "buffer" },
---         {name = "cmdline_history"}
---     },
--- })
-
-cmp_config.setup.cmdline("/", {
+cmp_config.setup.cmdline("@", {
+    -- mapping = cmp_config.config.mapping.preset.cmdline(),
     sources = {
-        -- {
-        --     name = "buffer",
-        --     options = { keyword_pattern = [=[[^[:blank:]].*]=] },
-        -- },
-        { name = "nvim_lsp_document_symbol" },
-        { name = "nvim_lsp_signature_help" },
+        { name = "cmdline" },
+        { name = "buffer" },
+        { name = "cmdline_history" },
     },
 })
 
+-- Add spell source for filetypes that contain natural language
 local spell_filetypes = { "", "rmd", "txt", "pandoc", "quarto" }
 local spell_sources = {
     name = "spell",

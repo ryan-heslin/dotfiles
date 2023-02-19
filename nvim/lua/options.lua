@@ -6,9 +6,9 @@ text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
 --version) just slows startup
 --vim.g.do_filetype_lua = 1
 -- Needed since move to packer
---M.setenv("NVIM_PYTHON_LOG_FILE", "/tmp/nvim_log")
---M.setenv("NVIM_PYTHON_LOG_LEVEL", "DEBUG")
---M.setenv("BASH_ENV", vim.fn.expand("$HOME/dotfiles/bash/.bash_profile"))
+--U.setenv("NVIM_PYTHON_LOG_FILE", "/tmp/nvim_log")
+--U.setenv("NVIM_PYTHON_LOG_LEVEL", "DEBUG")
+--U.setenv("BASH_ENV", vim.fn.expand("$HOME/dotfiles/bash/.bash_profile"))
 vim.cmd([[
 let $NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 let $NVIM_PYTHON_LOG_LEVEL="DEBUG"

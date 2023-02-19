@@ -1,11 +1,11 @@
-local exclusions = M.set({ "r", "lua" })
+local exclusions = U.set({ "r", "lua" })
 local do_format = function()
     vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
 end
 
 local create_formatter = function(excludes)
     -- Disable null-ls formatting for certain filetypes
-    excludes = M.set(excludes)
+    excludes = U.set(excludes)
     local filter = function(client)
         return not (
                 client.name == "null-ls"
@@ -45,7 +45,7 @@ local format_diagnostic = function(diagnostic)
     local length = string.len(message)
     if space < length + 3 then
         -- Constrain window width to reasonable range
-        local width = M.clamp(win_width - 5, 5, 40)
+        local width = U.clamp(win_width - 5, 5, 40)
         -- Allocate one row for each line of formatted text
         local height = math.ceil(length / width) + 2
         vim.lsp.util.open_floating_preview(

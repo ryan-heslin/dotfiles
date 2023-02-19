@@ -40,7 +40,7 @@ km.set("n", [[\ddb]], [[:%s/^\s*breakpoint()\s*$//<CR>]], opts)
 
 -- Print debug
 km.set("n", [[<leader>pd]], [[^yWoIprint(f'<C-o>P = {<C-o>P}')<Esc>]], opts)
---km.set({"n", "v"}, [[:split | normal  | term | lua M.term_exec("ipython3")<CR>]])
+--km.set({"n", "v"}, [[:split | normal  | term | lua U.term_exec("ipython3")<CR>]])
 km.set("n", [[<leader>di]], [[Pa["<Esc>ea"]<Esc>B]], opts)
 km.set("i", [[<C-l>]], [[<Esc>A:<CR>]], opts)
 km.set({ "n", "v" }, [[\jj]], ":lua run_current_chunk()<CR>", opts)

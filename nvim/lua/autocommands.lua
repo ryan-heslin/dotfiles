@@ -114,7 +114,7 @@ autocmd("TermEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
-        M.set_term_opts()
+        U.set_term_opts()
     end,
 })
 autocmd(
@@ -158,7 +158,7 @@ autocmd("BufWritePost", {
             vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
-            M.refresh()
+            U.refresh()
         end
     end,
 })
@@ -172,14 +172,14 @@ autocmd("FileType anki_vim", {
 autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
-        M.do_save_session()
+        U.do_save_session()
     end,
 })
 autocmd("VimEnter", {
     pattern = "*",
     callback = function()
         if vim.fn.argc() == 0 then
-            M.load_session()
+            U.load_session()
         end
     end,
     nested = true,
@@ -197,7 +197,7 @@ autocmd("FileType", {
     desc = "Record latest Rmarkdown file for automatic knitting",
 })
 autocmd("BufEnter", {
-    callback = M.record_file_name,
+    callback = U.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
     pattern = "*",
 })
