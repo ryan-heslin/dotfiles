@@ -5,7 +5,6 @@ local text_extensions = { ".txt", ".md", ".Rmd", ".qmd", "" }
 --
 -- TODO tweak source options, diagnostic options
 local sources = {
-
     --null_ls.builtins.diagnostics.jsonlint.with({
     --prefer_local = '/usr/bin/jsonlint'}),
     -- null_ls.builtins.diagnostics.luacheck,
@@ -14,7 +13,7 @@ local sources = {
     null_ls.builtins.formatting.black,
     null_ls.builtins.formatting.fixjson,
     null_ls.builtins.formatting.latexindent,
-    null_ls.builtins.formatting.prettier,
+    --null_ls.builtins.formatting.prettier,
     null_ls.builtins.formatting.reorder_python_imports,
     null_ls.builtins.formatting.shellharden,
     null_ls.builtins.formatting.sqlformat,

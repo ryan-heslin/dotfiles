@@ -62,10 +62,10 @@ local has_any_words_before = function()
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0
         and vim.api
-                .nvim_buf_get_lines(0, line - 1, line, true)[1]
-                :sub(col, col)
-                :match("%s")
-            == nil
+        .nvim_buf_get_lines(0, line - 1, line, true)[1]
+        :sub(col, col)
+        :match("%s")
+        == nil
 end
 
 local press = function(key)
@@ -121,14 +121,14 @@ end
 cmp_config.setup({
     completion = {
         completeopt = "menu,menuone,preview,noselect",
-        get_trigger_characters = function(trigger_characters)
-            if vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
-                --table.insert(trigger_characters, '$')
-                trigger_characters["$"] = 1
-                trigger_characters["@"] = 1
-            end
-            return trigger_characters
-        end,
+        -- get_trigger_characters = function(trigger_characters)
+        --     if vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
+        --         --table.insert(trigger_characters, '$')
+        --         trigger_characters["$"] = 1
+        --         trigger_characters["@"] = 1
+        --     end
+        --     return trigger_characters
+        -- end,
     },
 
     -- From wiki: https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
@@ -138,7 +138,7 @@ cmp_config.setup({
         -- keep command mode completion enabled when cursor is in a comment
         return vim.api.nvim_get_mode().mode == "c"
             or not (
-                context.in_treesitter_capture("comment")
+            context.in_treesitter_capture("comment")
                 or context.in_syntax_group("Comment")
             )
     end,
@@ -234,8 +234,7 @@ cmp_config.setup({
             end,
         }),
         ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
-            if
-                vim.fn["UltiSnips#CanJumpForwards"]() == 1
+            if vim.fn["UltiSnips#CanJumpForwards"]() == 1
                 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
             then
                 press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
@@ -243,6 +242,26 @@ cmp_config.setup({
                 fallback()
             end
         end, { "i", "s" }),
+        ["<C-p>"] = cmp_config.mapping({
+            c = function()
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({
+                        behavior = cmp_config.SelectBehavior.Select,
+                    })
+                else
+                    vim.api.nvim_feedkeys(U.t("<Up>"), "n", true)
+                end
+            end,
+            i = function(fallback)
+                if cmp_config.visible() then
+                    cmp_config.select_prev_item({
+                        behavior = cmp_config.SelectBehavior.Select,
+                    })
+                else
+                    fallback()
+                end
+            end,
+        }),
         ["<S-Tab>"] = cmp_config.mapping(function(fallback)
             cmp_ultisnips_mappings.jump_backwards(fallback)
         end, {
@@ -257,17 +276,15 @@ cmp_config.setup({
 --Extra completion sources
 
 cmp_config.setup.cmdline({ ":" }, {
-    -- mapping = cmp_config.config.mapping.preset.cmdline(),
     sources = {
+        { name = "cmdline", priority = 15 },
+        { name = "path", priority = 10 },
+        { name = "cmdline_history", max_item_count = 7, priority = 8 },
         { name = "buffer" },
-        { name = "cmdline" },
-        { name = "cmdline_history" },
-        { name = "path" },
     },
 })
 
 cmp_config.setup.cmdline({ "?", "/" }, {
-    -- mapping = cmp_config.config.mapping.preset.cmdline(),
     sources = {
         { name = "buffer" },
         { name = "cmdline" },

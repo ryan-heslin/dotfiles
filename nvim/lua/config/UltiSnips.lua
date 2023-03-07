@@ -6,9 +6,9 @@
 --vim.g.UltiSnipsRemoveSelectModeMappings = 0
 --
 local UltiSnips = vim.fn.stdpath("config") .. "/custom_snippets"
-vim.g.UltiSnipsExpandTrigger = "<Tab>"
-vim.g.UltiSnipsJumpForwardTrigger = "<c-j>"
-vim.g.UltiSnipsJumpBackwardTrigger = "<S-Tab>"
+vim.g.UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+vim.g.UltiSnipsJumpForwardTrigger = "<Plug>(ultisnips_jump_forward)"
+vim.g.UltiSnipsJumpBackwardTrigger = "<Plug>(ultisnips_jump_backward)"
 vim.g.UltiSnipsListSnippets = "<c-x><c-s>"
 vim.g.UltiSnipsRemoveSelectModeMappings = 0
 vim.g.UltiSnipsEditSplit = "context"

@@ -1,3 +1,4 @@
+--TODO cursorbind: scroll multiple windows at once
 vim.cmd("filetype plugin indent on")
 vim.cmd.syntax("enable")
 vim.cmd.colorscheme("OceanicNext")
@@ -38,7 +39,10 @@ vim.opt.wildignore:append({
 vim.o.background = "dark"
 vim.o.mouse = "i"
 vim.o.breakindent = true
-vim.opt.breakindentopt:append({ "shift:2", "min:10" })
+vim.opt.breakindentopt:append({ "shift:2", "min:10", "list:2" })
+vim.opt.display:append({ "uhex" })
+vim.opt.foldopen:append({ "insert", "jump" })
+vim.o.foldtext = "{<{}>}"
 
 vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
 
@@ -50,7 +54,14 @@ vim.opt.shortmess:append({ a = true })
 vim.o.showbreak = ">>"
 vim.o.laststatus = 2
 vim.o.number = true
-vim.opt.sessionoptions:append({ "winpos", "terminal", "globals" })
+vim.o.numberwidth = 3
+vim.opt.sessionoptions:append({
+    "winpos",
+    "terminal",
+    "globals",
+    "options",
+    "tabpages",
+})
 vim.o.relativenumber = true
 vim.o.expandtab = true
 vim.o.tabstop = 4
@@ -63,13 +74,15 @@ vim.o.si = true --Smart indentation
 vim.o.ruler = true
 vim.o.updatetime = 2000 --Milliseconds, for cursor hold events
 vim.opt.backspace:append({ "indent", "eol", "start" })
+vim.o.allowrevins = true
+vim.o.shellslash = true
+
 -- Search
 vim.o.smartcase = true
 vim.o.hlsearch = true
 vim.o.incsearch = true
 vim.o.magic = true
 vim.o.scrolloff = 3
-
 vim.o.title = true
 vim.o.titleold = "Terminal"
 vim.o.titlestring = "%F"
@@ -90,6 +103,15 @@ vim.opt.path:append({ "**" })
 vim.o.wildmenu = true
 vim.opt.wildmode:append({ "longest", "list", "full" })
 vim.o.titlestring = "%t"
+vim.opt.switchbuf:append({ "uselast", "useopen" })
+vim.o.bufhidden = "hide"
+
+vim.o.virtualedit = "block"
+
+-- Press to wrap
+vim.o.whichwrap = "b,s,<,>,~,[,]"
+
+vim.o.winblend = 20
 
 -- Backups
 vim.o.backupdir = vim.fn.stdpath("data") .. "/backup"
@@ -106,3 +128,15 @@ set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
   \,sm:block-blinkwait175-blinkoff150-blinkon175
 ]])
 vim.g.vimsyn_embed = "lP"
+vim.o.helpheight = 15
+
+vim.o.splibelow = true
+vim.o.spliright = true
+
+-- default g for substitute command; unfortunately deprecated
+--vim.o.gdefault = true
+--Of interest:
+--tags (tags filenames)
+--guioptions
+--jumplist
+--scrolljump

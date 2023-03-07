@@ -536,20 +536,14 @@ zotid(){
     zotcli query "$1" | grep -oP "([A-Z0-9]{8})(?=\])"
 }
 
-# get627(){
-# local file="week$1.Rmd"
-#    [ -f "$file" ] && echo "File already exists" || curl -fLo "week$1.Rmd" "https://emilhvitfeldt.github.io/AU-2022spring-627/templates/labs-$(printf "%02d" "$1").Rmd"
-# }
 
 # Set window opacity, from https://tipsonubuntu.com/2018/11/12/make-app-window-transparent-ubuntu-18-04-18-10/
 opac(){
     #local level="$(echo "${1:80}" | bc -l)"
-    local level=${1:-100}
-    #if [ "${level} " -lt 0 || "${level}" -gt 1 ]; then
-    #    echo "Invalid opacity value $level; must be between 0 and 1"
-    #    return
-    #fi
-    sh -c "xprop -f _NET_WM_WINDOW_OPACITY 32c -set _NET_WM_WINDOW_OPACITY $(printf 0x%x $((0xffffffff * level / 100)))"
+    local target=${1:0.8}
+    local dec=$((1-target))
+
+    transset --click -v "$target"
 }
 
 # Rename file in directory by different name in same directory
