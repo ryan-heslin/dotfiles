@@ -1,5 +1,3 @@
---
-
 get_single_line = function(buffer, line)
     return vim.api.nvim_buf_get_lines(buffer, line - 1, line, {})
 end
@@ -7,8 +5,7 @@ end
 -- Form text into newline-separated string, adding
 -- extra to ensure last line is evaluated
 collapse_text = function(text)
-    table.insert(text, " ")
-    return table.concat(text, "\n")
+    return table.concat(text, "\n") .. "\n"
 end
 
 -- Compose functions to parse buffer text and to send it to a REPL
@@ -75,19 +72,19 @@ end
 
 -- Get index of first table element that matches pattern, or nil if an "abort" pattern is encountered before it
 get_table_match_index =
-    function(lines, start, stop, step, match_pattern, abort_pattern)
-        local line
-        for i = start, stop, step do
-            line = lines[i]
-            if string.match(line, match_pattern) then
-                return i
-            elseif i ~= start and string.match(line, abort_pattern) then
-                -- Indicates invalid arrangement of lines
-                break
-            end
+function(lines, start, stop, step, match_pattern, abort_pattern)
+    local line
+    for i = start, stop, step do
+        line = lines[i]
+        if string.match(line, match_pattern) then
+            return i
+        elseif i ~= start and string.match(line, abort_pattern) then
+            -- Indicates invalid arrangement of lines
+            break
         end
-        return nil
     end
+    return nil
+end
 
 -- Extract code in chunks from buffer, then join into string
 function parse_code_chunks(buffer, stop_line)
@@ -96,7 +93,7 @@ function parse_code_chunks(buffer, stop_line)
         buffer = 0
     end
     local buffer_lines =
-        vim.api.nvim_buf_get_lines(buffer, 0, vim.fn.line("$"), {})
+    vim.api.nvim_buf_get_lines(buffer, 0, vim.fn.line("$"), {})
     if stop_line == nil then
         stop_line = table.getn(buffer_lines)
     end
@@ -198,7 +195,7 @@ extract_text_object = function(buffer, text_object)
     local text = string.gsub(vim.fn.getreg("z"), "```[^\n]*\n", "\n")
     -- Yanking paragraphs gets chunk boundaries - remove them
     vim.fn.setreg("z", old_register)
-    return text .. "\n "
+    return text .. "\n"
 end
 
 run_paragraph = create_send_function(function()
@@ -221,6 +218,9 @@ parse_visual_selection = function(buffer)
     local visual_start = "'<"
     local visual_end = "'>"
     local start_line = vim.fn.line(visual_start)
+    if start_line == 0 then
+        return {}
+    end
     local end_line = vim.fn.line(visual_end)
     local start_col = vim.fn.col(visual_start)
     local end_col = vim.fn.col(visual_end)
@@ -229,9 +229,9 @@ parse_visual_selection = function(buffer)
         start_line, end_line = end_line, start_line
     end
     local selected_lines =
-        vim.api.nvim_buf_get_lines(buffer, start_line - 1, end_line, {})
+    vim.api.nvim_buf_get_lines(buffer, start_line - 1, end_line, {})
     --print(vim.inspect(selected_lines))
-    local n_lines = table.getn(selected_lines)
+    local n_lines = #selected_lines
     -- If only one line selected, start and end col both occur on it, hence
     -- special case
     if n_lines == 1 then
@@ -240,7 +240,7 @@ parse_visual_selection = function(buffer)
         -- Trim non-selected parts of start and end lines
         selected_lines[1] = string.sub(selected_lines[1], start_col)
         selected_lines[n_lines] =
-            string.sub(selected_lines[n_lines], 1, end_col)
+        string.sub(selected_lines[n_lines], 1, end_col)
     end
     return selected_lines
 end
@@ -303,4 +303,3 @@ run_next_chunk = function()
         run_current_chunk()
     end
 end
--- TODO parse specific languages

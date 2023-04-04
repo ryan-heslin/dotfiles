@@ -3,6 +3,7 @@ local km = vim.keymap
 vim.opt.cinwords:append({
     "if",
     "else",
+    "async",
     "for",
     "while",
     "try",
@@ -29,8 +30,8 @@ km.set("n", [[\q]], [[:SlimeSend1 exit<CR>]], opts)
 
 -- Print object under cursor
 km.set("n", [[\pp]], [[yiW:SlimeSend1 print(<C-r><C-w>)<CR>]], opts)
-km.set("n", [[\o]], ":SlimeRegionSend<CR>", opts)
-km.set("n", [[\b]], [[:SlimeParagraphSend<CR>]], opts)
+km.set("n", [[\o]], "<Plug>SlimeRegionSend<CR>", opts)
+km.set("n", [[\b]], [[<Plug>SlimeParagraphSend<CR>]], opts)
 km.set("n", [[\ll]], "<Plug>SlimeLineSend<CR>", opts)
 km.set("n", [[\m]], "<Plug>SlimeMotionSend<CR>", opts)
 
@@ -45,8 +46,8 @@ km.set("n", [[<leader>di]], [[Pa["<Esc>ea"]<Esc>B]], opts)
 km.set("i", [[<C-l>]], [[<Esc>A:<CR>]], opts)
 km.set({ "n", "v" }, [[\jj]], ":lua run_current_chunk()<CR>", opts)
 km.set({ "n", "v" }, [[\rr]], ":lua run_all_chunks()<CR>", opts)
-km.set({ "n", "v" }, [[\l]], ":lua run_line()<CR>", opts)
-km.set({ "n", "v" }, [[\ss]], ":lua send_visual_selection()<CR>", opts)
+--km.set({ "n", "v" }, [[\l]], ":lua run_line()<CR>", opts)
+km.set({ "n", "v" }, [[\ss]], run_visual_selection, opts)
 
 km.set(
     { "n", "v" },

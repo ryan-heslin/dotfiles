@@ -17,7 +17,6 @@ local ensure_packer = function()
     end
     return false
 end
-
 local packer_bootstrap = ensure_packer()
 local packer = require("packer")
 packer.init({
@@ -119,29 +118,29 @@ packer.startup(function(use)
             vim.fn["firenvim#install"](0)
         end,
     })
-    -- use({
-    --     "quarto-dev/quarto-nvim",
-    --     requires = {
-    --         "jmbuhr/otter.nvim",
-    --         "neovim/nvim-lspconfig",
-    --     },
-    --     config = function()
-    --         require("quarto").setup({
-    --             lspFeatures = {
-    --                 enabled = true,
-    --                 languages = { "r", "python", "julia" },
-    --                 diagnostics = {
-    --                     enabled = true,
-    --                     triggers = { "BufWrite" },
-    --                 },
-    --                 completion = {
-    --                     enabled = true,
-    --                 },
-    --             },
-    --         })
-    --     end,
-    -- })
-    -- use("jmbuhr/otter.nvim")
+    use({
+        "quarto-dev/quarto-nvim",
+        requires = {
+            "jmbuhr/otter.nvim",
+            "neovim/nvim-lspconfig",
+        },
+        config = function()
+            require("quarto").setup({
+                lspFeatures = {
+                    enabled = true,
+                    languages = { "r", "python", "julia" },
+                    diagnostics = {
+                        enabled = true,
+                        triggers = { "BufWrite" },
+                    },
+                    completion = {
+                        enabled = true,
+                    },
+                },
+            })
+        end,
+    })
+    use("jmbuhr/otter.nvim")
     use("jupyter-vim/jupyter-vim")
     use("rafi/awesome-vim-colorschemes")
     use("nvim-lua/plenary.nvim")
@@ -200,7 +199,7 @@ require("config/nvim-dap")
 require("config/nvim-dap-ui")
 require("config/nvim-dap-python")
 require("config/nvim-dap-virtual-text")
--- require("quarto")
+require("quarto-utils")
 require("config/nvim-surround")
 --require("config/quarto-nvim")
 require("abbrev")

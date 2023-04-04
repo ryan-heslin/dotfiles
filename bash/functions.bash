@@ -15,7 +15,7 @@ cplock() {
     fi
 
     for dir in "${dirs[@]}"; do
-        echo "$HOME/dir"
+        echo "$HOME/$dir"
         flock -n /tmp/google_drv_sync.lock /usr/bin/rclone copy -L --transfers 20 --retries 5 "$HOME/$dir" "gdrive:/backup" &> "$HOME/backup.log"
     done
 }
@@ -66,7 +66,7 @@ fsearch (){
     local cmd="$2"
     local args=( "$@" )
     shift 1
-    local types=( "${$args[@]/#/--type }" )
+    #local types=( "${$args[@]/#/--type }" )
 
 }
 
@@ -90,7 +90,6 @@ search() {
 
 # Open all
 oa() {
-	local glob="*$1*"
 	open "$1*.$2"
 }
 
