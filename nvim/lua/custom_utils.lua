@@ -1,6 +1,6 @@
 U = {}
 -- Records most recent window, buffer filetype, etc.
-recents = { window = nil, filetype = {}, terminal = {} }
+U.recents = { window = nil, filetype = {}, terminal = {} }
 
 -- Default option values
 U.defaults = { operatorfunc = "v:lua.require'nvim-surround'.normal_callback" }
@@ -18,7 +18,7 @@ end
 
 U.record_file_name = function()
     if vim.bo.filetype ~= "" then
-        recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
+        U.recents["filetype"][vim.bo.filetype] = vim.fn.expand("%:p")
     end
 end
 
@@ -40,11 +40,8 @@ U.with_position = function(func)
     return function(...)
         local old_line = vim.fn.line(".")
         local old_col = vim.fn.col(".")
-        -- vim.api.nvim_buf_set_mark(0, "`", vim.fn.line("."), vim.fn.col("."), {})
         local result = func(...)
         vim.fn.setpos(old_line, old_col)
-        -- vim.cmd("normal ``")
-        -- vim.api.nvim_buf_del_mark(0, "`")
         return result
     end
 end
@@ -64,29 +61,29 @@ U.switch_filetype = function(mapping, default)
 end
 
 -- TODO make named tables, for matched indexing
-U.invert_logical = U.switch_filetype({
-    r = { "TRUE", "FALSE" },
-    rmd = { "TRUE", "FALSE" },
-    python = { "True", "False" },
-    lua = { "true", "false" },
-})
+-- U.invert_logical = U.switch_filetype({
+--     r = { "TRUE", "FALSE" },
+--     rmd = { "TRUE", "FALSE" },
+--     python = { "True", "False" },
+--     lua = { "true", "false" },
+-- })
+--
+-- U.swap_word = function(mapping)
+--     vim.cmd("normal yiw")
+--     local word = vim.fn.getreg("+")
+--     print(word)
+--     local swap = nil
+--     if word == mapping[1] then
+--         swap = mapping[2]
+--     elseif word == mapping[2] then
+--         swap = mapping[1]
+--     end
+--     if swap ~= nil then
+--         vim.cmd("normal ciw" .. swap)
+--     end
+-- end
 
-U.swap_word = function(mapping)
-    vim.cmd("normal yiw")
-    local word = vim.fn.getreg("+")
-    print(word)
-    local swap = nil
-    if word == mapping[1] then
-        swap = mapping[2]
-    elseif word == mapping[2] then
-        swap = mapping[1]
-    end
-    if swap ~= nil then
-        vim.cmd("normal ciw" .. swap)
-    end
-end
-
-U.swap_logical = U.invert_logical(U.swap_word)
+--U.swap_logical = U.invert_logical(U.swap_word)
 
 -- Make coroutine?
 U.repeat_action = function(func, args, interval)
@@ -107,7 +104,7 @@ U.r_exec = function(cmd, clear_output)
     clear_output = U.default_arg(clear_output, true)
     vim.call("RAction", cmd)
     if clear_output then
-        vim.cmd("silent RSend 0")
+        vim.cmd.silent("RSend 0")
     end
 end
 
@@ -126,6 +123,7 @@ U.set_term_opts = function()
     vim.wo.relativenumber = false
     vim.wo.spell = false
     vim.wo.signcolumn = "no"
+
     -- Globals respectively indicating  buffer, channel, and window ID of last terminal entered
     term_state = (term_state == nil and {}) or term_state
     term_state["last_terminal_buf_id"] = vim.fn.bufnr()
@@ -166,9 +164,9 @@ U.term_yank = function(term_id, prompt_pattern, offset)
     )
     return U.join(text, "")
 end
+--
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
 
--- TODO handle different scopes (vim['g']), etc.)
 U.toggle_var = function(...)
     local arg = { ... }
     for _, var in ipairs(arg) do
@@ -361,7 +359,7 @@ end
 -- Put register contents into most recent window
 U.win_put = function(register, win_id)
     register = U.default_arg(register, "+")
-    win_id = U.default_arg(win_id, recents["window"])
+    win_id = U.default_arg(win_id, U.recents["window"])
     if win_id == nil then
         return
     end
@@ -1111,7 +1109,7 @@ end
 U.knit = function(file, quiet, view_result)
     -- We have to get the full path of the output in case the YAML specifies a different output directory
 
-    file = U.default_arg(file, recents["filetype"]["rmd"])
+    file = U.default_arg(file, U.recents["filetype"]["rmd"])
     if not U.file_exists(file) then
         print(U.surround_string(file) .. " does not exist")
         return
@@ -1271,7 +1269,7 @@ U.open_in_hidden = function(pattern)
     if string.match(cmd, "%s$") then
         return
     end
-    n_buffers = table.getn(files)
+    n_buffers = #files
     arg_idx = vim.fn.argidx()
     print(cmd)
     -- Add files to arglist
@@ -1339,7 +1337,7 @@ U.edit_filetype = function(filetype, extension)
     end
 
     local ftplugin = vim.api.nvim_get_runtime_file("ftplugin", false)
-    if table.getn(ftplugin) == 0 then
+    if #ftplugin == 0 then
         print(U.surround_string(ftplugin) .. " does not exist")
         return
     end
@@ -1358,17 +1356,11 @@ U.do_save_session = function(min_buffers)
     end
 end
 
---From Reddit user vonheikemen
---load = function(mod)
---package.loaded[mod] = nil
---return require(mod)
---end
-
 -- Collapse table into string
 U.join = function(tab, join)
     join = U.default_arg(join, "")
     local out = table.remove(tab)
-    for i = table.getn(tab), 1, -1 do
+    for i = #tab, 1, -1 do
         out = tab[i] .. join .. out
     end
     return out
@@ -1643,7 +1635,7 @@ U.locate = function(args)
         this_pattern = (type == "keyword") and pattern .. name
             or name .. pattern
         local lines = vim.api.nvim_buf_get_lines(0, 0, vim.fn.line("$"), {})
-        for i = 1, table.getn(lines), 1 do
+        for i = 1, #lines, 1 do
             -- Set cursor to line of first match from top
             if string.match(lines[i], this_pattern) then
                 vim.fn.cursor(i, 0)
@@ -1762,6 +1754,7 @@ U.str_trim = function(string)
     return string.gsub(string.gsub(string, "^%s+", ""), "%s+$", "")
 end
 
+-- The higher-order function
 U.map = function(x, f)
     for i, val in ipairs(x) do
         x[i] = f(val)

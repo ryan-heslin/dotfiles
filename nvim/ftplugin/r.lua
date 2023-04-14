@@ -4,11 +4,12 @@ local inline_send_impl = function()
         print("Nvim-R is not running")
         return
     end
+    U.inline_send()
     vim.cmd("RSend " .. vim.fn.getreg("z"))
 end
 
 --My utility functions
-local inline_send = U.with_register(U.with_position(inline_send_impl), "z")
+local inline_send = U.with_register(U.with_position(inline_send_impl))
 vim.bo.tabstop = 2
 
 vim.keymap.set("n", [[\kk]], inline_send, opts)

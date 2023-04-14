@@ -41,10 +41,10 @@ end, opts)
 
 -- Scroll last window of any type
 km.set({ "n", "v" }, "<S-PageUp>", function()
-    U.win_exec("normal 3k", recents["window"])
+    U.win_exec("normal 3k", U.recents["window"])
 end, opts)
 km.set({ "n", "v" }, "<S-PageDown>", function()
-    U.win_exec("normal 3j", recents["window"])
+    U.win_exec("normal 3j", U.recents["window"])
 end, opts)
 
 -- Scroll last terminal window up-down

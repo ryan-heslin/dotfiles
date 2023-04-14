@@ -227,7 +227,7 @@ autocmd("BufEnter", {
 })
 autocmd("WinLeave", {
     callback = function()
-        recents["window"] = vim.fn.win_getid()
+        U.recents["window"] = vim.fn.win_getid()
     end,
     desc = "On leaving a window, record its id",
     pattern = "*",
