@@ -1,4 +1,5 @@
---theme="TwoDark"
+--theme="Coldark-Dark"
 --style="full"
 --italic-text=always
--m Rmd:"R Markdown"
+--map-syntax='*.conf:INI'
+--map-syntax='*.Rmd:R Markdown'

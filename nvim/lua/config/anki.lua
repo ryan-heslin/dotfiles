@@ -3,8 +3,8 @@ require("anki").setup({
     tex_support = true,
     models = {
         -- Here you specify which notetype should be associated with which deck
-        Basic = "Probability",
-        ["Basic (and reversed card)"] = "Probability",
-        Cloze = "Probability",
+        Basic = "Networks",
+        ["Basic (and reversed card)"] = "Networks",
+        Cloze = "Networks",
     },
 })

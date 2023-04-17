@@ -21,7 +21,7 @@ export VIM_SESSION_DIR="$HOME/.vim/sessions"
 export FZF_DEFAULT_COMMAND="fdfind . $HOME --follow --exclude .git"
 #From bat repo - use bat as man pager
 export MANPAGER="sh -c 'col -bx | $(which batcat) -l man -p'"
-export BATPAGER="less -RF"
+export BAT_PAGER="less -RF"
 export VISUAL="/usr/local/bin/nvim"
 export CDPATH=":~/.config/nvim"
 # For R cli package
