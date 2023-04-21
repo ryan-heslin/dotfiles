@@ -33,7 +33,7 @@ export NVIM_PYTHON_LOG_LEVEL="DEBUG"
 export GIT_CEILING_DIRECTORIES="$(dirname "$HOME")"
 export LIBVA_DRIVER_NAME='i965'
 export LIBVA_DRIVERS_PATH='/usr/local/lib/dri'
-export QUARTO_PYTHON="$(which python3.10)"
+export QUARTO_PYTHON="$(which python3.11)"
 set -a
 #Concealed for security
 [ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env"

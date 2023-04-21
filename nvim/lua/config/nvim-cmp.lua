@@ -303,7 +303,7 @@ cmp_config.setup.cmdline("@", {
 })
 
 -- Add spell source for filetypes that contain natural language
-local spell_filetypes = { "", "rmd", "txt", "pandoc", "quarto" }
+local spell_filetypes = { "", "rmd", "txt", "pandoc", "quarto", "tex.anki" }
 local spell_sources = {
     name = "spell",
     max_item_count = 5,

@@ -380,14 +380,21 @@ date_before(){
 }
 
 # Download Advent of Code data. Partly based on https://github.com/ritobanrc/aoc2021/blob/main/get
-# Broken for unclear reasons; Eric may be on to us
+# Broken for unclear reasons
 get_AoC(){
-
-    # Adapted from
+    # () => Most recent valid day, most recent valid year
+    # year => Most recent valid day, year
+    # day => Most recent valid year
+    # day, year => try day and year
+    # If no day, default to most recent valid day
     local verbose=false
     local AoC_dir="$HOME/misc/AoC"
     local current_year
     current_year=$(date +"%-Y")
+    if [ "$(date +"%-m")" -lt 12 ]; then
+        local current_year=$(( current_year - 1 ))
+    fi
+
     while [ "$#" -gt 0 ]; do
         key="$1"
         case $key in
@@ -404,10 +411,7 @@ get_AoC(){
             -y|--year )
                 # Confirm specified year is this year (if the month is December), or last year (otherwise)
                 local year="$2"
-                if [ "$(date +"%-m")" -lt 12 ]; then
-                    local current_year=$(( current_year - 1 ))
-                fi
-                #Confirm year is valid
+                #Confirm year is between 2015 and last valid year inclusive
                 if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le "$current_year" ] );  then
                     echo "$year is not a valid Advent of Code year. Valid: 2015-$current_year"
                     return 1
@@ -448,52 +452,35 @@ get_AoC(){
     fi
 
 
-    #TODO fix year substitution
+    current_day=$(date +'%d')
+    current_month=$(date +'%m')
+    #TODO find latest valid day given year
     if [ "${year+x}" = "" ] || [ "${day+x}" = "" ]; then
-        local target
-        target="$(date -d "$current_year"-12-01 '+%Y-%m-%d')"
-        local now
-        now="$(date '+%Y-%m-%d')"
+        if [ "$current_day" -gt 25 ] && [ "$current_day" -lt 1 ] || [ "$current_month" -ne 12 ]; then
+            echo "Automatic selection only works during Advent"
+            return 1
+        fi
+        # Must be Advent, so assured to work
         if [ "${year+x}" = "" ]; then
-            local year="$current_year"
-        # If before December, default to previous year
-            if [ "$now" \< "$target" ]; then
-                local year=$(( "$year" - 1 ))
-                echo "$year"
-            fi
+            year=current_year
+        else
+            day=current_day
         fi
-        if [ "${day+x}" = "" ]; then
-            local month
-            month="$(date '+%m')"
-            if [ "$month" != 12 ]; then
-                echo "Date automatically supplied only in December"
-                return 1
-            fi
-            # Not zero-padded
-            local day
-            day=$(date +"%-e")
-            if [ "$day" -gt 25 ]; then
-                echo "Advent time is past; day is not automatically supplied"
-                return 1
-            fi
-            # Clamp to 25
-            #local day=$(( "$date" > 25 ? 25 : date))
-            # Error on day in advent period ahead of current day
+        if [ "$day" -gt "$current_day" ]; then
+            echo "Invalid day; not yet December ${day}"
+            return 1
         fi
     fi
 
-    #if [ "$today" -le 25 && "$year" -eq "$current_year" && "$today" -l  "$day" ]; then
-        #echo "Invalid day $day"
-        #return 1
-    #fi
-    local file="$AoC_dir/$year/inputs"
+
+    local inputs_dir="$AoC_dir/$year/inputs"
     # Make AoC directory if it doesn't already exist
-    if ! [ -d  "$file" ]; then
-        mkdir -p "$file"
-        echo "Making new directory $file"
+    if ! [ -d  "$inputs_dir" ]; then
+        mkdir -p "$inputs_dir"
+        echo "Making new directory $inputs_dir"
     fi
 
-    local file="$file/day$day.txt"
+    local path="$inputs_dir/day$day.txt"
 
     if [ "$verbose" = true ]; then
          echo "Getting input for Day $day of $year"
@@ -501,7 +488,8 @@ get_AoC(){
     echo "https://adventofcode.com/$year/day/$day/input"
 
     # Eric Wastl would appreciate it if you identified yourself in the download request
-    curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$file" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$path" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    return 0
 }
 
 # Retrieve secret from secret-tool and copy to clipboard
@@ -598,6 +586,22 @@ qdraft(){
     new_file="$(echo "${1}" | grep '\.qmd$' || echo "${1}.qmd")"
     cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "${new_file}"
     nvim "${new_file}"
+}
+
+validate_AoC(){
+    local day="$1"
+    local year="$2"
+    local current_day="(date +'%d')"
+    local current_month="(date +'%m')"
+    local candidate
+    candidate="$(date -d "$year"-12-"$day")"
+    local today
+    today="$(date +'%Y-%m-%d')"
+    if [ "$day" -lt 26 ] && [ "$day" -gt 0 ] && ([ "$candidate" = "$today" ] || [ "$candidate" \< "$today" ]); then
+        return 0
+    else
+        return 1
+    fi
 }
 
 # Ready Python files for commit

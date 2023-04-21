@@ -25,10 +25,6 @@ end, opts)
 -- Interact with terminal buffer
 km.set({ "n" }, "<Leader>te", U.term_edit, opts)
 
--- Save R history
-km.set({ "n" }, "<Leader>tr", function()
-    U.term_edit('savehistory("/tmp/history.txt")', "r")
-end, opts)
 -- Visual selection to terminal
 km.set({ "v" }, "<Leader>ts", function()
     U.term_exec(vim.fn.getreg("*"))
@@ -36,7 +32,7 @@ end, opts)
 
 -- Send line to terminal
 km.set({ "n" }, "<Leader>ts", function()
-    U.term_exec(vim.fn.getline("."))
+    U.term_exec(U.yank_visual())
 end, opts)
 
 -- Scroll last window of any type
@@ -85,22 +81,20 @@ km.set({ "n" }, "<Leader>hj", function()
     U.win_exec("normal j", "h")
 end, opts)
 
+-- Quit windows in direction
 km.set({ "n", "v" }, "<Leader>kq", function()
     U.win_exec("q", "k")
 end, opts)
-
 km.set({ "n", "v" }, "<Leader>hq", function()
     U.win_exec("q", "h")
 end, opts)
-
 km.set({ "n", "v" }, "<Leader>lq", function()
     U.win_exec("q", "l")
 end, opts)
-
 km.set({ "n", "v" }, "<Leader>jq", function()
     U.win_exec("q", "j")
 end, opts)
-
+-- Enter arbitrary command
 km.set({ "n", "v" }, "<Leader>wc", function()
     U.win_exec(
         "normal " .. vim.fn.input.U.t("Command: "),
@@ -108,8 +102,10 @@ km.set({ "n", "v" }, "<Leader>wc", function()
     )
 end, opts)
 
-km.set({ "n" }, "<Leader>te", "<cmd>vsplit<CR>l:terminal<CR>i", opts)
+-- Set up terminal
+km.set({ "n" }, "<Leader>te", U.term_setup, opts)
 
+-- Add line above/below without leaving Normal
 km.set({ "n" }, "<Leader>o", "o<Esc>k", opts)
 km.set({ "n" }, "<Leader>O", "O<Esc>j", opts)
 
@@ -144,6 +140,7 @@ km.set({ "n" }, "<Leader>v", ":<C-u>vsplit<CR>", opts)
 vim.api.nvim_set_keymap("n", "cc", '"_cc', opts)
 km.set({ "n" }, "<Leader>q", ":q<CR>", opts)
 km.set({ "n" }, "<Leader>w", ":w<CR>", opts)
+-- Quit and save all writeable buffers
 km.set({ "n" }, "<Leader>qa", ":wa <bar> qa<CR>", opts)
 -- From https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 
@@ -186,9 +183,7 @@ vim.api.nvim_set_keymap("n", "<k3>", "]s", opts)
 vim.api.nvim_set_keymap("n", "<k8>", "zg", opts)
 vim.api.nvim_set_keymap("n", "<k9>", "zug", opts)
 
--- Print output of Lua command
-km.set({ "n" }, "<leader>lp", ":lua print(<C-r>)<CR>", opts)
--- vimrc access
+-- init.lua access
 km.set({ "n" }, "<Leader>ev", ":split $MYVIMRC<CR>", opts)
 km.set({ "n" }, "<Leader>sv", ":source $MYVIMRC<CR>", { noremap = true })
 km.set({ "n" }, "<space>", "<space> <c-^>", opts)
@@ -245,12 +240,9 @@ km.set({ "n", "v" }, "<Leader>tm", telescope_menu, opts)
 
 --
 --Knit rmarkdown - ugly as sin but works
-km.set({ "n" }, "<Leader>kn", function()
-    U.knit(nil, true, true)
-end, opts)
--- For easier copy-paste
-km.set({ "n" }, "<Leader>y", '"+y', opts)
-km.set({ "n" }, "<Leader>p", '"+p', opts)
+-- km.set({ "n" }, "<Leader>kn", function()
+--     U.knit(nil, true, true)
+-- end, opts)
 -- Paste-replace
 km.set({ "n" }, "<Leader>p", '"_d$p', opts)
 km.set({ "n" }, "<Leader>P", '"_d$P', opts)
@@ -267,36 +259,12 @@ km.set(
 )
 vim.api.nvim_set_keymap("n", "c", '"_c', opts)
 vim.api.nvim_set_keymap("n", "C", '"_C', opts)
--- Clear R console after failure
-km.set({ "n" }, "\\cl", ":RSend 0<CR>", opts)
-km.set({ "n" }, "\\cq", ":RSend Q<CR>", opts)
-km.set({ "n" }, "\\ck", ':RSend .. U.t("<C-c>") <CR>', opts)
-km.set({ "n" }, "<Leader>s", ":w <bar> source %<CR>", opts)
 
--- Give info on R objects
-km.set({ "n" }, "\ra", function()
-    U.r_exec("args")
-end, opts)
-km.set({ "n" }, "\rt", function()
-    U.r_exec("str")
-end, opts)
-km.set({ "n" }, "\re", function()
-    vim.cmd("RSend " .. U.surround_string(vim.fn.getline("."), "(", ")"))
-end, opts)
-
--- km.set(
---     { "n" },
---     "<Leader>cv",
---     ":lua vim.cmd[[%normal I<Space><Space><Space><Space> | normal ggG$y<Esc>]]",
---     opts
--- )
 -- Surround register with quotes
 km.set({ "n", "v" }, '<leader>"', function()
     U.modify_register(U.surround_string, "+", '"', '"')
 end, opts)
 
--- Strip surrounding function call
-km.set({ "n" }, "<Leader>ds", "B/(<CR>bdiw%x``xi", opts)
 -- Delete next or previous occurrence of string
 km.set({ "n" }, "<Leader>zz", function()
     U.alter_closest("")
@@ -319,18 +287,9 @@ km.set({ "n" }, "<Leader>ty", function()
     vim.fn.win_execute(term_state["last_terminal_win_id"], "normal 0ElvGy")
 end, opts)
 
--- Insert section headings below cursor
--- km.set({ "n" }, "<Leader>sen", ":<C-U>call functions#Sections(1)<CR>", opts)
--- km.set({ "n" }, "<Leader>sel", ':<C-U>call functions#Sections("a")<CR>', opts)
-
 km.set({ "n", "v", "i" }, "<Leader>nj", U.no_jump, opts)
 
--- km.set(
---     { "n" },
---     "<Leader>pd",
---     '^yiWoprinU.t(paste("<C-o>p<space>=",<space><C-o>p))<Esc>k^',
---     opts
--- )
+-- Refresh snippets
 km.set({ "n" }, "<Leader>rs", function()
     vim.fn["UltiSnips#RefreshSnippets"]()
 end, opts)
@@ -338,10 +297,9 @@ end, opts)
 --Insert markdown link around previous word, pasting URL from clipboard
 km.set({ "i" }, ";lk", '<Esc>Bi[<Esc>ea](<Esc>"+pA)<Space>', opts)
 km.set({ "i" }, ";n", "<C-o>o<Esc>4jI", opts)
--- Copy comment character to new line below
-km.set({ "i" }, ";#", "<Esc>^yWo<C-o>P<C-o>$<Space>", opts)
 --Paste equation RHS on line below
 km.set({ "i" }, ";eq", "<Esc>F=y$A\\<Esc>o&<Space><Esc>pF=", opts)
+-- Blank line above/below in insert move
 vim.api.nvim_set_keymap("i", ";o", "<Esc>o", opts)
 vim.api.nvim_set_keymap("i", ";O", "<Esc>O", opts)
 
@@ -411,13 +369,10 @@ end, opts)
 km.set({ "v" }, ",ty", function()
     U.term_exec(U.yank_visual("+"))
 end, opts)
+-- R pipe
 km.set({ "t" }, "++", "<Space><bar>><Space>", opts)
 
 vim.api.nvim_set_keymap("n", "!!", "@:<CR>", opts)
-
-km.set({ "n" }, "<leader>ab", function()
-    U.add_abbrev(vim.fn.expand("<cword>"))
-end, { noremap = true })
 
 -- From https://www.reddit.com/r/neovim/comments/rfrgq5/is_it_possible_to_do_something_like_his_on/
 km.set({ "v" }, "J", ":m '>+1<CR>gv=gv", opts)
@@ -463,8 +418,7 @@ km.set({ "n" }, "<Leader>tP", 'bdwmzF,b"ydww', opts)
 km.set({ "n" }, "<Leader>em", function()
     vim.cmd.Embrace()
 end, opts)
---km.set({ "i" }, "<C-(>", ":normal i( | lua U.match_paren()", opts)
---
+
 -- Toggle LSP log level
 km.set("n", "<Leader>lo", function()
     if require("vim.lsp.log").get_level() ~= "DEBUG" then
@@ -478,7 +432,7 @@ km.set({ "i", "n", "v" }, "<C-%>>", function()
     U.match_paren()
 end, { silent = true })
 
--- Save messages
+-- Copy messages
 km.set({ "n" }, "<leader>mm", function()
     vim.fn.setreg("+", vim.fn.execute("messages"))
 end, { silent = true })
@@ -528,20 +482,10 @@ km.set(
 -- Choose from menu of LSP options
 km.set({ "n", "v" }, "<leader>cp", "<cmd>lua U.choose_picker()")
 
--- -- hop
--- km.set({ "n", "v" }, "<C-h>aa", "<cmd>HopAnywhere<CR>")
--- km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
--- km.set({ "n", "v" }, "<C-h>ab", "<cmd>HopAnywhereBC<CR>")
--- km.set({ "n", "v" }, "<C-h>ac", "<cmd>HopAnywhereAC<CR>")
--- km.set({ "n", "v" }, "<C-h>c1", "<cmd>HopChar1<CR>")
--- km.set({ "n", "v" }, "<C-h>c2", "<cmd>HopChar2<CR>")
--- km.set({ "n", "v" }, "<C-h>hl", "<cmd>HopLine<CR>")
--- km.set({ "n", "v" }, "<C-h>hw", "<cmd>HopWord<CR>")
-
 km.set({ "n", "v" }, "<C-s>", U.term_motion, { expr = true })
 km.set({ "n", "v" }, "<C-j>", U.swap, { expr = true })
 
--- All suggested by repo
+-- Toggle DAP interface
 km.set({ "v" }, "<C-e>", function()
     require("dapui").eval()
 end)
