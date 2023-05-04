@@ -1,4 +1,6 @@
 --TODO cursorbind: scroll multiple windows at once
+local o = vim.o
+local opt = vim.opt
 vim.cmd("filetype plugin indent on")
 vim.cmd.syntax("enable")
 vim.cmd.colorscheme("OceanicNext")
@@ -17,12 +19,12 @@ let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 ]])
 --vim.g["$BASH_ENV"] = vim.fn.expand("$HOME/dotfiles/bash/.bash_profile")
 
-vim.o.runtimepath = vim.o.runtimepath
+o.runtimepath = vim.o.runtimepath
     .. ","
     .. vim.fn.expand("$HOME/.local/share/nvim/site/pack/packer")
 vim.g.session_dir = vim.fn.expand("$HOME/.vim/sessions")
-vim.o.termguicolors = true
-vim.opt.wildignore:append({
+o.termguicolors = true
+opt.wildignore:append({
     "*.db",
     "*.git",
     "*.pyc",
@@ -36,102 +38,105 @@ vim.opt.wildignore:append({
     "__pycache__",
 })
 
-vim.o.background = "dark"
-vim.o.mouse = "i"
-vim.o.breakindent = true
-vim.opt.breakindentopt:append({ "shift:2", "min:10", "list:2" })
-vim.opt.display:append({ "uhex" })
-vim.opt.foldopen:append({ "insert", "jump" })
-vim.o.foldtext = "{<{}>}"
+o.background = "dark"
+o.mouse = "i"
+o.breakindent = true
+opt.breakindentopt:append({ "shift:2", "min:10", "list:2" })
+opt.display:append({ "uhex" })
+opt.foldopen:append({ "insert", "jump" })
+o.foldtext = "{<{}>}"
 
-vim.opt.clipboard:append({ "unnamed", "unnamedplus" })
+opt.clipboard:append({ "unnamed", "unnamedplus" })
 
 -- Line numbers & indentation
-vim.opt.backspace:append({ "indent", "eol", "start" })
-vim.o.hidden = true
-vim.o.wrapscan = true
-vim.opt.shortmess:append({ a = true })
-vim.o.showbreak = ">>"
-vim.o.laststatus = 2
-vim.o.number = true
-vim.o.numberwidth = 3
-vim.opt.sessionoptions:append({
+opt.backspace:append({ "indent", "eol", "start" })
+o.hidden = true
+o.wrapscan = true
+opt.shortmess:append({ a = true })
+o.showbreak = ">>"
+o.laststatus = 2
+o.number = true
+o.numberwidth = 3
+opt.sessionoptions:append({
     "winpos",
     "terminal",
     "globals",
     "options",
     "tabpages",
 })
-vim.o.relativenumber = true
-vim.o.expandtab = true
-vim.o.tabstop = 4
-vim.o.softtabstop = 4
-vim.o.shiftwidth = 4
-vim.o.autoindent = true
-vim.o.cursorcolumn = true
-vim.o.cmdheight = 1
-vim.o.si = true --Smart indentation
-vim.o.ruler = true
-vim.o.updatetime = 2000 --Milliseconds, for cursor hold events
-vim.opt.backspace:append({ "indent", "eol", "start" })
-vim.o.allowrevins = true
-vim.o.shellslash = true
+o.relativenumber = true
+o.expandtab = true
+o.tabstop = 4
+o.softtabstop = 4
+o.shiftwidth = 4
+o.autoindent = true
+o.cursorcolumn = true
+o.cmdheight = 1
+o.si = true --Smart indentation
+o.ruler = true
+o.updatetime = 2000 --Milliseconds, for cursor hold events
+opt.backspace:append({ "indent", "eol", "start" })
+o.allowrevins = true
+o.shellslash = true
 
 -- Search
-vim.o.smartcase = true
-vim.o.hlsearch = true
-vim.o.incsearch = true
-vim.o.magic = true
-vim.o.scrolloff = 3
-vim.o.title = true
-vim.o.titleold = "Terminal"
-vim.o.titlestring = "%F"
-vim.o.lazyredraw = true --Faster mappings
+o.smartcase = true
+o.hlsearch = true
+o.incsearch = true
+o.magic = true
+o.scrolloff = 3
+o.title = true
+o.titleold = "Terminal"
+o.titlestring = "%F"
+o.lazyredraw = true --Faster mappings
 
-vim.o.colorcolumn = "80"
-vim.o.spell = true
-vim.o.spelllang = "en_us"
-vim.o.showmatch = true
-vim.o.mat = 2
-vim.o.errorbells = false
+o.colorcolumn = "80"
+o.spell = true
+o.spelllang = "en_us"
+o.showmatch = true
+o.mat = 2
+o.errorbells = false
 
-vim.o.encoding = "utf-8"
-vim.o.fileencoding = "utf-8"
+o.encoding = "utf-8"
+o.fileencoding = "utf-8"
 
 -- Navigation
-vim.opt.path:append({ "**" })
-vim.o.wildmenu = true
-vim.opt.wildmode:append({ "longest", "list", "full" })
-vim.o.titlestring = "%t"
-vim.opt.switchbuf:append({ "uselast", "useopen" })
-vim.o.bufhidden = "hide"
+opt.path:append({ "**" })
+o.wildmenu = true
+opt.wildmode:append({ "longest", "list", "full" })
+o.titlestring = "%t"
+opt.switchbuf:append({ "uselast", "useopen" })
+o.bufhidden = "hide"
 
-vim.o.virtualedit = "block"
+o.virtualedit = "block"
 
 -- Press to wrap
-vim.o.whichwrap = "b,s,<,>,~,[,]"
+o.whichwrap = "b,s,<,>,~,[,]"
 
-vim.o.winblend = 20
+o.winblend = 20
 
 -- Backups
-vim.o.backupdir = vim.fn.stdpath("data") .. "/backup"
-vim.o.undodir = vim.fn.stdpath("data") .. "/undo"
-vim.o.backup = true
-vim.o.undofile = true
-vim.o.confirm = true
-vim.o.autowrite = true
-vim.o.swapfile = false
-vim.g.python3_host_prog = "/usr/bin/python3"
+local data = vim.fn.stdpath("data")
+o.backupdir = data .. "/backup//"
+o.undodir = data .. "/undo//"
+o.directory = data .. "/swap//"
+o.backup = true
+o.undofile = true
+o.confirm = true
+o.autowrite = true
+--vim.o.swapfile = false
+vim.g.python3_host_prog = vim.fn.system("which python")
+--Cursor customization
 vim.cmd([[
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
   \,i-r-cr:blinkwait700-blinkoff400-blinkon250-Cursor/lCursor
   \,sm:block-blinkwait175-blinkoff150-blinkon175
 ]])
 vim.g.vimsyn_embed = "lP"
-vim.o.helpheight = 15
+o.helpheight = 15
 
-vim.o.splibelow = true
-vim.o.spliright = true
+o.splibelow = true
+o.spliright = true
 
 -- default g for substitute command; unfortunately deprecated
 --vim.o.gdefault = true

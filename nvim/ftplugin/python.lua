@@ -1,5 +1,14 @@
 local opts = { noremap = true, silent = true, buffer = true }
 local km = vim.keymap
+local run = function()
+    if term_state == nil or term_state["last_terminal_win_id"] == nil then
+        print("No terminal not active")
+    else
+        --:w <bar> IPythonCellRun<CR>
+        vim.cmd.write()
+        vim.cmd("IPythonCellRun")
+    end
+end
 vim.opt.cinwords:append({
     "if",
     "else",
@@ -17,7 +26,7 @@ vim.opt.cinwords:append({
 km.set("n", [[<leader>sh]], [[ggO#!/usr/bin/python3<Esc><C-o>]], opts)
 km.set("n", [[\s]], [[:SlimeSend1 ipython<CR>]], opts)
 km.set("n", [[\e]], [[:w <bar> IPythonCellExecuteCell<CR>]], opts)
-km.set("n", [[\r]], [[:w <bar> IPythonCellRun<CR>]], opts)
+km.set("n", [[\r]], run, opts)
 km.set("n", [[\p]], [[:IPythonCellPrevCommand<CR>]], opts)
 km.set("n", [[\\]], [[:IPythonCellRestart<CR>]], opts)
 km.set("n", [[\[c]], [[:IPythonCellPrevCell<CR>]], opts)
@@ -32,7 +41,7 @@ km.set("n", [[\q]], [[:SlimeSend1 exit<CR>]], opts)
 km.set("n", [[\pp]], [[yiW:SlimeSend1 print(<C-r><C-w>)<CR>]], opts)
 km.set("n", [[\o]], "<Plug>SlimeRegionSend<CR>", opts)
 km.set("n", [[\b]], [[<Plug>SlimeParagraphSend<CR>]], opts)
-km.set("n", [[\ll]], "<Plug>SlimeLineSend<CR>", opts)
+km.set("n", [[\l]], "<Plug>SlimeLineSend<CR>", opts)
 km.set("n", [[\m]], "<Plug>SlimeMotionSend<CR>", opts)
 
 -- Set or remove breakpoints

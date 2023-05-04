@@ -8,6 +8,18 @@ local inline_send_impl = function()
     vim.cmd("RSend " .. vim.fn.getreg("z"))
 end
 
+-- Using NVim-R plugin, call R function on word beneath cursor
+r_exec = function(cmd, clear_output)
+    if not os.getenv("NVIMR_ID") then
+        print("Nvim-R is not running")
+        return
+    end
+    clear_output = U.default_arg(clear_output, true)
+    vim.call("RAction", cmd)
+    if clear_output then
+        vim.cmd.silent("RSend 0")
+    end
+end
 --My utility functions
 local inline_send = U.with_register(U.with_position(inline_send_impl))
 vim.bo.tabstop = 2
@@ -45,10 +57,10 @@ km.set({ "n" }, "\\ck", ':RSend .. U.t("<C-c>") <CR>', opts)
 km.set({ "n" }, "<Leader>s", ":w <bar> source %<CR>", opts)
 -- Give info on R objects
 km.set({ "n" }, "\ra", function()
-    U.r_exec("args")
+    r_exec("args")
 end, opts)
 km.set({ "n" }, "\rt", function()
-    U.r_exec("str")
+    r_exec("str")
 end, opts)
 km.set({ "n" }, "\re", function()
     vim.cmd("RSend " .. U.surround_string(vim.fn.getline("."), "(", ")"))
