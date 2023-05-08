@@ -544,30 +544,25 @@ U.refresh = function(file)
     else
         file = vim.fn.system("realpath " .. file)
         extension = string.lower(string.match(file, "^.+(%..+)$"))
-        local mapping = {
-            lua = "lua",
-            vim = "vim",
-            py = "python",
-            R = "r",
-            r = "r",
-            bash = "shell",
-            sh = "shell",
-        }
-        extension = mapping[extension]
     end
-    local cmd
-    if extension == "r" then
-        cmd = 'RSend source("' .. file .. '")'
-    elseif extension == "python" then
-        cmd = "IPythonCellRun"
-    elseif extension == "bash" or extension == "sh" then
-        cmd = "!. " .. file
-    elseif extension == "lua" or extension == "vim" then
-        cmd = "source " .. file
-    else
+
+    --file = U.surround_string(file)
+    local mapping = {
+        lua = "source " .. file,
+        vim = "source " .. file,
+        py = "IPythonCellRun",
+        R = 'RSend source("' .. file .. '")',
+        r = 'RSend source("' .. file .. '")',
+        bash = "!. " .. file,
+        sh = "!. " .. file,
+    }
+    cmd = mapping[extension]
+
+    if cmd == nil then
         print("Don't know how to handle extension " .. extension)
         return
     end
+    print(cmd)
     vim.cmd(cmd)
 end
 
@@ -1239,9 +1234,11 @@ U.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file)
-                and U.surround_string(files[i], " ", "")
-            or ""
+        cmd = cmd .. (files[i] ~= current_file) and U.surround_string(
+            files[i],
+            " ",
+            ""
+        ) or ""
     end
 
     -- Return if only current file detected

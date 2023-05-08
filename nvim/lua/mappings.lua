@@ -184,6 +184,7 @@ vim.api.nvim_set_keymap("n", "<k8>", "zg", opts)
 vim.api.nvim_set_keymap("n", "<k9>", "zug", opts)
 
 -- init.lua access
+km.set({ "n", "v" }, "<Leader>s", U.refresh)
 km.set({ "n" }, "<Leader>ev", ":split $MYVIMRC<CR>", opts)
 km.set({ "n" }, "<Leader>sv", ":source $MYVIMRC<CR>", { noremap = true })
 km.set({ "n" }, "<space>", "<space> <c-^>", opts)
