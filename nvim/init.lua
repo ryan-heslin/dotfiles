@@ -80,9 +80,19 @@ packer.startup(function(use)
     use("f3fora/cmp-spell")
     use("kdheepak/cmp-latex-symbols")
     use("windwp/nvim-autopairs")
-    use("SirVer/ultisnips", {
-        requires = { { "honza/vim-snippets", rtp = "." } },
+    --(  use("SirVer/ultisnips", {
+    --     requires = { { "honza/vim-snippets", rtp = "." } },
+    -- })
+    use({
+        "L3MON4D3/LuaSnip",
+        -- follow latest release.
+        --version = "<CurrentMajor>.*", -- Replace <CurrentMajor> by the latest released major (first number of latest release)
+        -- install jsregexp (optional!).
+        build = "make install_jsregexp",
+        enable_autosnippets = true,
+        store_selection_keys = "<Tab>",
     })
+    use("saadparwaiz1/cmp_luasnip")
     use("honza/vim-snippets")
     use("onsails/lspkind-nvim")
     use("quangnguyen30192/cmp-nvim-ultisnips")
@@ -177,6 +187,7 @@ packer.startup(function(use)
         packer.sync()
     end
 end)
+
 -- My custom configuration files
 vim.g.mapleader = ","
 U = require("custom_utils")
@@ -190,7 +201,8 @@ require("config/autopairs")
 require("config/null-ls")
 require("config/lsp_signature")
 require("config/Nvim-R")
-require("config/UltiSnips")
+require("config/LuaSnip")
+--require("config/UltiSnips")
 require("config/vim-slime")
 require("config/nvim-treesitter")
 require("config/nvim-treesitter-textobjects")

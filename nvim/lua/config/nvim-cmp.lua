@@ -1,4 +1,5 @@
 -- Partly taken fom the wiki
+local luasnip = require("luasnip")
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
     max_size = U.default_arg(max_size, 1024 * 1024)
@@ -46,7 +47,7 @@ sources = {
     { name = "tags", ft = { "r", "rmd", "python" } },
     { name = "treesitter" },
     { name = "nvim_lua" },
-    { name = "ultisnips" },
+    { name = "luasnip" },
     { name = "calc" },
     { name = "latex_symbols", priority = 3 },
     --comparators = {
@@ -55,17 +56,17 @@ sources = {
     --get_bufnrs = {function() return get_bufnrs() end}
 }
 
-local has_any_words_before = function()
+local has_words_before = function()
     if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
         return false
     end
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0
         and vim.api
-        .nvim_buf_get_lines(0, line - 1, line, true)[1]
-        :sub(col, col)
-        :match("%s")
-        == nil
+                .nvim_buf_get_lines(0, line - 1, line, true)[1]
+                :sub(col, col)
+                :match("%s")
+            == nil
 end
 
 local press = function(key)
@@ -138,7 +139,7 @@ cmp_config.setup({
         -- keep command mode completion enabled when cursor is in a comment
         return vim.api.nvim_get_mode().mode == "c"
             or not (
-            context.in_treesitter_capture("comment")
+                context.in_treesitter_capture("comment")
                 or context.in_syntax_group("Comment")
             )
     end,
@@ -177,7 +178,7 @@ cmp_config.setup({
     },
     snippet = {
         expand = function(args)
-            vim.fn["UltiSnips#Anon"](args.body)
+            luasnip.lsp_expand(args.body)
         end,
     },
     mapping = cmp_config.mapping.preset.insert({
@@ -194,7 +195,7 @@ cmp_config.setup({
         ["<C-Space>"] = cmp_config.mapping(function(fallback)
             if cmp_config.visible() then
                 cmp_config.select_next_item()
-            elseif has_any_words_before() then
+            elseif has_words_before() then
                 press("<Space>")
             else
                 fallback()
@@ -219,22 +220,31 @@ cmp_config.setup({
                     cmp_config.select_next_item({
                         behavior = cmp_config.SelectBehavior.Insert,
                     })
-                elseif vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    cmp_ultisnips_mappings.expand_or_jump_forwards()
+                elseif luasnip.expand_or_jumpable() then
+                    luasnip.expand_or_jump()
+                elseif has_words_before() then
+                    cmp_config.complete()
                 else
                     fallback()
                 end
             end,
             s = function(fallback)
-                if vim.fn["UltiSnips#CanJumpForwards"]() == 1 then
-                    cmp_ultisnips_mappings.expand_or_jump_forwards()
+                if cmp_config.visible() then
+                    cmp_config.select_next_item({
+                        behavior = cmp_config.SelectBehavior.Insert,
+                    })
+                elseif luasnip.expand_or_jumpable() then
+                    luasnip.expand_or_jump()
+                elseif has_words_before() then
+                    cmp_config.complete()
                 else
                     fallback()
                 end
             end,
         }),
         ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
-            if vim.fn["UltiSnips#CanJumpForwards"]() == 1
+            if
+                vim.fn["UltiSnips#CanJumpForwards"]() == 1
                 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
             then
                 press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
@@ -263,7 +273,13 @@ cmp_config.setup({
             end,
         }),
         ["<S-Tab>"] = cmp_config.mapping(function(fallback)
-            cmp_ultisnips_mappings.jump_backwards(fallback)
+            if cmp_config.visible() then
+                cmp_config.select_prev_item()
+            elseif luasnip.jumpable(-1) then
+                luasnip.jump(-1)
+            else
+                fallback()
+            end
         end, {
             "i",
             "s",
