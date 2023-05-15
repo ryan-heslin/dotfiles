@@ -1,4 +1,6 @@
 luasnip = require("luasnip")
+snippets_path = os.getenv("DOTFILES_DIR") .. "/nvim/LuaSnip"
+local loader = require("luasnip.loaders.from_lua")
 local km = vim.keymap
 --TODO convert to Lua
 vim.cmd([[
@@ -15,3 +17,12 @@ snoremap <silent> <S-Tab> <cmd>lua require('luasnip').jump(-1)<Cr>
 imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
 smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
 ]])
+loader.lazy_load({ paths = snippets_path })
+-- Refresh snippets
+km.set("n", "<Leader>L", function()
+    require("luasnip.loaders.from_lua").load({ paths = snippets_path })
+end)
+vim.api.nvim_set_keymap("i", "<C-n>", "<Plug>luasnip-next-choice", {})
+vim.api.nvim_set_keymap("s", "<C-n>", "<Plug>luasnip-next-choice", {})
+vim.api.nvim_set_keymap("i", "<C-p>", "<Plug>luasnip-prev-choice", {})
+vim.api.nvim_set_keymap("s", "<C-p>", "<Plug>luasnip-prev-choice", {})

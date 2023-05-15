@@ -90,7 +90,8 @@ packer.startup(function(use)
         -- install jsregexp (optional!).
         build = "make install_jsregexp",
         enable_autosnippets = true,
-        store_selection_keys = "<Tab>",
+        update_events = "TextChanged,TextChangedI",
+        store_selection_keys = "<Alt>",
     })
     use("saadparwaiz1/cmp_luasnip")
     use("honza/vim-snippets")
