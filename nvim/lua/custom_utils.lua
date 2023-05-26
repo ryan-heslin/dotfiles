@@ -375,12 +375,8 @@ U.term_exec = function(keys, scroll_down, use_count)
     use_count = U.default_arg(use_count, true)
     scroll_down = U.default_arg(scroll_down, true)
     local count = (use_count and vim.v.count1) or 1
-    local command = (vim.fn.stridx(keys, [[\]]) ~= -1 and U.t(keys)) or keys
-    print(vim.inspect(command))
+    local command = (string.find(keys, [[\]]) and U.t(keys)) or keys
 
-    -- if vim.fn.stridx(keys, [[\]]) ~= -1 then
-    --     command = U.t(keys)
-    -- end
     for _ = 1, count, 1 do
         vim.fn.chansend(term_state["last_terminal_chan_id"], command)
     end
@@ -671,7 +667,7 @@ end
 
 U.yank_visual = function(buffer)
     buffer = U.default_arg(buffer, 0)
-    -- Col value for ">" mark in linewise selection
+    -- Col value for ">" mark in linewise selection is the 32-bit integer limit
     -- TODO fix blockwise selection
     local linewise_col = 2 ^ 31 - 1
     local left_line = vim.fn.line("'<")
@@ -679,8 +675,8 @@ U.yank_visual = function(buffer)
     local right_line = vim.fn.line("'>")
     local right_col = vim.fn.col("'>")
 
-    local text
-    if right_col ~= linewise_col then
+    local mode = vim.fn.visualmode()
+    if mode == "v" then --Charwise mode
         text = vim.api.nvim_buf_get_text(
             buffer,
             left_line - 1,
@@ -696,6 +692,15 @@ U.yank_visual = function(buffer)
             right_line - 1,
             {}
         )
+        if mode ~= "V" then -- Linewise mode: trim lines to width of block
+            end_col = 0
+            for _, line in ipairs(text) do
+                end_col = math.max(end_col, string.len(line))
+            end
+            for i, line in ipairs(text) do
+                text[i] = string.sub(line, left_col, end_col)
+            end
+        end
     end
     if type(text) == "table" then
         text = table.concat(text, "\n")
@@ -1756,6 +1761,119 @@ U.term_toggle = function()
     else
         U.term_setup()
     end
+end
+
+U.record_motion = function()
+    local motion = vim.fn.input("")
+    -- local _, err = pcall(function()
+    --     vim.cmd.normal(" " .. motion)
+    -- end)
+    -- if err then
+    --     return
+    -- end
+    vim.fn.setreg("z", motion)
+end
+
+U.get_term_history = function(cmd_gen)
+    local temp_file = os.tmpname()
+    if U.file_exists(temp_file) then
+        os.remove(temp_file)
+    end
+    local cmd = cmd_gen(temp_file)
+
+    U.term_exec(cmd, false, false)
+    os.execute("sleep 1")
+
+    result = {}
+    for line in io.lines(temp_file) do
+        print(line)
+        table.insert(result, line)
+    end
+    -- Ignore command sent to get history
+    table.remove(result, #result)
+    os.remove(temp_file)
+    return result
+end
+
+U.display_term_history = function(lines, syntax)
+    -- Clear old buffer if it exists
+    if
+        term_state["last_terminal_history"] ~= nil
+        and vim.fn.bufwinnr(term_state["last_terminal_history"]) ~= -1
+    then
+        vim.api.nvim_buf_delete(
+            term_state["last_terminal_history"],
+            { force = true, unload = false }
+        )
+    end
+    local current_bufs = vim.api.nvim_list_bufs()
+    local lookup = {}
+    for _, buf in ipairs(current_bufs) do
+        lookup[buf] = true
+    end
+    -- Send line and close history window
+    local send_line = function()
+        local line = get_single_line(0, vim.fn.line("."))[1]
+        U.term_exec(line, false, false)
+        vim.cmd.q()
+    end
+
+    vim.api.nvim_win_call(term_state["last_terminal_win_id"], function()
+        U.make_scratch(function()
+            vim.bo.syntax = syntax
+            vim.wo.number = true
+            vim.wo.relativenumber = true
+            vim.keymap.set(
+                { "n", "v" },
+                "<CR>",
+                send_line,
+                { buffer = true, silent = true, noremap = true }
+            )
+            vim.api.nvim_create_autocmd("BufUnload", {
+                callback = function()
+                    term_state["last_terminal_history"] = nil
+                end,
+            })
+        end)
+    end)
+
+    local new_bufs = vim.api.nvim_list_bufs()
+    for _, buf in ipairs(new_bufs) do
+        if not lookup[buf] then
+            term_state["last_terminal_history"] = buf
+            break
+        end
+    end
+    -- Reset ID on close
+    vim.api.nvim_buf_set_lines(
+        term_state["last_terminal_history"],
+        0,
+        0,
+        false,
+        lines
+    )
+end
+
+U.history = function(syntax)
+    local functions = {
+        bash = function(f)
+            return [[history  | sed -E 's/\s*[0-9]*\s*//' > ]]
+                .. U.surround_string(f)
+        end,
+        python = function(f)
+            return "%history -f " .. f
+        end,
+        R = function(f)
+            return "utils::savehistory(file = '" .. f .. "')"
+        end,
+    }
+    local command = functions[syntax]
+    if command == nil then
+        print("Unsupported syntax " .. syntax)
+        return
+    end
+    local lines = U.get_term_history(command)
+    U.display_term_history(lines, syntax)
 end
 
 return U

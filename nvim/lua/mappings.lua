@@ -439,11 +439,11 @@ km.set({ "n" }, "<leader>mm", function()
 end, { silent = true })
 
 --Insert mode: delete word or WORD right of cursor
-km.set({ "i" }, "<C-b>", "<C-o>mz<S-Right><C-o>dw<C-o>`z<C-o>", opts)
-km.set({ "i" }, "<C-B>", "<C-o>mz<S-Right><C-o>dW<C-o>`z<C-o>", opts)
--- Insert mode: delete word or WORD under cursor
-km.set({ "i" }, "<C-d>", "<C-o>ciw", opts)
-km.set({ "i" }, "<C-D>", "<C-o>ciW", opts)
+km.set({ "i" }, "<C-b>", "<C-o>wdw<C-o>`^i", opts)
+km.set({ "i" }, "<C-B>", "<C-o>WdW<C-o>`^i", opts)
+-- Insert mode: delete entire word or WORD under cursor
+km.set({ "i" }, "<C-d>", "<C-o>ciw<C-o>i`^", opts)
+km.set({ "i" }, "<C-D>", "<C-o>ciw<C-o>i`^", opts)
 
 -- Repeat motion
 km.set("n", "gt", _G.__dot_repeat, { expr = true })
