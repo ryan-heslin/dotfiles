@@ -23,6 +23,18 @@ while(<>){
             { i(1, "condition"), i(2, "body"), i(0) }
         )
     ),
+    s(
+        { trig = "fun", desc = "function" },
+        fmta(
+            [[
+function(<>){
+    <>
+}
+    ]],
+            { i(1, "args"), i(2, "body") }
+        )
+    ),
+
     -- s(
     --     { trig = "ggpl", desc = "dynamic ggplot" },
     --     fmta(
