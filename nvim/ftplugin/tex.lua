@@ -66,3 +66,5 @@ km.set(
 )
 km.set("i", [[;ca]], [[\begin{cases}<CR><CR>\end{cases}<Esc>ki]], opts)
 km.set("i", [[;ce]], [[\begin{center}<CR><CR>\end{center}<Esc>ki]], opts)
+--Paste equation RHS on line below
+km.set({ "i" }, ";eq", "<Esc>F=y$A\\<Esc>o&<Space><Esc>pF=", opts)

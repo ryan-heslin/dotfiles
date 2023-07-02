@@ -6,6 +6,7 @@ km.set("n", "[d", vim.diagnostic.goto_prev, opts)
 km.set("n", "]d", vim.diagnostic.goto_next, opts)
 km.set("n", "<space>q", vim.diagnostic.setloclist, opts)
 
+-- Terminal mappings
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 km.set({ "n" }, "<leader>!!", function()
     U.term_exec("\x1b\x5b\x41")
@@ -136,8 +137,8 @@ km.set({ "n" }, "<Leader>[", ":cprev", opts)
 
 -- Splits
 km.set({ "n" }, "<Leader>h", ":<C-u>split<CR>", opts)
-km.set({ "n" }, "<Leader>v", ":<C-u>vsplit<CR>", opts)
-vim.api.nvim_set_keymap("n", "cc", '"_cc', opts)
+
+km.set("n", "cc", '"_cc', opts)
 km.set({ "n" }, "<Leader>q", ":q<CR>", opts)
 km.set({ "n" }, "<Leader>w", ":w<CR>", opts)
 -- Quit and save all writeable buffers
@@ -145,32 +146,24 @@ km.set({ "n" }, "<Leader>qa", ":wa <bar> qa<CR>", opts)
 -- From https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 
 -- Easier window switching
-km.set({ "n" }, "<Tab>h", function()
-    U.repeat_cmd("normal " .. U.t("<C-w>") .. "h", vim.v.count1)
-end, opts)
-km.set({ "n" }, "<Tab>j", function()
-    U.repeat_cmd("normal " .. U.t("<C-w>") .. "j", vim.v.count1)
-end, opts)
-km.set({ "n" }, "<Tab>k", function()
-    U.repeat_cmd("normal " .. U.t("<C-w>") .. "k", vim.v.count1)
-end, opts)
-km.set({ "n" }, "<Tab>l", function()
-    U.repeat_cmd("normal " .. U.t("<C-w>") .. "l", vim.v.count1)
-end, opts)
+local window = U.t("<C-w>")
+local chars = { "h", "j", "k", "l" }
+for _, char in ipairs(chars) do
+    km.set({ "n" }, "<Tab>" .. char, function()
+        vim.cmd.normal(window .. char)
+    end, opts)
+    local upper = string.upper(char)
+    km.set({ "n" }, "<Tab>" .. upper, "<C-w>" .. upper, opts)
+end
 
 --Easier window manipulation
-km.set({ "n" }, "<Tab>H", "<C-w>H", opts)
-km.set({ "n" }, "<Tab>J", "<C-w>J", opts)
-km.set({ "n" }, "<Tab>K", "<C-w>K", opts)
-km.set({ "n" }, "<Tab>L", "<C-w>L", opts)
-
 km.set({ "n" }, "<Tab>+", "<C-w>+", opts)
 km.set({ "n" }, "<Tab>-", "<C-w>-", opts)
 km.set({ "n" }, "<Tab><", function()
-    U.repeat_cmd("wincmd >", vim.v.count1)
+    vim.cmd.wincmd("<")
 end, opts)
 km.set({ "n" }, "<Tab>>", function()
-    U.repeat_cmd("wincmd >", vim.v.count1)
+    vim.cmd.wincmd(">")
 end, opts)
 km.set({ "n" }, "<Tab>_", "<C-w>_", opts)
 km.set({ "n" }, "<Tab><bar>", "<C-w><bar>", opts)
@@ -251,6 +244,7 @@ km.set({ "n" }, "<Leader>P", '"_d$P', opts)
 km.set({ "n" }, "<Leader>ao", "$yl[pI", opts)
 km.set({ "n" }, "<Leader>aO", "$yl]pI", opts)
 
+-- Directory switching
 km.set({ "n" }, "<Leader>cd", ":silent cd %:p:h | pwd<CR>", { noremap = true })
 km.set(
     { "n" },
@@ -290,16 +284,7 @@ end, opts)
 
 km.set({ "n", "v", "i" }, "<Leader>nj", U.no_jump, opts)
 
--- Refresh snippets
-km.set({ "n" }, "<Leader>rs", function()
-    vim.fn["UltiSnips#RefreshSnippets"]()
-end, opts)
-
---Insert markdown link around previous word, pasting URL from clipboard
-km.set({ "i" }, ";lk", '<Esc>Bi[<Esc>ea](<Esc>"+pA)<Space>', opts)
 km.set({ "i" }, ";n", "<C-o>o<Esc>4jI", opts)
---Paste equation RHS on line below
-km.set({ "i" }, ";eq", "<Esc>F=y$A\\<Esc>o&<Space><Esc>pF=", opts)
 -- Blank line above/below in insert move
 vim.api.nvim_set_keymap("i", ";o", "<Esc>o", opts)
 vim.api.nvim_set_keymap("i", ";O", "<Esc>O", opts)
@@ -336,48 +321,22 @@ km.set(
     opts
 )
 
--- <-A-k> remap represents current best attempt at using window for paren matching
--- km.set(
---     { "c" },
---     "<-A-h>",
---     '&cedit . "h<C-c>"',
---     { noremap = true, silent = true, expr = true }
--- )
--- km.set(
---     { "c" },
---     "<-A-j>",
---     '&cedit . "j" . "<C-c>"',
---     { noremap = true, silent = true, expr = true }
--- )
--- km.set({ "c" }, "<-A-k>", U.t("<C-f>i" .. U.expand_pair("(") .. "<Down>"), opts)
--- km.set(
---     { "c" },
---     "<-A-l>",
---     '&cedit . "l" . "<C-c>"',
---     { noremap = true, silent = true, expr = true }
--- )
-
--- Enable delimiter closing for terminal
---vim.api.nvim_set_keymap('c', "'", [ ''<left> ], {noremap = true, silent = true})
---vim.api.nvim_set_keymap('c', '"', [ ""<left> ], {noremap = true, silent = true})
---vim.api.nvim_set_keymap('t', '(', '()<left>', {noremap = true, silent = true})
---vim.api.nvim_set_keymap("c", "'", "\'\'<left>", {noremap = true, silent = true})
-
 --Terminal yanking
-km.set({ "n" }, ",ty", function()
+km.set({ "n" }, "<Leader>ty", function()
     U.term_exec(vim.fn.getreg("+"))
 end, opts)
-km.set({ "v" }, ",ty", function()
+km.set({ "v" }, "<Leader>ty", function()
     U.term_exec(U.yank_visual("+"))
 end, opts)
 -- R pipe
 km.set({ "t" }, "++", "<Space><bar>><Space>", opts)
 
+-- Repeat last command
 vim.api.nvim_set_keymap("n", "!!", "@:<CR>", opts)
 
 -- From https://www.reddit.com/r/neovim/comments/rfrgq5/is_it_possible_to_do_something_like_his_on/
+-- Increase numbers in visual
 km.set({ "v" }, "J", ":m '>+1<CR>gv=gv", opts)
-km.set({ "v" }, "J", ":m '<-2<CR>gv=gv", opts)
 
 km.set({ "n", "v" }, "<Leader>nn", function()
     U.range_command(vim.fn.input("normal command: "))
@@ -439,11 +398,32 @@ km.set({ "n" }, "<leader>mm", function()
 end, { silent = true })
 
 --Insert mode: delete word or WORD right of cursor
-km.set({ "i" }, "<C-b>", "<C-o>wdw<C-o>`^i", opts)
-km.set({ "i" }, "<C-B>", "<C-o>WdW<C-o>`^i", opts)
+km.set({ "i" }, "<C-k>", function()
+    vim.cmd.normal([[ysiw"]])
+end)
+km.set({ "i" }, "<C-b>", function()
+    vim.cmd.normal("w")
+    vim.cmd.normal("dw")
+    vim.cmd.normal("`^")
+    vim.cmd.normal("i")
+end, opts)
+km.set({ "i" }, "<C-B>", function()
+    vim.cmd.normal("W")
+    vim.cmd.normal("dW")
+    vim.cmd.normal("`^")
+    vim.cmd.normal("i")
+end, opts)
 -- Insert mode: delete entire word or WORD under cursor
-km.set({ "i" }, "<C-d>", "<C-o>ciw<C-o>i`^", opts)
-km.set({ "i" }, "<C-D>", "<C-o>ciw<C-o>i`^", opts)
+km.set({ "i" }, "<C-d>", function()
+    vim.cmd.normal("ciw")
+    vim.cmd.normal("`^")
+    vim.cmd.normal("i")
+end, opts)
+km.set({ "i" }, "<C-D>", function()
+    vim.cmd.normal("ciW")
+    vim.cmd.normal("`^")
+    vim.cmd.normal("i")
+end, opts)
 
 -- Repeat motion
 km.set("n", "gt", _G.__dot_repeat, { expr = true })
@@ -467,9 +447,6 @@ km.set("n", "<leader>jj", function()
 end)
 
 -- Treesitter pickers
-km.set({ "n", "v" }, "<leader>ff", "<cmd>Telescope find_files<CR>")
-km.set({ "n", "v" }, "<leader>lg", "<cmd>Telescope live_grep<CR>")
-km.set({ "n", "v" }, "<leader>bb", "<cmd>Telescope buffers<CR>")
 km.set({ "n", "v" }, "<leader>gs", "<cmd>Telescope grep_string<CR>")
 km.set({ "n", "v" }, "<leader>of", "<cmd>Telescope oldfiles<CR>")
 km.set({ "n", "v" }, "<leader>sh", "<cmd>Telescope search_history<CR>")
@@ -483,6 +460,7 @@ km.set(
 -- Choose from menu of LSP options
 km.set({ "n", "v" }, "<leader>cp", "<cmd>lua U.choose_picker()")
 
+-- Swap, terminal-send operators
 km.set({ "n", "v" }, "<C-s>", U.term_motion, { expr = true })
 km.set({ "n", "v" }, "<C-j>", U.swap, { expr = true })
 

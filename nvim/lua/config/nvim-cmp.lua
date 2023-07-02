@@ -122,14 +122,6 @@ end
 cmp_config.setup({
     completion = {
         completeopt = "menu,menuone,preview,noselect",
-        -- get_trigger_characters = function(trigger_characters)
-        --     if vim.bo.filetype == "r" or vim.bo.filetype == "rmd" then
-        --         --table.insert(trigger_characters, '$')
-        --         trigger_characters["$"] = 1
-        --         trigger_characters["@"] = 1
-        --     end
-        --     return trigger_characters
-        -- end,
     },
 
     -- From wiki: https://github.com/hrsh7th/nvim-cmp/wiki/Advanced-techniques
@@ -186,7 +178,7 @@ cmp_config.setup({
             cmp_config.mapping.scroll_docs(-4)
         end),
         ["<C-f>"] = all_modes(function()
-            cmp_config.mapping.scroll_docs(-4)
+            cmp_config.mapping.scroll_docs(4)
         end),
         ["<C-n>"] = all_modes(cmp_config.mapping.select_next_item),
         ["<C-h>"] = all_modes(cmp_config.mapping.select_prev_item),

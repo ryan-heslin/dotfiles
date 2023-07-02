@@ -16,11 +16,12 @@ local end_middle = function(chars)
         return "<enter><enter>" .. chars .. "<up>"
     end
 end
+
 apairs.add_rules({
     Rule("$$", "$$", "rmd"):replace_endpair(end_middle("$$")),
-    Rule("`", "`", "rmd"):with_pair(cond.not_after_regex("%`+")),
+    Rule("`", "`", "rmd"):with_pair(cond.not_before_regex("%`+")),
     Rule([[\[]], [=[\]]=], "rmd"),
-    Rule("'", "'", "r"):with_pair(cond.not_after_regex("%#")),
+    Rule("'", "'", "r"):with_pair(cond.not_before_regex("^#")),
     Rule("(", ")", ""):with_pair(function()
         return vim.bo.buftype == "" and cond.not_before_regex("%w")
     end),

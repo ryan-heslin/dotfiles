@@ -10,11 +10,8 @@ local make_matrix = function(nrow, ncol)
     local row_str = table.concat(row, " & ")
     local rows = { [[\begin{bmatrix}]] }
     for i in 1, nrow, 1 do
-        table.insert(rows, row_str)
         -- Add linebreak on all but last row
-        if i ~= nrow then
-            rows[i] = rows[i] .. " \\"
-        end
+        table.insert(rows, row_str .. ((i ~= nrow and " \\") or ""))
     end
 
     table.insert(rows, [[\end{bmatrix}]])
@@ -24,11 +21,12 @@ local make_matrix = function(nrow, ncol)
     for idx in 1, nrow * ncol, 1 do
         table.insert(
             snippets,
-            i(idx, math.floor(idx / nrow) .. "," .. idx % ncol)
+            i(idx, math.floor(idx / nrow) .. ", " .. idx % ncol)
         )
     end
     return sn(nil, fmta(format, snippets))
 end
+
 local rec_ls = function()
     return sn(nil, {
         c(1, {

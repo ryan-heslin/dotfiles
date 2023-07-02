@@ -125,7 +125,7 @@ o.undofile = true
 o.confirm = true
 o.autowrite = true
 --vim.o.swapfile = false
-vim.g.python3_host_prog = vim.fn.system("which python")
+--vim.g.python3_host_prog = vim.fn.system("which python3")
 --Cursor customization
 vim.cmd([[
 set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
