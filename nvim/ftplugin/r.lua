@@ -4,7 +4,7 @@ local inline_send_impl = function()
         print("Nvim-R is not running")
         return
     end
-    U.inline_send()
+    U.utils.inline_send()
     vim.cmd("RSend " .. vim.fn.getreg("z"))
 end
 
@@ -14,14 +14,15 @@ r_exec = function(cmd, clear_output)
         print("Nvim-R is not running")
         return
     end
-    clear_output = U.default_arg(clear_output, true)
+    clear_output = U.utils.default_arg(clear_output, true)
     vim.call("RAction", cmd)
     if clear_output then
         vim.cmd.silent("RSend 0")
     end
 end
 --My utility functions
-local inline_send = U.with_register(U.with_position(inline_send_impl))
+local inline_send =
+U.utils.with_register(U.utils.with_position(inline_send_impl))
 vim.bo.tabstop = 2
 km = vim.keymap
 
@@ -53,7 +54,7 @@ km.set(
 -- Clear R console after failure
 km.set({ "n" }, "\\cl", ":RSend 0<CR>", opts)
 km.set({ "n" }, "\\cq", ":RSend Q<CR>", opts)
-km.set({ "n" }, "\\ck", ':RSend .. U.t("<C-c>") <CR>', opts)
+km.set({ "n" }, "\\ck", ':RSend .. U.utils.t("<C-c>") <CR>', opts)
 km.set({ "n" }, "<Leader>s", ":w <bar> source %<CR>", opts)
 -- Give info on R objects
 km.set({ "n" }, "\ra", function()
@@ -63,11 +64,11 @@ km.set({ "n" }, "\rt", function()
     r_exec("str")
 end, opts)
 km.set({ "n" }, "\re", function()
-    vim.cmd("RSend " .. U.surround_string(vim.fn.getline("."), "(", ")"))
+    vim.cmd("RSend " .. U.utils.surround_string(vim.fn.getline("."), "(", ")"))
 end, opts)
 -- Save R history
 km.set({ "n" }, "<Leader>tr", function()
-    U.term_edit('savehistory("/tmp/history.txt")', "r")
+    U.terminal.term_edit('savehistory("/tmp/history.txt")', "r")
 end, opts)
 
 --vim.cmd([[autocmd! VimResized * vim.g.R_Rconsole_width = winwidth(0) / 4]])

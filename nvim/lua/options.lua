@@ -3,9 +3,9 @@ local o = vim.o
 local opt = vim.opt
 vim.cmd("filetype plugin indent on")
 vim.cmd.syntax("enable")
-vim.cmd.colorscheme("tokyonight-moon")
+vim.cmd.colorscheme("tokyonight-storm")
 text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
---For now, enabling this (to use lua filtetype detection file in addition to .vim
+--For now, enabling this (to use lua filetype detection file in addition to .vim
 --version) just slows startup
 --vim.g.do_filetype_lua = 1
 -- Needed since move to packer

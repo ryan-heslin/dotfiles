@@ -2,9 +2,9 @@
 local luasnip = require("luasnip")
 local word_regex = [[\w\+]]
 local validate_buffer = function(bufnr, max_size, ignore_hidden, filetype)
-    max_size = U.default_arg(max_size, 1024 * 1024)
-    ignore_hidden = U.default_arg(ignore_hidden, true)
-    filetype = U.default_arg(vim.bo.filetype)
+    max_size = U.utils.default_arg(max_size, 1024 * 1024)
+    ignore_hidden = U.utils.default_arg(ignore_hidden, true)
+    filetype = U.utils.default_arg(vim.bo.filetype)
     return (not ignore_hidden or vim.api.nvim_buf_is_loaded(bufnr))
         and vim.api.nvim_buf_get_offset(
             bufnr,
@@ -63,10 +63,10 @@ local has_words_before = function()
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0
         and vim.api
-                .nvim_buf_get_lines(0, line - 1, line, true)[1]
-                :sub(col, col)
-                :match("%s")
-            == nil
+        .nvim_buf_get_lines(0, line - 1, line, true)[1]
+        :sub(col, col)
+        :match("%s")
+        == nil
 end
 
 local press = function(key)
@@ -131,7 +131,7 @@ cmp_config.setup({
         -- keep command mode completion enabled when cursor is in a comment
         return vim.api.nvim_get_mode().mode == "c"
             or not (
-                context.in_treesitter_capture("comment")
+            context.in_treesitter_capture("comment")
                 or context.in_syntax_group("Comment")
             )
     end,
@@ -235,8 +235,7 @@ cmp_config.setup({
             end,
         }),
         ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
-            if
-                vim.fn["UltiSnips#CanJumpForwards"]() == 1
+            if vim.fn["UltiSnips#CanJumpForwards"]() == 1
                 and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
             then
                 press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
@@ -251,7 +250,7 @@ cmp_config.setup({
                         behavior = cmp_config.SelectBehavior.Select,
                     })
                 else
-                    vim.api.nvim_feedkeys(U.t("<Up>"), "n", true)
+                    vim.api.nvim_feedkeys(U.utils.t("<Up>"), "n", true)
                 end
             end,
             i = function(fallback)

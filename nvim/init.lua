@@ -28,6 +28,7 @@ packer.startup(function(use)
     use("tpope/vim-unimpaired")
     use("tpope/vim-repeat")
     use("tpope/vim-fugitive")
+    use("tpope/vim-dadbod")
     use("puremourning/vimspector")
     use({
         "kkoomen/vim-doge",
@@ -35,7 +36,7 @@ packer.startup(function(use)
             vim.fn([[doge#install]])()
         end,
     })
-    use("kassio/neoterm")
+    --use("kassio/neoterm")
     use({
         "lewis6991/gitsigns.nvim",
         config = function()
@@ -43,10 +44,10 @@ packer.startup(function(use)
         end,
     })
     use("jpalardy/vim-slime")
-    use("sillybun/vim-repl")
+    --use("sillybun/vim-repl")
     use("hanschen/vim-ipython-cell")
     use({ "jalvesaq/Nvim-R", branch = "stable" })
-    use("jalvesaq/zotcite")
+    --use("jalvesaq/zotcite")
     use({
         "junegunn/fzf",
         run = function()
@@ -56,9 +57,9 @@ packer.startup(function(use)
     use("junegunn/fzf.vim")
     use("lervag/vimtex")
     use("uga-rosa/cmp-dictionary")
-    use("nvim-lua/lsp-status.nvim")
+    --use("nvim-lua/lsp-status.nvim")
     use("kylechui/nvim-surround")
-    use("jez/vim-better-sml")
+    --use("jez/vim-better-sml")
     use("neovim/nvim-lspconfig")
     use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
     use("nvim-treesitter/nvim-treesitter-textobjects")
@@ -96,10 +97,10 @@ packer.startup(function(use)
     use("saadparwaiz1/cmp_luasnip")
     use("honza/vim-snippets")
     use("onsails/lspkind-nvim")
-    use("quangnguyen30192/cmp-nvim-ultisnips")
+    --use("quangnguyen30192/cmp-nvim-ultisnips")
     use("quangnguyen30192/cmp-nvim-tags")
     use("ncm2/ncm2")
-    use("roxma/nvim-yarp")
+    --use("roxma/nvim-yarp")
     use("chrisbra/csv.vim")
     use("vim-pandoc/vim-pandoc")
     use("vim-pandoc/vim-pandoc-syntax")
@@ -159,7 +160,6 @@ packer.startup(function(use)
     use("nvim-lua/plenary.nvim")
     use({ "nvim-telescope/telescope.nvim", tag = "0.1.0" })
     use({ "nvim-telescope/telescope-fzf-native.nvim", run = "make" })
-    use("tpope/vim-dadbod")
     use("mrjones2014/nvim-ts-rainbow")
     use("jose-elias-alvarez/null-ls.nvim")
     use("LostNeophyte/null-ls-embedded")
@@ -172,13 +172,6 @@ packer.startup(function(use)
         end,
     })
     use("ggandor/leap.nvim")
-    use({
-        "phaazon/hop.nvim",
-        branch = "v2", -- optional but strongly recommended
-        config = function()
-            require("hop").setup({ keys = "etovxqpdygfblzhckisuran" })
-        end,
-    })
     use("mfussenegger/nvim-dap")
     use("mfussenegger/nvim-dap-python")
     use("rcarriga/nvim-dap-ui")
@@ -191,16 +184,30 @@ end)
 
 -- My custom configuration files
 vim.g.mapleader = ","
-U = require("custom_utils")
-require("autocommands")
+--U = require("custom_utils")
+U = {}
+local home = string.gsub(
+    vim.fn.system("dirname " .. vim.fn.shellescape(vim.fn.expand("$MYVIMRC"))),
+    "\n",
+    ""
+)
+local files = {}
+local modules = vim.fn.glob(home .. "/lua/modules/*.lua")
+local pattern = "([^\n]+)"
+for str in string.gmatch(modules, pattern) do
+    table.insert(files, str)
+end
+
+for _, file in ipairs(files) do
+    local name = string.match(file, "^.*/modules/(.*)%.lua$")
+    U[name] = dofile(file)
+end
 require("options")
 require("config/cmp-dictionary")
-require("config/lsp")
 require("config/nvim-cmp")
 require("config/lualine")
 require("config/autopairs")
 require("config/null-ls")
-require("config/lsp_signature")
 require("config/Nvim-R")
 require("config/LuaSnip")
 --require("config/UltiSnips")
@@ -218,6 +225,9 @@ require("config/playground")
 require("quarto-utils")
 require("config/nvim-surround")
 --require("config/quarto-nvim")
+require("config/lsp")
+require("config/lsp_signature")
+require("autocommands")
 require("abbrev")
 require("vimscript")
 require("mappings")
@@ -225,4 +235,4 @@ require("syntax")
 require("commands")
 
 -- Manually reset operatorfunc
-U.restore_default("operatorfunc")
+U.data.restore_default("operatorfunc")

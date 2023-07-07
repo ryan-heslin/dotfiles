@@ -1,7 +1,4 @@
 vim.o.t_EI = [[\e[2 q]]
-if last_filetype == nil then
-    last_filetype = {}
-end
 
 --From https://github.com/neovim/nvim-lspconfig/wiki/Code-Actions
 local code_action_listener = function()
@@ -16,7 +13,7 @@ local code_action_listener = function()
             --vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
             --TODO sign for code actions
             local signs =
-                { Error = " ", Warn = " ", Hint = " ", Info = " " }
+            { Error = " ", Warn = " ", Hint = " ", Info = " " }
             for type, icon in pairs(signs) do
                 local hl = "DiagnosticSign" .. type
                 vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
@@ -101,9 +98,10 @@ autocmd("ColorScheme", {
             "Cyan",
         }
         vim.g.rainbow_ctermfgs =
-            { "lightblue", "lightgreen", "yellow", "red", "magenta" }
+        { "lightblue", "lightgreen", "yellow", "red", "magenta" }
     end,
 })
+
 autocmd("TextYankPost", {
     pattern = "*",
     callback = function()
@@ -138,7 +136,7 @@ autocmd("TermEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
-        U.set_term_opts()
+        U.terminal.set_term_opts()
     end,
 })
 autocmd(
@@ -178,11 +176,10 @@ autocmd("User TelescopePreviewerLoaded", {
 autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if
-            vim.b.source_on_save ~= 0
+        if vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
-            U.refresh()
+            U.utils.refresh()
         end
     end,
 })
@@ -196,14 +193,14 @@ autocmd("FileType anki_vim", {
 autocmd("VimLeavePre", {
     pattern = "*",
     callback = function()
-        U.do_save_session()
+        U.utils.do_save_session()
     end,
 })
 autocmd("VimEnter", {
     pattern = "*",
     callback = function()
         if vim.fn.argc() == 0 then
-            U.load_session()
+            U.utils.load_session()
         end
     end,
     nested = true,
@@ -221,13 +218,13 @@ autocmd("FileType", {
     desc = "Record latest Rmarkdown file for automatic knitting",
 })
 autocmd("BufEnter", {
-    callback = U.record_file_name,
+    callback = U.data.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
     pattern = "*",
 })
 autocmd("WinLeave", {
     callback = function()
-        U.recents["window"] = vim.fn.win_getid()
+        U.data.recents["window"] = vim.fn.win_getid()
     end,
     desc = "On leaving a window, record its id",
     pattern = "*",

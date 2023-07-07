@@ -1,3 +1,4 @@
+--Data
 U = {}
 -- Records most recent window, buffer filetype, etc.
 U.recents = { window = nil, filetype = {}, terminal = {} }
@@ -22,6 +23,7 @@ U.record_file_name = function()
     end
 end
 
+-- Utility
 -- Decorator that modifies a function so it restores the previous value of a register
 -- after using it
 U.with_register = function(_func, register)
@@ -35,6 +37,7 @@ U.with_register = function(_func, register)
     end
 end
 
+--Utility
 -- Decorator to execute function, then return cursor to original position
 U.with_position = function(func)
     return function(...)
@@ -95,6 +98,7 @@ U.repeat_action = function(func, args, interval)
     end
 end
 
+--Util
 --Wrap a function so it may be called safely
 U.safe_call = function(func, ...)
     pre_args = { ... }
@@ -103,6 +107,7 @@ U.safe_call = function(func, ...)
     end
 end
 
+-- Term
 -- Configure standard options when entering terminal, and record metadata in global variables
 U.set_term_opts = function()
     vim.cmd.startinsert()
@@ -118,6 +123,7 @@ U.set_term_opts = function()
     term_state["last_terminal_win_id"] = vim.fn.win_getid()
 end
 
+--Term
 -- Yank text at end of terminal buffer
 -- There must be a better way to do this
 U.term_yank = function(term_id, prompt_pattern, offset)
@@ -153,7 +159,7 @@ U.term_yank = function(term_id, prompt_pattern, offset)
 end
 --
 -- Given a table of global variables, invert the value of each if it exists (1 -> 0, true -> false)
-
+--Data
 U.toggle_var = function(...)
     local arg = { ... }
     for _, var in ipairs(arg) do
@@ -172,6 +178,7 @@ U.toggle_var = function(...)
     end
 end
 
+--Editing
 U.alter_closest = function(flags, replace)
     local string = vim.fn.input("Enter pattern: ")
     if string.len(string) == 0 then
@@ -203,6 +210,7 @@ U.alter_closest = function(flags, replace)
     print("Removed " .. stop .. " match(es)")
 end
 
+--Util
 U.count_bufs_by_type = function(loaded_only)
     loaded_only = (loaded_only == nil and true or loaded_only)
     local count = {
@@ -228,6 +236,7 @@ U.count_bufs_by_type = function(loaded_only)
     return count
 end
 
+--Buffer
 U.get_matching_buffers = function(pattern)
     pattern = U.default_arg(pattern, ".*")
     local buffers = vim.api.nvim_list_bufs()
@@ -250,6 +259,7 @@ U.get_matching_buffers = function(pattern)
     return valid_buffers, matches
 end
 
+-- Buffer
 -- Change to buffer matching a regular expression
 U.switch_to_buffer = function(pattern)
     -- Match all by default
@@ -487,15 +497,6 @@ U.repeat_cmd = function(...)
     vim.cmd(cmd)
 end
 
-U.reinstall = function(plug)
-    local line = vim.fn.search(U.surrounds(plug))
-    if line == 0 then
-        print("Could not find plugin" .. plug)
-        return
-    end
-    vim.cmd("normal I")
-end
-
 U.get_input = function(str)
     return vim.fn.input("Enter expansion for " .. str)
 end
@@ -665,6 +666,7 @@ U.surround = function()
     )
 end
 
+--Buffer
 U.yank_visual = function(buffer)
     buffer = U.default_arg(buffer, 0)
     -- Col value for ">" mark in linewise selection is the 32-bit integer limit
@@ -711,6 +713,7 @@ U.yank_visual = function(buffer)
 end
 --U.yank_visual = U.with_register(U.yank_visual, "z")
 
+-- Operator
 -- Translated from https://vim.fandom.com/wiki/Search_for_visually_selected_text
 U.visual_search = function(target)
     -- Abort current visual mode
@@ -721,6 +724,7 @@ U.visual_search = function(target)
     return text
 end
 
+--Operator
 -- Get start and end of operator-pending register
 U.get_operator_pos = function(buffer)
     local start_pos = vim.api.nvim_buf_get_mark(buffer, "[")
@@ -729,6 +733,7 @@ U.get_operator_pos = function(buffer)
     return start_pos, end_pos
 end
 
+-- Operator
 -- Extract text from the latest motion;
 -- intended to help define custom operators
 U.capture_motion_text = function(buffer, type)
@@ -759,6 +764,7 @@ U.capture_motion_text = function(buffer, type)
     return table.concat(text, "\n")
 end
 
+--Operator
 U.term_motion_impl = function(type)
     local text = U.capture_motion_text(vim.api.nvim_get_current_buf(), type)
 
@@ -775,6 +781,7 @@ end
 -- Creates a function that implements an operator that takes two motions,
 -- then swaps text selected by the first one with the second
 -- Cross-buffer capable
+-- Operator
 U.swap_impl_factory = function()
     local memo = {}
     -- Helper to replace text in correct position
@@ -932,7 +939,7 @@ U.swap_impl_factory = function()
     end
     return swap
 end
-
+-- Operator
 U.swap_impl = U.swap_impl_factory()
 
 U.define_operator = function(func, name, err)
@@ -958,6 +965,7 @@ U.term_motion = U.define_operator(
 U.swap =
     U.define_operator(U.swap_impl, "U.swap", "Error swapping text selections")
 
+-- Util
 -- From https://stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua
 -- Also returns false for directory that does exist
 U.file_exists = function(path)
@@ -974,6 +982,7 @@ U.file_exists = function(path)
     end
 end
 
+-- Utils
 -- Check if path is valid directory
 -- From https://stackoverflow.com/questions/2833675/using-lua-check-if-file-is-a-directory
 U.dir_exists = function(path)
@@ -992,6 +1001,7 @@ U.dir_exists = function(path)
     return code == 21 -- Is-directory error
 end
 
+--Utils
 U.make_session = function()
     vim.b.sessiondir = os.getenv("HOME") .. "/.vim/sessions" .. vim.fn.getcwd()
     if vim.fn.filewritable(vim.b.sessiondir) ~= 2 then
@@ -1085,6 +1095,7 @@ U.load_session = function()
     print("Loading session " .. U.surround_string(session_name))
 end
 
+-- Utils
 -- Knit an Rmarkdown file
 U.knit = function(file, quiet, view_result)
     -- We have to get the full path of the output in case the YAML specifies a different output directory
@@ -1124,6 +1135,7 @@ U.knit = function(file, quiet, view_result)
     end
 end
 
+-- Buffer
 U.count_pairs = function(str, char, close)
     local open = 0
     for i = 1, string.len(str) do
@@ -1144,6 +1156,7 @@ U.count_pairs = function(str, char, close)
     return string.len(str)
 end
 
+-- Util
 U.match_paren = function()
     local char = U.get_char(0)
     local line = vim.fn.getline(".")
@@ -1166,6 +1179,7 @@ U.match_paren = function()
     )
 end
 
+-- Util
 -- Display lines of command output (e.g., autocmd) matching pattern
 U.grep_output = function(cmd, print_output, ...)
     print_output = U.default_arg(print_output, true)
@@ -1189,6 +1203,7 @@ U.grep_output = function(cmd, print_output, ...)
     end
 end
 
+-- Util
 -- TODO recursively print tables
 U.inspect = function(x)
     print(vim.inspect(x))
@@ -1204,6 +1219,7 @@ U.print_table = function(table)
     end
 end
 
+-- Util
 -- Standard string split. Credit https://stackoverflow.com/questions/1426954/split-string-in-lua
 U.str_split = function(a_string, sep)
     sep = sep or "%s"
@@ -1227,6 +1243,7 @@ U.inline_send = function()
     vim.fn.setpos(".", old_pos)
 end
 
+--Buffer
 U.open_in_hidden = function(pattern)
     local current_file = vim.fn.expand("%")
     -- Default to matching current file extension
@@ -1239,11 +1256,9 @@ U.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file) and U.surround_string(
-            files[i],
-            " ",
-            ""
-        ) or ""
+        cmd = cmd .. (files[i] ~= current_file)
+                and U.surround_string(files[i], " ", "")
+            or ""
     end
 
     -- Return if only current file detected
@@ -1266,6 +1281,7 @@ U.open_in_hidden = function(pattern)
     vim.api.nvim_win_set_buf(0, current_buffer)
 end
 
+--Buffer
 -- Delete lingering scratch buffers
 U.clean_buffers = function(remove_nonempty)
     remove_nonempty = U.default_arg(remove_nonempty, false)
@@ -1284,6 +1300,7 @@ U.clean_buffers = function(remove_nonempty)
     end
 end
 
+-- Util
 -- Based on https://stackoverflow.com/questions/23120266/lua-advancing-to-the-next-letter-of-the-alphabet
 -- Finds next free register and saves string in it
 U.next_free_register = function(content, start_register)
@@ -1309,6 +1326,7 @@ U.next_free_register = function(content, start_register)
     print("All registers full")
 end
 
+-- Buffer
 -- Open window to edit ftplugin file for current filetype
 U.edit_filetype = function(filetype, extension)
     filetype = U.default_arg(filetype, vim.bo.filetype)
@@ -1328,6 +1346,7 @@ U.edit_filetype = function(filetype, extension)
     vim.cmd("split " .. file)
 end
 
+-- Util
 -- Check conditions for saving session
 U.do_save_session = function(min_buffers)
     min_buffers = U.default_arg(min_buffers, 2)
@@ -1339,6 +1358,7 @@ U.do_save_session = function(min_buffers)
     end
 end
 
+-- Util
 -- Collapse table into string
 U.join = function(tab, join)
     join = U.default_arg(join, "")
@@ -1387,10 +1407,12 @@ end
 --#region
 --#region
 
+--Util
 U.clamp = function(x, lower, upper)
     return math.min(math.max(x, lower), upper)
 end
 
+-- Buffer
 -- Given a command and number, applies the command to the range of lines between the current line and
 -- the number inclusive, clamping to file length
 U.range_command = function(command, range, invert)
@@ -1545,6 +1567,7 @@ U.extract_to_default_arg = function(name)
     U.clean_definition(name)
 end
 
+-- Buffer
 -- Alters a parameter in a function call, or a variable assignment, to reflect that
 -- variable having been turned into a function argument (and therefore without a fixed value)
 U.clean_definition = function(name)
@@ -1569,6 +1592,7 @@ end
 U.clean_definition = U.with_position(U.clean_definition)
 
 -- Get rid of empty undo files
+-- Util
 U.delete_undo = function()
     local pattern = "Not%san%sundo%sfile:%s"
     local lines = U.grep_output("messages", false, pattern)
@@ -1580,6 +1604,7 @@ U.delete_undo = function()
     end
 end
 
+-- Util
 -- Insert `sub` every `stride` characters in `str`
 -- May want to add break_line that inserts newline in first space of each chunk
 U.replace_indices = function(str, sub, stride)
@@ -1595,6 +1620,8 @@ U.replace_indices = function(str, sub, stride)
     return out
 end
 
+-- Util
+-- Identity function
 U.identity = function(x)
     return x
 end
@@ -1634,6 +1661,7 @@ end
 
 -- TODO enhance to only show options for which capabilities are defined, and disable
 -- if LSP off
+-- LSP
 U.choose_picker = function()
     -- Abort if no servers active
     if vim.lsp.get_active_clients() == {} then
@@ -1672,7 +1700,7 @@ U.choose_picker = function()
         end
     )
 end
-
+--Util
 U.table_menu = function(map, prompt, action)
     local choices = {}
     for key, _ in pairs(map) do
@@ -1723,6 +1751,7 @@ U.demote = function(x)
     return (type(x) == "table" and (#x > 0 and x[1]) or x) or x
 end
 
+-- Util
 -- Confirm all values are equal
 U.all_equal = function(...)
     local args = { ... }
@@ -1739,6 +1768,7 @@ U.str_trim = function(string)
     return string.gsub(string.gsub(string, "^%s+", ""), "%s+$", "")
 end
 
+-- Util
 -- The higher-order function
 U.map = function(x, f)
     for i, val in ipairs(x) do
@@ -1747,6 +1777,7 @@ U.map = function(x, f)
     return x
 end
 
+--Term
 U.term_toggle = function()
     if term_state ~= nil then
         hidden =
@@ -1763,6 +1794,7 @@ U.term_toggle = function()
     end
 end
 
+-- Operator
 U.record_motion = function()
     local motion = vim.fn.input("")
     -- local _, err = pcall(function()

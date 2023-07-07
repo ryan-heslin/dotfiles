@@ -1,14 +1,14 @@
-local exclusions = U.set({ "r", "lua" })
+local exclusions = U.utils.set({ "r", "lua" })
 local do_format = function()
     vim.lsp.buf.format({ async = false, timeout_ms = 10000 })
 end
 
 local create_formatter = function(excludes)
     -- Disable null-ls formatting for certain filetypes
-    excludes = U.set(excludes)
+    excludes = U.utils.set(excludes)
     local filter = function(client)
         return not (
-                client.name == "null-ls"
+            client.name == "null-ls"
                 and excludes[vim.api.nvim_buf_get_option(0, "filetype")]
             )
     end
@@ -45,7 +45,7 @@ local format_diagnostic = function(diagnostic)
     local length = string.len(message)
     if space < length + 3 then
         -- Constrain window width to reasonable range
-        local width = U.clamp(win_width - 5, 5, 40)
+        local width = U.utils.clamp(win_width - 5, 5, 40)
         -- Allocate one row for each line of formatted text
         local height = math.ceil(length / width) + 2
         vim.lsp.util.open_floating_preview(
@@ -146,10 +146,9 @@ on_attach = function(client, bufnr)
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     -- Don't use null-ls to format for filetypes with formatters already set
     if client then
-        if
-            client.supports_method("textDocument/formatting")
+        if client.supports_method("textDocument/formatting")
             and not (
-                client.name == "null-ls"
+            client.name == "null-ls"
                 and exclusions[vim.api.nvim_buf_get_option(0, "filetype")]
             )
         then
@@ -184,7 +183,7 @@ on_attach = function(client, bufnr)
 
             -- Trigger document highlighting on holding cursor
             local doc_highlight =
-                vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
+            vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
             vim.api.nvim_clear_autocmds({
                 group = doc_highlight,
                 buffer = bufnr,

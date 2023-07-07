@@ -1,5 +1,6 @@
 local opts = { noremap = true, silent = true }
 local km = vim.keymap
+local utils = U.utils
 
 km.set("n", "<space>e", vim.diagnostic.open_float, opts)
 km.set("n", "[d", vim.diagnostic.goto_prev, opts)
@@ -9,102 +10,102 @@ km.set("n", "<space>q", vim.diagnostic.setloclist, opts)
 -- Terminal mappings
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 km.set({ "n" }, "<leader>!!", function()
-    U.term_exec("\x1b\x5b\x41")
+    U.terminal.term_exec("\x1b\x5b\x41")
 end, opts)
 -- Toggle terminal
-km.set({ "n", "v" }, "<leader>tt", U.term_toggle)
+km.set({ "n", "v" }, "<leader>tt", U.terminal.term_toggle)
 -- Put in last window
 km.set({ "n", "v" }, "<leader>p", function()
-    U.win_put(nil, vim.v.register)
+    utils.win_put(nil, vim.v.register)
 end, opts)
 -- Write, then repeat last command
 km.set({ "n", "v" }, "<leader>w", ":w | normal @:<CR>", opts)
 -- Send line under cursor to terminal
 km.set({ "n" }, "<Leader>sl", function()
-    U.term_exec(vim.fn.getline("."))
+    U.terminal.term_exec(vim.fn.getline("."))
 end, opts)
 -- Interact with terminal buffer
-km.set({ "n" }, "<Leader>te", U.term_edit, opts)
+km.set({ "n" }, "<Leader>te", U.terminal.term_edit, opts)
 
 -- Visual selection to terminal
 km.set({ "v" }, "<Leader>ts", function()
-    U.term_exec(vim.fn.getreg("*"))
+    U.terminal.term_exec(vim.fn.getreg("*"))
 end, opts)
 
 -- Send line to terminal
 km.set({ "n" }, "<Leader>ts", function()
-    U.term_exec(U.yank_visual())
+    U.terminal.term_exec(U.buffer.yank_visual())
 end, opts)
 
 -- Scroll last window of any type
 km.set({ "n", "v" }, "<S-PageUp>", function()
-    U.win_exec("normal 3k", U.recents["window"])
+    utils.win_exec("normal 3k", U.recents["window"])
 end, opts)
 km.set({ "n", "v" }, "<S-PageDown>", function()
-    U.win_exec("normal 3j", U.recents["window"])
+    utils.win_exec("normal 3j", U.recents["window"])
 end, opts)
 
 -- Scroll last terminal window up-down
 km.set({ "n", "v" }, "<C-PageDown>", function()
     if term_state ~= nil then
-        U.win_exec("normal 3j", term_state["last_terminal_win_id"])
+        utils.win_exec("normal 3j", term_state["last_terminal_win_id"])
     end
 end, opts)
 km.set({ "n", "v" }, "<C-PageUp>", function()
     if term_state ~= nil then
-        U.win_exec("normal 3k", term_state["last_terminal_win_id"])
+        utils.win_exec("normal 3k", term_state["last_terminal_win_id"])
     end
 end, opts)
 --
 --all these to scroll window by position up/down
 km.set({ "n" }, "<Leader>kk", function()
-    U.win_exec("normal k", "k")
+    utils.win_exec("normal k", "k")
 end, opts)
 km.set({ "n" }, "<Leader>kj", function()
-    U.win_exec("normal j", "k")
+    utils.win_exec("normal j", "k")
 end, opts)
 km.set({ "n" }, "<Leader>lk", function()
-    U.win_exec("normal k", "l")
+    utils.win_exec("normal k", "l")
 end, opts)
 km.set({ "n" }, "<Leader>lj", function()
-    U.win_exec("normal j", "l")
+    utils.win_exec("normal j", "l")
 end, opts)
 km.set({ "n" }, "<Leader>jk", function()
-    U.win_exec("normal k", "j")
+    utils.win_exec("normal k", "j")
 end, opts)
 km.set({ "n" }, "<Leader>jj", function()
-    U.win_exec("normal j", "j")
+    utils.win_exec("normal j", "j")
 end, opts)
 km.set({ "n" }, "<Leader>hk", function()
-    U.win_exec("normal k", "h")
+    utils.win_exec("normal k", "h")
 end, opts)
 km.set({ "n" }, "<Leader>hj", function()
-    U.win_exec("normal j", "h")
+    utils.win_exec("normal j", "h")
 end, opts)
 
 -- Quit windows in direction
 km.set({ "n", "v" }, "<Leader>kq", function()
-    U.win_exec("q", "k")
+    utils.win_exec("q", "k")
 end, opts)
 km.set({ "n", "v" }, "<Leader>hq", function()
-    U.win_exec("q", "h")
+    utils.win_exec("q", "h")
 end, opts)
 km.set({ "n", "v" }, "<Leader>lq", function()
-    U.win_exec("q", "l")
+    utils.win_exec("q", "l")
 end, opts)
 km.set({ "n", "v" }, "<Leader>jq", function()
-    U.win_exec("q", "j")
+    utils.win_exec("q", "j")
 end, opts)
 -- Enter arbitrary command
 km.set({ "n", "v" }, "<Leader>wc", function()
-    U.win_exec(
-        "normal " .. vim.fn.input.U.t("Command: "),
+    U.utils.win_exec(
+        "normal " .. vim.fn.input("Command: "),
         vim.fn.input("Window: ")
     )
 end, opts)
 
 -- Set up terminal
-km.set({ "n" }, "<Leader>te", U.term_setup, opts)
+km.set({ "n" }, "<Leader>te", U.terminal.term_setup, opts)
 
 -- Add line above/below without leaving Normal
 km.set({ "n" }, "<Leader>o", "o<Esc>k", opts)
@@ -146,7 +147,7 @@ km.set({ "n" }, "<Leader>qa", ":wa <bar> qa<CR>", opts)
 -- From https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 
 -- Easier window switching
-local window = U.t("<C-w>")
+local window = utils.t("<C-w>")
 local chars = { "h", "j", "k", "l" }
 for _, char in ipairs(chars) do
     km.set({ "n" }, "<Tab>" .. char, function()
@@ -160,10 +161,10 @@ end
 km.set({ "n" }, "<Tab>+", "<C-w>+", opts)
 km.set({ "n" }, "<Tab>-", "<C-w>-", opts)
 km.set({ "n" }, "<Tab><", function()
-    vim.cmd.wincmd("<")
+    utils.repeat_cmd("wincmd <", vim.v.count1)
 end, opts)
 km.set({ "n" }, "<Tab>>", function()
-    vim.cmd.wincmd(">")
+    utils.repeat_cmd("wincmd >", vim.v.count1)
 end, opts)
 km.set({ "n" }, "<Tab>_", "<C-w>_", opts)
 km.set({ "n" }, "<Tab><bar>", "<C-w><bar>", opts)
@@ -177,12 +178,12 @@ vim.api.nvim_set_keymap("n", "<k8>", "zg", opts)
 vim.api.nvim_set_keymap("n", "<k9>", "zug", opts)
 
 -- init.lua access
-km.set({ "n", "v" }, "<Leader>s", U.refresh)
+km.set({ "n", "v" }, "<Leader>s", utils.refresh)
 km.set({ "n" }, "<Leader>ev", ":split $MYVIMRC<CR>", opts)
 km.set({ "n" }, "<Leader>sv", ":source $MYVIMRC<CR>", { noremap = true })
 km.set({ "n" }, "<space>", "<space> <c-^>", opts)
 km.set({ "n" }, "<leader>tt", function()
-    U.switch_to_buffer("term")
+    U.buffer.switch_to_buffer("term")
 end, opts)
 
 -- Default Telescope
@@ -229,7 +230,7 @@ end, opts)
 km.set({ "n" }, "<Leader>T", ":Telescope ", opts)
 
 local telescope_menu =
-    U.table_menu(require("telescope.builtin"), "Select picker: ")
+utils.table_menu(require("telescope.builtin"), "Select picker: ")
 km.set({ "n", "v" }, "<Leader>tm", telescope_menu, opts)
 
 --
@@ -257,21 +258,21 @@ vim.api.nvim_set_keymap("n", "C", '"_C', opts)
 
 -- Surround register with quotes
 km.set({ "n", "v" }, '<leader>"', function()
-    U.modify_register(U.surround_string, "+", '"', '"')
+    utils.modify_register(utils.surround_string, "+", '"', '"')
 end, opts)
 
 -- Delete next or previous occurrence of string
 km.set({ "n" }, "<Leader>zz", function()
-    U.alter_closest("")
+    utils.alter_closest("")
 end, opts)
 km.set({ "n" }, "<Leader>ZZ", function()
-    U.alter_closest("b")
+    utils.alter_closest("b")
 end, opts)
 km.set({ "n" }, "<Leader>zr", function()
-    U.alter_closest("", true)
+    utils.alter_closest("", true)
 end, opts)
 km.set({ "n" }, "<Leader>Zr", function()
-    U.alter_closest("b", true)
+    utils.alter_closest("b", true)
 end, opts)
 
 -- Force line to 80 characters by inserting newlines
@@ -282,7 +283,7 @@ km.set({ "n" }, "<Leader>ty", function()
     vim.fn.win_execute(term_state["last_terminal_win_id"], "normal 0ElvGy")
 end, opts)
 
-km.set({ "n", "v", "i" }, "<Leader>nj", U.no_jump, opts)
+km.set({ "n", "v", "i" }, "<Leader>nj", utils.no_jump, opts)
 
 km.set({ "i" }, ";n", "<C-o>o<Esc>4jI", opts)
 -- Blank line above/below in insert move
@@ -302,7 +303,7 @@ km.set(
 )
 -- Put text in next free register
 km.set({ "n" }, "<leader>sr", function()
-    U.next_free_register(nil, nil)
+    utils.next_free_register(nil, nil)
 end, opts)
 
 -- https://vim.fandom.com/wiki/Keystroke_Saving_Substituting_and_Searching
@@ -323,10 +324,10 @@ km.set(
 
 --Terminal yanking
 km.set({ "n" }, "<Leader>ty", function()
-    U.term_exec(vim.fn.getreg("+"))
+    U.terminal.term_exec(vim.fn.getreg("+"))
 end, opts)
 km.set({ "v" }, "<Leader>ty", function()
-    U.term_exec(U.yank_visual("+"))
+    U.terminal.term_exec(U.buffer.yank_visual("+"))
 end, opts)
 -- R pipe
 km.set({ "t" }, "++", "<Space><bar>><Space>", opts)
@@ -339,16 +340,16 @@ vim.api.nvim_set_keymap("n", "!!", "@:<CR>", opts)
 km.set({ "v" }, "J", ":m '>+1<CR>gv=gv", opts)
 
 km.set({ "n", "v" }, "<Leader>nn", function()
-    U.range_command(vim.fn.input("normal command: "))
+    utils.range_command(vim.fn.input("normal command: "))
 end)
 km.set({ "n", "v" }, "<Leader>Nn", function()
-    U.range_command(vim.fn.input("normal command: "), nil, true)
+    utils.range_command(vim.fn.input("normal command: "), nil, true)
 end)
 km.set({ "v" }, "*", function()
-    U.visual_search("/")
+    U.buffer.visual_search("/")
 end, opts)
 km.set({ "v" }, "#", function()
-    U.visual_search("?")
+    U.buffer.visual_search("?")
 end, opts)
 
 --Pairs
@@ -389,7 +390,7 @@ km.set("n", "<Leader>lo", function()
 end, opts)
 --
 km.set({ "i", "n", "v" }, "<C-%>>", function()
-    U.match_paren()
+    utils.match_paren()
 end, { silent = true })
 
 -- Copy messages
@@ -441,7 +442,7 @@ km.set(
 )
 --Collapse last paste with literal newlines
 km.set("n", "<leader>jj", function()
-    return U.modify_register(function(x)
+    return utils.modify_register(function(x)
         return string.gsub(x, [=[\n]=], [=[\\n]=])
     end)
 end)
@@ -458,11 +459,11 @@ km.set(
     "<cmd>Telescope current_buffer_fuzzy_find<CR>"
 )
 -- Choose from menu of LSP options
-km.set({ "n", "v" }, "<leader>cp", "<cmd>lua U.choose_picker()")
+km.set({ "n", "v" }, "<leader>cp", utils.choose_picker)
 
 -- Swap, terminal-send operators
-km.set({ "n", "v" }, "<C-s>", U.term_motion, { expr = true })
-km.set({ "n", "v" }, "<C-j>", U.swap, { expr = true })
+km.set({ "n", "v" }, "<C-s>", U.operator.term_motion, { expr = true })
+km.set({ "n", "v" }, "<C-j>", U.operator.swap, { expr = true })
 
 -- Toggle DAP interface
 km.set({ "v" }, "<C-e>", function()
