@@ -1,5 +1,13 @@
 local M = {}
 
+M.visual_search = function(target)
+    -- Abort current visual mode
+    vim.cmd.normal(U.utils.t("<Esc>"))
+    target = U.utils.default_arg(target, "/")
+    local text = M.buffer.yank_visual(0)
+    vim.fn.setreg("/", text, "c")
+    return text
+end
 M.alter_closest = function(flags, replace)
     local string = vim.fn.input("Enter pattern: ")
     if string.len(string) == 0 then
@@ -53,39 +61,6 @@ M.get_matching_buffers = function(pattern)
     return valid_buffers, matches
 end
 
--- Buffer
--- Change to buffer matching a regular expression
-M.switch_to_buffer = function(pattern)
-    -- Match all by default
-    valid_buffers, matches = M.get_matching_buffers(pattern)
-
-    if valid_buffers == {} then
-        print("No active buffers matched " .. pattern)
-        return
-    end
-    -- Create menu offering buffer options
-    vim.ui.select(
-        matches,
-        {
-            prompt = "Select buffer:",
-        },
-        -- Switch to selected buffer
-        function(choice, index)
-            if choice == nil then
-                return
-            end
-            vim.cmd.buffer(valid_buffers[index])
-        end
-    )
-end
-
-M.filter_loaded = function(tbl, i)
-    if not vim.api.nvim_buf_is_loaded(tbl[i]) then
-        table.remove(tbl, i)
-    end
-    return tbl
-end
-
 -- Change to buffer matching a regular expression
 M.switch_to_buffer = function(pattern)
     -- Match all by default
@@ -137,7 +112,7 @@ M.yank_visual = function(buffer)
     buffer = U.utils.default_arg(buffer, 0)
     -- Col value for ">" mark in linewise selection is the 32-bit integer limit
     -- TODO fix blockwise selection
-    local linewise_col = 2 ^ 31 - 1
+    --local linewise_col = 2 ^ 31 - 1
     local left_line = vim.fn.line("'<")
     local left_col = vim.fn.col("'<")
     local right_line = vim.fn.line("'>")
@@ -191,11 +166,9 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file) and U.utils.surround_string(
-            files[i],
-            " ",
-            ""
-        ) or ""
+        cmd = cmd .. (files[i] ~= current_file)
+            and U.utils.surround_string(files[i], " ", "")
+            or ""
     end
 
     -- Return if only current file detected

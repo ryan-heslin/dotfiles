@@ -1,12 +1,4 @@
 local M = {}
-M.visual_search = function(target)
-    -- Abort current visual mode
-    vim.cmd.normal(U.utils.t("<Esc>"))
-    target = U.utils.default_arg(target, "/")
-    local text = U.buffer.yank_visual(0)
-    vim.fn.setreg("/", text, "c")
-    return text
-end
 
 --Operator
 -- Get start and end of operator-pending register
