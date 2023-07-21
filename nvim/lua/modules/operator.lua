@@ -54,71 +54,68 @@ M.term_motion_impl = function(type)
     end
 end
 
+M.replace_text = function(target_buffer, start, ends, text)
+    local start_row, start_col = unpack(start)
+    local end_row, end_col = unpack(ends)
+    -- Maybe pcall wrapper?
+    local old_put_start = vim.api.nvim_buf_get_mark(target_buffer, "[")
+    local old_put_end = vim.api.nvim_buf_get_mark(target_buffer, "]")
+    print(vim.inspect(text))
+    -- Clear text and replace
+    -- print(start_row)
+    -- print(start_col)
+    -- print(end_row)
+    -- print(end_col)
+    -- Clear old before pasting new
+    vim.api.nvim_buf_set_text(
+        target_buffer,
+        start_row,
+        start_col,
+        end_row,
+        end_col,
+        {}
+    )
+
+    -- TODO fix multiple-line swapping; maybe insert dummy spaces before swap?
+    vim.api.nvim_buf_set_text(
+        target_buffer,
+        start_row,
+        start_col,
+        start_row,
+        start_col,
+        text
+    )
+
+    -- -- Manually reset marks to their values before the pasting just done
+    vim.api.nvim_buf_set_mark(
+        target_buffer,
+        "[",
+        old_put_start[1],
+        old_put_start[2],
+        {}
+    )
+    vim.api.nvim_buf_set_mark(
+        target_buffer,
+        "]",
+        old_put_end[1],
+        old_put_end[2],
+        {}
+    )
+end
+
+M.correct_positions = function(start_pos, end_pos)
+    start_pos[1] = start_pos[1] - 1
+    end_pos[1] = end_pos[1] - 1
+    --start_pos[2] = math.max(start_pos[2] - 1, 0)
+    end_pos[2] = math.min(end_pos[2] + 1, vim.fn.col("$") - 1)
+    return start_pos, end_pos
+end
 -- Creates a function that implements an operator that takes two motions,
 -- then swaps text selected by the first one with the second
 -- Cross-buffer capable
--- Operator
 M.swap_impl_factory = function()
     local memo = {}
     -- Helper to replace text in correct position
-    local replace_text = function(target_buffer, start, ends, text)
-        local start_row, start_col = unpack(start)
-        local end_row, end_col = unpack(ends)
-        -- Maybe pcall wrapper?
-        local old_put_start = vim.api.nvim_buf_get_mark(target_buffer, "[")
-        local old_put_end = vim.api.nvim_buf_get_mark(target_buffer, "]")
-        print(vim.inspect(text))
-        -- Clear text and replace
-        -- print(start_row)
-        -- print(start_col)
-        -- print(end_row)
-        -- print(end_col)
-        -- Clear old before pasting new
-        vim.api.nvim_buf_set_text(
-            target_buffer,
-            start_row,
-            start_col,
-            end_row,
-            end_col,
-            {}
-        )
-
-        -- TODO fix multiple-line swapping; maybe insert dummy spaces before swap?
-        vim.api.nvim_buf_set_text(
-            target_buffer,
-            start_row,
-            start_col,
-            start_row,
-            start_col,
-            text
-        )
-
-        -- -- Manually reset marks to their values before the pasting just done
-        vim.api.nvim_buf_set_mark(
-            target_buffer,
-            "[",
-            old_put_start[1],
-            old_put_start[2],
-            {}
-        )
-        vim.api.nvim_buf_set_mark(
-            target_buffer,
-            "]",
-            old_put_end[1],
-            old_put_end[2],
-            {}
-        )
-    end
-
-    -- Change indices of row-col tuples as required
-    local correct_positions = function(start_pos, end_pos)
-        start_pos[1] = start_pos[1] - 1
-        end_pos[1] = end_pos[1] - 1
-        --start_pos[2] = math.max(start_pos[2] - 1, 0)
-        end_pos[2] = math.min(end_pos[2] + 1, vim.fn.col("$") - 1)
-        return start_pos, end_pos
-    end
-
     local swap = function(selection_type)
         local n_captured = #memo
         local current_buffer = vim.api.nvim_get_current_buf()
@@ -143,7 +140,7 @@ M.swap_impl_factory = function()
         print(new_text)
 
         local start_pos, end_pos =
-        correct_positions(M.get_operator_pos(current_buffer))
+        M.correct_positions(M.get_operator_pos(current_buffer))
 
         -- No stored text to swap with, so add to cache with position data
         if n_captured < 2 then
@@ -172,7 +169,7 @@ M.swap_impl_factory = function()
             old_text = U.utils.map(old_text, U.utils.str_trim)
             processed_text = U.utils.map(processed_text, U.utils.str_trim)
             local result, err = pcall(function()
-                replace_text(old_buffer, old_start, old_end, processed_text)
+                M.replace_text(old_buffer, old_start, old_end, processed_text)
             end)
             -- If swapping on same line, account for offset from swapping old for new, which
             -- throws off target col indices
@@ -190,7 +187,7 @@ M.swap_impl_factory = function()
             -- old replacement (if both are in same buffer)
             local new_buffer = memo[2][1]
             local new_start, new_end =
-            correct_positions(M.get_operator_pos(new_buffer))
+            M.correct_positions(M.get_operator_pos(new_buffer))
             -- Adust indices to account for replacement offset
             -- TODO test same-line case
             -- print(vim.inspect(old_start))
@@ -208,7 +205,7 @@ M.swap_impl_factory = function()
                 new_end[2] = new_end[2] - line_difference
             end
             result, err = pcall(function()
-                replace_text(new_buffer, new_start, new_end, old_text)
+                M.replace_text(new_buffer, new_start, new_end, old_text)
             end)
             if not result then
                 print("Error inserting text")
@@ -231,7 +228,6 @@ M.define_operator = function(func, name, err)
 
         local out = pcall(func(type), err)
         U.data.restore_default("operatorfunc")
-
         return out
     end
 end
@@ -258,4 +254,36 @@ M.record_motion = function()
     -- end
     vim.fn.setreg("z", motion)
 end
+
+-- Check if URL can be reached
+M.URL_exists = function(url)
+    local ok = "200"
+    local response = vim.fn.system("curl --head --silent --fail " .. url)
+    local header = string.gsub(response, "\n.*", "")
+    local code = string.match(header, "(%d%d%d)")
+    return code == ok
+end
+
+M.link_wiki_impl = function(type)
+    local buffer = vim.api.nvim_get_current_buf()
+    local text = M.capture_motion_text(buffer, type)
+    if not text then
+        return
+    end
+    local name = string.gsub(text, "%s", "_")
+    local url = "https://en.wikipedia.org/wiki/" .. name
+    if not M.URL_exists(url) then
+        print("No article found for " .. U.utils.surround_string(name))
+        return
+    end
+    local start_pos, end_pos = M.correct_positions(M.get_operator_pos(buffer))
+    local replacement = string.format("[%s](%s)", text, url)
+    M.replace_text(buffer, start_pos, end_pos, { replacement })
+end
+
+M.link_wiki = M.define_operator(
+    M.link_wiki_impl,
+    "U.operator.link_wiki",
+    "Error replacing text with Wikipedia link"
+)
 return M

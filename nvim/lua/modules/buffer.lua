@@ -251,4 +251,5 @@ M.count_bufs_by_type = function(loaded_only)
     end
     return count
 end
+
 return M

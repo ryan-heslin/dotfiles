@@ -464,6 +464,7 @@ km.set({ "n", "v" }, "<leader>cp", utils.choose_picker)
 -- Swap, terminal-send operators
 km.set({ "n", "v" }, "<C-s>", U.operator.term_motion, { expr = true })
 km.set({ "n", "v" }, "<C-j>", U.operator.swap, { expr = true })
+km.set({ "n", "v" }, "<C-w>", U.operator.link_wiki, { expr = true })
 
 -- Toggle DAP interface
 km.set({ "v" }, "<C-e>", function()
