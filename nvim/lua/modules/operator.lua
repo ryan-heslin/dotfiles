@@ -271,9 +271,15 @@ M.link_wiki_impl = function(type)
         return
     end
     local name = string.gsub(text, "%s", "_")
-    local url = "https://en.wikipedia.org/wiki/" .. name
+    local len = string.len(name)
+    local corrected = name
+    if len > 0 then
+        corrected = string.upper(string.sub(name, 1, 1))
+            .. string.sub(name, 2, len)
+    end
+    local url = "https://en.wikipedia.org/wiki/" .. corrected
     if not M.URL_exists(url) then
-        print("No article found for " .. U.utils.surround_string(name))
+        print("No article found for " .. U.utils.surround_string(corrected))
         return
     end
     local start_pos, end_pos = M.correct_positions(M.get_operator_pos(buffer))

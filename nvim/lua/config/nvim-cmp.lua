@@ -104,8 +104,6 @@ local cmp_kinds = {
     TypeParameter = "  ",
 }
 
--- From official repo
-local cmp_ultisnips_mappings = require("cmp_nvim_ultisnips.mappings")
 -- local M = {}
 -- function M.expand_or_jump_forwards(fallback)
 --     M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
