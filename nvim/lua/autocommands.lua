@@ -183,12 +183,6 @@ autocmd("BufWritePost", {
         end
     end,
 })
-autocmd("FileType anki_vim", {
-    pattern = "*",
-    callback = function()
-        vim.b.UltiSnipsSnippetDirectories = vim.g.UltiSnipsSnippetDirectories
-    end,
-})
 
 autocmd("VimLeavePre", {
     pattern = "*",

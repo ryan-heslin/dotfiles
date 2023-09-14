@@ -60,6 +60,7 @@ local has_words_before = function()
     if vim.api.nvim_buf_get_option(0, "buftype") == "prompt" then
         return false
     end
+    unpack = unpack or table.unpack
     local line, col = unpack(vim.api.nvim_win_get_cursor(0))
     return col ~= 0
         and vim.api
@@ -68,6 +69,14 @@ local has_words_before = function()
         :match("%s")
         == nil
 end
+-- local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+-- return col ~= 0
+--     and vim.api
+--     .nvim_buf_get_lines(0, line - 1, line, true)[1]
+--     :sub(col, col)
+--     :match("%s")
+--     == nil
+--end
 
 local press = function(key)
     vim.api.nvim_feedkeys(
@@ -232,15 +241,15 @@ cmp_config.setup({
                 end
             end,
         }),
-        ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
-            if vim.fn["UltiSnips#CanJumpForwards"]() == 1
-                and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
-            then
-                press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
-            else
-                fallback()
-            end
-        end, { "i", "s" }),
+        -- ["<C-z>"] = cmp_config.mapping(function(fallback) --nested snippets
+        --     if vim.fn["UltiSnips#CanJumpForwards"]() == 1
+        --         and vim.fn["UltiSnips#CanExpandSnippet"]() == 1
+        --     then
+        --         press("<C-R>=UltiSnips#ExpandSnippet()<CR>")
+        --     else
+        --         fallback()
+        --     end
+        -- end, { "i", "s" }),
         ["<C-p>"] = cmp_config.mapping({
             c = function()
                 if cmp_config.visible() then

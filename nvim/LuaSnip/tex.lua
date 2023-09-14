@@ -37,20 +37,22 @@ local rec_ls = function()
         }),
     })
 end
-return sn({
-    trig = "m(%d+)x(%d+)",
-    snippetType = "autosnippet",
-    wordTrig = false,
-    regTrig = true,
-    desc = "n by m matrix",
-}, {
-    d(1, function(_, snip, _, _)
-        return make_matrix(
-            tonumber(snip.captures[1]),
-            tonumber(snip.captures[2])
-        )
-    end),
-})
+return {
+    sn({
+        trig = "m(%d+)x(%d+)",
+        snippetType = "autosnippet",
+        wordTrig = false,
+        trigEngine = "pattern",
+        desc = "n by m matrix",
+    }, {
+        d(1, function(_, snip, _, _)
+            return make_matrix(
+                tonumber(snip.captures[1]),
+                tonumber(snip.captures[2])
+            )
+        end),
+    }),
+}
 -- return {
 --     s({ trig = "list" }, {
 --         t({ "\\begin{itemize}", "\t\\item " }),

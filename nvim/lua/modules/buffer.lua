@@ -4,7 +4,7 @@ M.visual_search = function(target)
     -- Abort current visual mode
     vim.cmd.normal(U.utils.t("<Esc>"))
     target = U.utils.default_arg(target, "/")
-    local text = M.buffer.yank_visual(0)
+    local text = M.yank_visual(0)
     vim.fn.setreg("/", text, "c")
     return text
 end
@@ -166,9 +166,11 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file)
-            and U.utils.surround_string(files[i], " ", "")
-            or ""
+        cmd = cmd .. (files[i] ~= current_file) and U.utils.surround_string(
+            files[i],
+            " ",
+            ""
+        ) or ""
     end
 
     -- Return if only current file detected

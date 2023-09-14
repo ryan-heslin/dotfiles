@@ -8,7 +8,7 @@ return {
 for <> in <>:
     <>
 
- ]],
+ ]]          ,
             { i(1, "iterator"), i(2, "iterable"), i(3, "body") }
         )
     ),
@@ -18,7 +18,7 @@ for <> in <>:
             [[
 while <>:
     <>
-    ]],
+    ]]       ,
             { i(1, "condition"), i(2, "body") }
         )
     ),
@@ -28,7 +28,7 @@ while <>:
             [[
 def <>(<>):
     <>
-    ]],
+    ]]       ,
             { i(1, "name"), i(2, "args"), i(3, "body") }
         )
     ),
