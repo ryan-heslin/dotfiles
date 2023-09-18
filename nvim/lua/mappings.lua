@@ -1,7 +1,9 @@
 local opts = { noremap = true, silent = true }
 local km = vim.keymap
 local utils = U.utils
+local telescope = require("telescope.builtin")
 
+-- Diagnostics
 km.set("n", "<space>e", vim.diagnostic.open_float, opts)
 km.set("n", "[d", vim.diagnostic.goto_prev, opts)
 km.set("n", "]d", vim.diagnostic.goto_next, opts)
@@ -19,7 +21,10 @@ km.set({ "n", "v" }, "<leader>p", function()
     utils.win_put(nil, vim.v.register)
 end, opts)
 -- Write, then repeat last command
-km.set({ "n", "v" }, "<leader>w", ":w | normal @:<CR>", opts)
+km.set({ "n", "v" }, "<leader>w", function()
+    vim.cmd.write()
+    vim.cmd.normal("@:")
+end, opts)
 -- Send line under cursor to terminal
 km.set({ "n" }, "<Leader>sl", function()
     U.terminal.term_exec(vim.fn.getline("."))
@@ -84,17 +89,20 @@ km.set({ "n" }, "<Leader>hj", function()
 end, opts)
 
 -- Quit windows in direction
+local ignore_single = function(keys, dir)
+    utils.win_exec(keys, dir, true)
+end
 km.set({ "n", "v" }, "<Leader>kq", function()
-    utils.win_exec("q", "k")
+    ignore_single("q", "k")
 end, opts)
 km.set({ "n", "v" }, "<Leader>hq", function()
-    utils.win_exec("q", "h")
+    ignore_single("q", "h")
 end, opts)
 km.set({ "n", "v" }, "<Leader>lq", function()
-    utils.win_exec("q", "l")
+    ignore_single("q", "l")
 end, opts)
 km.set({ "n", "v" }, "<Leader>jq", function()
-    utils.win_exec("q", "j")
+    ignore_single("q", "j")
 end, opts)
 -- Enter arbitrary command
 km.set({ "n", "v" }, "<Leader>wc", function()
@@ -112,18 +120,12 @@ km.set({ "n" }, "<Leader>o", "o<Esc>k", opts)
 km.set({ "n" }, "<Leader>O", "O<Esc>j", opts)
 
 -- FZF finding
-km.set(
-    { "i" },
-    "<c-x><c-f>",
-    'fzf#vim#complete#path("rg --files")',
-    { noremap = true, silent = true, expr = true }
-)
-km.set(
-    { "c" },
-    "<c-x><c-f>",
-    'fzf#vim#complete#path("rg --files")',
-    { noremap = true, silent = true, expr = true }
-)
+km.set({ "i" }, "<C-x><C-f>", function()
+    vim.fn["fzf#vim#complete#path"]("rg --files")
+end, { noremap = true, silent = true, expr = true })
+km.set({ "c" }, "<C-x><C-f>", function()
+    vim.fn["fzf#vim#complete#path"]("rg --files")
+end, { noremap = true, silent = true, expr = true })
 
 -- Tabs & navigation
 km.set({ "n" }, "<Leader>nt", ":tabnew<CR>", opts)
@@ -133,17 +135,22 @@ km.set({ "n" }, "<Leader>tm", ":tabmove<CR>", opts)
 km.set({ "n" }, "<Leader>tn", ":tabnext<CR>", opts)
 km.set({ "n" }, "<Leader>tl", ":tabprev<CR>", opts)
 
-km.set({ "n" }, "<Leader>]", ":cnext", opts)
-km.set({ "n" }, "<Leader>[", ":cprev", opts)
+km.set({ "n" }, "<Leader>]", ":cnext<CR>", opts)
+km.set({ "n" }, "<Leader>[", ":cprev<CR>", opts)
 
 -- Splits
-km.set({ "n" }, "<Leader>h", ":<C-u>split<CR>", opts)
+km.set({ "n", "v" }, "<Leader>h", ":<C-u>split<CR>", opts)
+km.set({ "n", "v" }, "<Leader>v", ":<C-u>vsplit<CR>", opts)
 
 km.set("n", "cc", '"_cc', opts)
 km.set({ "n" }, "<Leader>q", ":q<CR>", opts)
 km.set({ "n" }, "<Leader>w", ":w<CR>", opts)
 -- Quit and save all writeable buffers
-km.set({ "n" }, "<Leader>qa", ":wa <bar> qa<CR>", opts)
+km.set({ "n" }, "<Leader>qa", function()
+    vim.cmd("wa")
+    vim.cmd("qa")
+end, opts)
+
 -- From https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 
 -- Easier window switching
@@ -179,80 +186,79 @@ vim.api.nvim_set_keymap("n", "<k9>", "zug", opts)
 
 -- init.lua access
 km.set({ "n", "v" }, "<Leader>s", utils.refresh)
-km.set({ "n" }, "<Leader>ev", ":split $MYVIMRC<CR>", opts)
-km.set({ "n" }, "<Leader>sv", ":source $MYVIMRC<CR>", { noremap = true })
-km.set({ "n" }, "<space>", "<space> <c-^>", opts)
+km.set({ "n" }, "<Leader>ev", function()
+    vim.cmd.split("$MYVIMRC")
+end, opts)
+km.set({ "n" }, "<Leader>sv", function()
+    vim.cmd.source("$MYVIMRC")
+end, opts)
+km.set({ "n" }, "<Space>", "<Space> <c-^>", opts)
 km.set({ "n" }, "<leader>tt", function()
     U.buffer.switch_to_buffer("term")
 end, opts)
 
 -- Default Telescope
 km.set({ "n" }, "<Leader>ff", function()
-    require("telescope.builtin").find_files()
+    telescope.find_files()
 end, opts)
 km.set({ "n" }, "<Leader>fg", function()
-    require("telescope.builtin").live_grep()
+    telescope.live_grep()
 end, opts)
 km.set({ "n" }, "<Leader>fb", function()
-    require("telescope.builtin").buffers()
+    telescope.buffers()
 end, opts)
 km.set({ "n" }, "<Leader>fh", function()
-    require("telescope.builtin").help_tags()
+    telescope.help_tags()
 end, opts)
 km.set({ "n" }, "<Leader>rr", function()
-    require("telescope.builtin").registers()
+    telescope.registers()
 end, opts)
 -- Results of previous picker
 km.set({ "n" }, "<Leader>pp", function()
-    require("telescope.builtin").resume()
+    telescope.resume()
 end, opts)
 km.set({ "n" }, "<Leader>rl", function()
-    require("telescope.builtin").lsp_references()
+    telescope.lsp_references()
 end, opts)
 km.set({ "n" }, "<Leader>ls", function()
-    require("telescope.builtin").lsp_document_symbols()
+    telescope.lsp_document_symbols()
 end, opts)
 km.set({ "n" }, "<Leader>ws", function()
-    require("telescope.builtin").lsp_dynamic_workspace_symbols()
+    telescope.lsp_dynamic_workspace_symbols()
 end, opts)
 km.set({ "n" }, "<Leader>ld", function()
-    require("telescope.builtin").diagnostics({ bufnr = 0 })
+    telescope.diagnostics({ bufnr = 0 })
 end, opts)
 km.set({ "n" }, "<Leader>lw", function()
-    require("telescope.builtin").diagnostics()
+    telescope.diagnostics()
 end, opts)
 km.set({ "n" }, "<Leader>li", function()
-    require("telescope.builtin").lsp_implementations()
+    telescope.lsp_implementations()
 end, opts)
 km.set({ "n" }, "<Leader>ld", function()
-    require("telescope.builtin").lsp_definitions()
+    telescope.lsp_definitions()
 end, opts)
 km.set({ "n" }, "<Leader>T", ":Telescope ", opts)
 
-local telescope_menu =
-utils.table_menu(require("telescope.builtin"), "Select picker: ")
+local telescope_menu = utils.table_menu(telescope, "Select picker: ")
 km.set({ "n", "v" }, "<Leader>tm", telescope_menu, opts)
 
 --
---Knit rmarkdown - ugly as sin but works
--- km.set({ "n" }, "<Leader>kn", function()
---     U.knit(nil, true, true)
--- end, opts)
 -- Paste-replace
 km.set({ "n" }, "<Leader>p", '"_d$p', opts)
 km.set({ "n" }, "<Leader>P", '"_d$P', opts)
--- Add line above/below ending with trailing character - good for lists of function args, etc.
-km.set({ "n" }, "<Leader>ao", "$yl[pI", opts)
-km.set({ "n" }, "<Leader>aO", "$yl]pI", opts)
 
 -- Directory switching
-km.set({ "n" }, "<Leader>cd", ":silent cd %:p:h | pwd<CR>", { noremap = true })
-km.set(
-    { "n" },
-    "<Leader>lcd",
-    ":silent lcd %:p:h | pwd<CR>",
-    { noremap = true }
-)
+km.set({ "n", "v" }, "<Leader>cd", function()
+    vim.cmd.silent("cd %:p:h")
+    vim.cmd.pwd()
+end, { noremap = true })
+km.set({ "n", "v" }, "<Leader>lcd", function()
+    vim.cmd.silent("lcd %:p:h")
+    vim.cmd.pwd()
+end, { noremap = true })
+
+-- Send changes to void register
 vim.api.nvim_set_keymap("n", "c", '"_c', opts)
 vim.api.nvim_set_keymap("n", "C", '"_C', opts)
 
@@ -263,16 +269,16 @@ end, opts)
 
 -- Delete next or previous occurrence of string
 km.set({ "n" }, "<Leader>zz", function()
-    utils.alter_closest("")
+    U.buffer.alter_closest("")
 end, opts)
 km.set({ "n" }, "<Leader>ZZ", function()
-    utils.alter_closest("b")
+    U.buffer.alter_closest("b")
 end, opts)
 km.set({ "n" }, "<Leader>zr", function()
-    utils.alter_closest("", true)
+    U.buffer.alter_closest("", true)
 end, opts)
 km.set({ "n" }, "<Leader>Zr", function()
-    utils.alter_closest("b", true)
+    U.buffer.alter_closest("b", true)
 end, opts)
 
 -- Force line to 80 characters by inserting newlines
@@ -306,21 +312,20 @@ km.set({ "n" }, "<leader>sr", function()
     utils.next_free_register(nil, nil)
 end, opts)
 
--- https://vim.fandom.com/wiki/Keystroke_Saving_Substituting_and_Searching
---vim.api.nvim_set_keymap('v', '/ y:execute', '"/".escape(@",'[]/\.*')<CR>', {noremap = true, silent = true})
---vim.api.nvim_set_keymap('v', '<F4> y:execute', '"%s/".escape(@",'[]/')."//gc"<Left><Left><Left><Left>', {noremap = true, silent = true})
-
 -- Buffer switch
-km.set({ "n" }, "<Leader>bn", ":bnext<CR>", opts)
-km.set({ "n" }, "<Leader>bp", ":bprevious<CR>", opts)
+km.set({ "n", "v" }, "<Leader>bn", ":bnext<CR>", opts)
+km.set({ "n", "v" }, "<Leader>bp", ":bprevious<CR>", opts)
 
--- Replace
-km.set(
-    { "n" },
-    "<Leader>rw",
-    ':call execute("%s/" . expand("<cword>") . "/" . input("Replacement: ") . "/g")<CR>',
-    opts
-)
+-- Replace word under cursor with choice throughout buffer
+km.set({ "n", "v" }, "<Leader>rw", function()
+    vim.cmd(
+        "%s/"
+        .. vim.fn.expand("<cword>")
+        .. "/"
+        .. vim.fn.input("Replacement: ")
+        .. "/g"
+    )
+end, opts)
 
 --Terminal yanking
 km.set({ "n" }, "<Leader>ty", function()
@@ -340,10 +345,10 @@ vim.api.nvim_set_keymap("n", "!!", "@:<CR>", opts)
 km.set({ "v" }, "J", ":m '>+1<CR>gv=gv", opts)
 
 km.set({ "n", "v" }, "<Leader>nn", function()
-    utils.range_command(vim.fn.input("normal command: "))
+    utils.range_command(vim.fn.input("Normal command: "))
 end)
 km.set({ "n", "v" }, "<Leader>Nn", function()
-    utils.range_command(vim.fn.input("normal command: "), nil, true)
+    utils.range_command(vim.fn.input("Normal command: "), nil, true)
 end)
 km.set({ "v" }, "*", function()
     U.buffer.visual_search("/")
@@ -353,29 +358,6 @@ km.set({ "v" }, "#", function()
 end, opts)
 
 --Pairs
--- Transpose function arguments
--- These complex mappings copied from https://vim.fandom.com/wiki/Swapping_characters,_words_and_lines
-km.set(
-    { "n" },
-    "gw",
-    [[_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>:nohlsearch<CR>]],
-    opts
-)
-km.set(
-    { "n" },
-    "gl",
-    [["_yiw?\w\+\_W\+\%#<CR>:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o><c-l>:nohlsearch<CR>]],
-    opts
-)
-km.set(
-    { "n" },
-    "gl",
-    [["_yiw:s/\(\%#\w\+\)\(\_W\+\)\(\w\+\)/\3\2\1/<CR><c-o>/\w\+\_W\+<CR><c-l>:nohlsearch<CR>]],
-    opts
-)
-vim.api.nvim_set_keymap("n", "g{", "dap}p{", opts)
-km.set({ "n" }, "<Leader>tp", 't,bmz"ydwwdw"yP`zPb', opts)
-km.set({ "n" }, "<Leader>tP", 'bdwmzF,b"ydww', opts)
 km.set({ "n" }, "<Leader>em", function()
     vim.cmd.Embrace()
 end, opts)
@@ -389,13 +371,9 @@ km.set("n", "<Leader>lo", function()
     end
 end, opts)
 --
-km.set({ "i", "n", "v" }, "<C-%>>", function()
-    utils.match_paren()
-end, { silent = true })
-
--- Copy messages
+-- Copy messages to clipboard
 km.set({ "n" }, "<leader>mm", function()
-    vim.fn.setreg("+", vim.fn.execute("messages"))
+    vim.fn.setreg("+", vim.cmd.messages())
 end, { silent = true })
 
 --Insert mode: delete word or WORD right of cursor
@@ -403,26 +381,25 @@ km.set({ "i" }, "<C-k>", function()
     vim.cmd.normal([[ysiw"]])
 end)
 km.set({ "i" }, "<C-b>", function()
-    vim.cmd.normal("w")
-    vim.cmd.normal("dw")
-    vim.cmd.normal("`^")
+    vim.cmd.stopinsert()
+    vim.cmd.normal("dw`^l")
     vim.cmd.normal("i")
 end, opts)
-km.set({ "i" }, "<C-B>", function()
-    vim.cmd.normal("W")
-    vim.cmd.normal("dW")
-    vim.cmd.normal("`^")
+km.set({ "i" }, "<Alt-b>", function()
+    vim.cmd.stopinsert()
+    vim.cmd.normal("WdW`^l")
     vim.cmd.normal("i")
 end, opts)
+
 -- Insert mode: delete entire word or WORD under cursor
 km.set({ "i" }, "<C-d>", function()
-    vim.cmd.normal("ciw")
-    vim.cmd.normal("`^")
+    vim.cmd.stopinsert()
+    vim.cmd.normal("ciw`^l")
     vim.cmd.normal("i")
 end, opts)
-km.set({ "i" }, "<C-D>", function()
-    vim.cmd.normal("ciW")
-    vim.cmd.normal("`^")
+km.set({ "i" }, "<ALT-d>", function()
+    vim.cmd.stopinsert()
+    vim.cmd.normal("ciW`^l")
     vim.cmd.normal("i")
 end, opts)
 

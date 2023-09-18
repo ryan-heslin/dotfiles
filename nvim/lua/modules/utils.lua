@@ -59,8 +59,11 @@ M.get_opposite_window = function(dir)
     return dir_pairs[dir]
 end
 
-M.win_exec = function(keys, direction)
-    if direction == nil then
+M.win_exec = function(keys, direction, ignore_single)
+    -- Can abort if no other window in tab to jump to
+    if direction == nil
+        or (ignore_single and #(vim.api.nvim_tabpage_list_wins(0)) == 1)
+    then
         return
     end
     if keys == nil then

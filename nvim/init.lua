@@ -28,7 +28,6 @@ packer.startup(function(use)
     use("tpope/vim-unimpaired")
     use("tpope/vim-repeat")
     use("tpope/vim-fugitive")
-    use("tpope/vim-dadbod")
     use("puremourning/vimspector")
     use({
         "kkoomen/vim-doge",
@@ -55,11 +54,8 @@ packer.startup(function(use)
         end,
     })
     use("junegunn/fzf.vim")
-    use("lervag/vimtex")
     use("uga-rosa/cmp-dictionary")
-    --use("nvim-lua/lsp-status.nvim")
     use("kylechui/nvim-surround")
-    --use("jez/vim-better-sml")
     use("neovim/nvim-lspconfig")
     use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
     use("nvim-treesitter/nvim-treesitter-textobjects")
@@ -81,9 +77,6 @@ packer.startup(function(use)
     use("f3fora/cmp-spell")
     use("kdheepak/cmp-latex-symbols")
     use("windwp/nvim-autopairs")
-    --(  use("SirVer/ultisnips", {
-    --     requires = { { "honza/vim-snippets", rtp = "." } },
-    -- })
     use({
         "L3MON4D3/LuaSnip",
         -- follow latest release.
@@ -124,12 +117,6 @@ packer.startup(function(use)
         },
         cmd = "ALEEnable",
         config = "vim.cmd('ALEEnable')",
-    })
-    use({
-        "glacambre/firenvim",
-        run = function()
-            vim.fn["firenvim#install"](0)
-        end,
     })
     use({
         "quarto-dev/quarto-nvim",
@@ -210,7 +197,6 @@ require("config/autopairs")
 require("config/null-ls")
 require("config/Nvim-R")
 require("config/LuaSnip")
---require("config/UltiSnips")
 require("config/vim-slime")
 require("config/nvim-treesitter")
 require("config/nvim-treesitter-textobjects")
@@ -223,7 +209,6 @@ require("config/nvim-dap-virtual-text")
 require("config/playground")
 require("quarto-utils")
 require("config/nvim-surround")
---require("config/quarto-nvim")
 require("config/lsp")
 require("config/lsp_signature")
 require("autocommands")

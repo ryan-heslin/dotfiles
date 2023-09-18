@@ -66,7 +66,7 @@ M.switch_to_buffer = function(pattern)
     -- Match all by default
     valid_buffers, matches = M.get_matching_buffers(pattern)
 
-    if valid_buffers == {} then
+    if #valid_buffers == 0 then
         print("No active buffers matched " .. pattern)
         return
     end
