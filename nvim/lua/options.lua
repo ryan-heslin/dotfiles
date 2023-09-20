@@ -98,7 +98,7 @@ o.mat = 2
 o.errorbells = false
 
 o.encoding = "utf-8"
-o.fileencoding = "utf-8"
+--o.fileencoding = "utf-8"
 
 -- Navigation
 opt.path:append({ "**" })
