@@ -250,12 +250,12 @@ km.set({ "n" }, "<Leader>P", '"_d$P', opts)
 
 -- Directory switching
 km.set({ "n", "v" }, "<Leader>cd", function()
-    vim.cmd.silent("cd %:p:h")
+    vim.cmd("silent cd %:p:h")
     vim.cmd.pwd()
 end, { noremap = true })
 km.set({ "n", "v" }, "<Leader>lcd", function()
-    vim.cmd.silent("lcd %:p:h")
-    vim.cmd.pwd()
+    vim.cmd("silent lcd %:p:h | pwd")
+    --vim.cmd.pwd()
 end, { noremap = true })
 
 -- Send changes to void register

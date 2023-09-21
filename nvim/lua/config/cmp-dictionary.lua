@@ -1,8 +1,7 @@
 --Mostly copied defaults
-local key = table.concat(text_extensions)
 require("cmp_dictionary").setup({
     dic = {
-        [key] = { "/usr/share/dict/words" },
+        [text_extensions] = { "/usr/share/dict/words" },
     },
     exact = 2,
     first_case_insensitive = false,

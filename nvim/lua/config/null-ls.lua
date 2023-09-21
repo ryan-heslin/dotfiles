@@ -1,7 +1,5 @@
 -- From official repository
 local null_ls = require("null-ls")
-local text_extensions = { ".txt", ".md", ".Rmd", ".qmd", "" }
-
 local sources = {
     null_ls.builtins.diagnostics.markdownlint,
     null_ls.builtins.formatting.black,
