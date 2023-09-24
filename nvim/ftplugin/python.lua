@@ -10,10 +10,12 @@ local run = function()
         print("No terminal active")
     else
         print(
-            "Last terminal job ID: " .. str(term_state["last_terminal_chan_id"])
+            "Last terminal job ID: "
+            .. tostring(term_state["last_terminal_chan_id"])
         )
         vim.cmd.write()
         vim.cmd("IPythonCellRun")
+        --vim.cmd.exec("py3 'ipython_cell.run()")
     end
 end
 

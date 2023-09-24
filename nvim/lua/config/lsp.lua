@@ -21,6 +21,20 @@ local create_formatter = function(excludes)
         })
     end
 end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+    pattern = "*",
+    callback = function()
+        vim.api.nvim_set_hl(0, "NormalFloat", { bg = "#1f2335" })
+    end,
+})
+vim.api.nvim_create_autocmd("ColorScheme", {
+    pattern = "*",
+    callback = function()
+        vim.api.nvim_set_hl(0, "FloatBorder", { fg = "white", bg = "#1f2335" })
+    end,
+})
+
 local formatter = create_formatter(exclusions)
 
 local formatting = vim.api.nvim_create_augroup("LspFormatting", {})
@@ -71,7 +85,6 @@ local format_diagnostic = function(diagnostic)
     return message
 end
 
-lspkind = require("lspkind")
 on_attach = function(client, bufnr)
     --if  vim.b.zotcite_omnifunc then
     --vim.api.nvim_buf_set_option(bufnr, 'omnifunc', [[zotcite#CompleteBib]])
@@ -274,6 +287,7 @@ local border = {
     { "🭼", "FloatBorder" },
     { "▏", "FloatBorder" },
 }
+
 vim.diagnostic.config({
     update_in_insert = true,
     severity_sort = true,
@@ -294,6 +308,7 @@ for type, icon in pairs(signs) do
     local hl = "DiagnosticSign" .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
 end
+
 --see https://www.reddit.com/r/neovim/comments/q2s0cg/looking_for_function_signature_plugin/
 local handlers = {
     ["textDocument/signatureHelp"] = vim.lsp.with(
@@ -307,7 +322,7 @@ local handlers = {
         vim.lsp.diagnostic.on_publish_diagnostics,
         {
             virtual_text = {
-                prefix = "▎",
+                prefix = "<|",
                 source = "if_many",
                 --format = format_diagnostic,
             },
@@ -329,10 +344,10 @@ function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
     return orig_util_open_floating_preview(contents, syntax, opts, ...)
 end
 
-local nvim_lsp = require("lspconfig")
+local lspconfig = require("lspconfig")
 
 for server, settings in pairs(servers) do
-    nvim_lsp[server].setup({
+    lspconfig[server].setup({
         capabilities = capabilities,
         handlers = handlers,
         on_attach = on_attach,

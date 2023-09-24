@@ -47,4 +47,3 @@ require("lsp_signature").setup({
     timer_interval = 400, -- default timer check interval set to lower value if you want to reduce latency
     toggle_key = "<M-x>", -- toggle signature on and off in insert mode,  e.g. toggle_key = '<M-x>'
 })
-print()

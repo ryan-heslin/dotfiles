@@ -86,41 +86,34 @@ local press = function(key)
     )
 end
 local cmp_kinds = {
-    Text = "  ",
-    Method = "  ",
-    Function = "  ",
-    Constructor = "  ",
-    Field = "  ",
-    Variable = "  ",
-    Class = "  ",
-    Interface = "  ",
-    Module = "  ",
-    Property = "  ",
-    Unit = "  ",
-    Value = "  ",
-    Enum = "  ",
-    Keyword = "  ",
-    Snippet = "  ",
-    Color = "  ",
-    File = "  ",
-    Reference = "  ",
-    Folder = "  ",
-    EnumMember = "  ",
-    Constant = "  ",
-    Struct = "  ",
+
+    Class = " ",
+    Color = " ",
+    Constant = " ",
+    Constructor = " ",
+    Enum = "了 ",
+    EnumMember = " ",
     Event = "  ",
+    Field = " ",
+    File = " ",
+    Folder = " ",
+    Function = " ",
+    Interface = "ﰮ ",
+    Keyword = " ",
+    Method = "ƒ ",
+    Module = " ",
     Operator = "  ",
+    Property = " ",
+    Reference = "  ",
+    Snippet = "﬌ ",
+    Struct = " ",
+    Text = " ",
     TypeParameter = "  ",
+    Unit = " ",
+    Value = " ",
+    Variable = " ",
 }
 
--- local M = {}
--- function M.expand_or_jump_forwards(fallback)
---     M.compose({ "expand", "jump_forwards", "select_next_item" })(fallback)
--- end
---
--- function M.jump_backwards(fallback)
---     M.compose({ "jump_backwards", "select_prev_item" })(fallback)
--- end
 local modes = { "i", "s", "c" }
 local all_modes = function(callback)
     return cmp_config.config.mapping(callback(), modes)
