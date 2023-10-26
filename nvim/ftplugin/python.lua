@@ -3,16 +3,19 @@ local km = vim.keymap
 
 -- Run a Python script using vim-slime
 local run = function()
+    local chan = term_state["last_terminal_chan_id"]
     if term_state == nil
         or term_state["last_terminal_win_id"] == nil
         or term_state["last_terminal_chan_id"] == nil
     then
         print("No terminal active")
     else
-        print(
-            "Last terminal job ID: "
-            .. tostring(term_state["last_terminal_chan_id"])
-        )
+        if vim.g.slime_default_config == nil then
+            vim.g.slime_default_config =
+            { jobid = term_state["last_terminal_chan_id"] }
+        end
+        vim.g.slime_target = "neovim"
+        vim.g.slime_dont_ask_default = true
         vim.cmd.write()
         vim.cmd("IPythonCellRun")
         --vim.cmd.exec("py3 'ipython_cell.run()")
@@ -36,7 +39,10 @@ vim.opt.cinwords:append({
 km.set("n", "<leader>sh", [[ggO#!/usr/bin/python3<Esc><C-o>]], opts)
 km.set("n", "\\s", [[:SlimeSend1 ipython<CR>]], opts)
 km.set("n", "\\e", [[:w <bar> IPythonCellExecuteCell<CR>]], opts)
-km.set("n", "\\r", run, opts)
+km.set("n", "\\r", function()
+    vim.cmd.write()
+    vim.cmd("IPythonCellRun")
+end, opts)
 km.set("n", "\\p", [[:IPythonCellPrevCommand<CR>]], opts)
 km.set("n", "\\\\", [[:IPythonCellRestart<CR>]], opts)
 km.set("n", "\\[c", [[:IPythonCellPrevCell<CR>]], opts)
@@ -67,10 +73,10 @@ km.set({ "n", "v" }, "\\rr", ":lua run_all_chunks()<CR>", opts)
 km.set({ "n", "v" }, "\\ss", run_visual_selection, opts)
 
 km.set({ "n", "v" }, [[\ca]], function()
-    run_all_chunks(nil, vim.fn.line("."))
+    run_all_chunks(nil, vim.api.nvim_get_current_line())
 end, opts)
-km.set({ "n", "v" }, "<leader>pp", ":lua run_word()<CR>", opts)
-km.set({ "n", "v" }, "<leader>hh", ":lua run_paragraph()<CR>", opts)
+km.set({ "n", "v" }, "<leader>pp", run_word, opts)
+km.set({ "n", "v" }, "<leader>hh", run_paragraph, opts)
 km.set({ "n" }, "<leader>dn", function()
     require("dap-python").test_method()
 end)
@@ -79,6 +85,10 @@ km.set({ "n" }, "<leader>df", function()
 end)
 km.set({ "v" }, "<leader>ds", function()
     require("dap-python").debug_selection()
+end)
+km.set({ "n", "v" }, "<leader>ii", function()
+    local module = vim.fn.input("Enter module name: ")
+    U.terminal.term_exec("import importlib; importlib.reload(" .. module .. ")")
 end)
 
 -- Special Python highlighting

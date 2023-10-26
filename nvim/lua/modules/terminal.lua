@@ -70,11 +70,14 @@ M.toggle_var = function(...)
 end
 
 -- Start new terminal buffer
-M.term_setup = function()
+M.term_setup = function(keys)
     vim.cmd.vsplit()
     vim.cmd([[normal l]])
     vim.cmd.terminal()
     vim.cmd([[normal k]])
+    if keys ~= nil then
+        M.term_exec(keys)
+    end
     U.utils.win_exec("startinsert", "l")
 end
 
@@ -123,7 +126,7 @@ end
 M.term_edit = function(history_command, syntax)
     history_command = history_command or "history -w /tmp/history.txt"
     syntax = syntax or "bash"
-    U.utils.term_exec(history_command)
+    M.term_exec(history_command)
     U.utils.make_scratch(
         U.utils.compose_commands(
             "read /tmp/history.txt",
@@ -250,4 +253,5 @@ M.history = function(syntax)
     local lines = M.get_term_history(command)
     M.display_term_history(lines, syntax)
 end
+
 return M

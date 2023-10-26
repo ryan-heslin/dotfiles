@@ -236,14 +236,8 @@ table.insert(path, "lua/?/init.lua")
 
 local servers = {
     bashls = { filetypes = { "sh", "bash" }, cmd = bashls },
+    html = {},
     jsonls = {},
-    marksman = {},
-    pyright = { filetypes = { "python", "quarto" } },
-    r_language_server = {
-        filetypes = { "r", "rmd", "quarto" },
-    },
-    racket_langserver = { filetypes = { "racket", "scheme" } },
-    ruby_ls = {},
     lua_ls = {
         Lua = {
             cmd = { lua_dir .. "/bin", "-E", lua_dir .. "/bin/main.lua" },
@@ -275,6 +269,13 @@ local servers = {
             },
         },
     },
+    marksman = {},
+    pyright = { filetypes = { "python", "quarto" } },
+    r_language_server = {
+        filetypes = { "r", "rmd", "quarto" },
+    },
+    racket_langserver = { filetypes = { "racket", "scheme" } },
+    ruby_ls = {},
     tsserver = {},
 }
 local border = {

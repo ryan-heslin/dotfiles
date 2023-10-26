@@ -3,49 +3,79 @@ local km = vim.keymap
 local utils = U.utils
 local telescope = require("telescope.builtin")
 
+local add_key = function(tbl, key, value)
+    tbl[key] = value
+    return tbl
+end
+
+local add_opts = function(value)
+    return add_key(opts, "desc", value)
+end
+
 -- Diagnostics
-km.set("n", "<space>e", vim.diagnostic.open_float, opts)
-km.set("n", "[d", vim.diagnostic.goto_prev, opts)
-km.set("n", "]d", vim.diagnostic.goto_next, opts)
-km.set("n", "<space>q", vim.diagnostic.setloclist, opts)
+km.set(
+    "n",
+    "<space>e",
+    vim.diagnostic.open_float,
+    add_opts("Open diagnostic float")
+)
+km.set("n", "[d", vim.diagnostic.goto_prev, add_opts("Go to prev diagnostic"))
+km.set("n", "]d", vim.diagnostic.goto_next, add_opts("Go to next diagnostic"))
+km.set(
+    "n",
+    "<space>q",
+    vim.diagnostic.setloclist,
+    add_opts("Set diagnostic loclist")
+)
 
 -- Terminal mappings
 -- Repeat last terminal command. See https://vi.stackexchange.com/questions/21449/send-keys-to-a-terminal-buffer/21466
 km.set({ "n" }, "<leader>!!", function()
     U.terminal.term_exec("\x1b\x5b\x41")
-end, opts)
+end, { desc = "Repeat last terminal command" })
 -- Toggle terminal
-km.set({ "n", "v" }, "<leader>tt", U.terminal.term_toggle)
+km.set(
+    { "n", "v" },
+    "<leader>tt",
+    U.terminal.term_toggle,
+    { desc = "Toggle terminal window" }
+)
 -- Put in last window
 km.set({ "n", "v" }, "<leader>p", function()
     utils.win_put(nil, vim.v.register)
-end, opts)
+end, add_opts("Put in last window"))
 -- Write, then repeat last command
 km.set({ "n", "v" }, "<leader>w", function()
     vim.cmd.write()
     vim.cmd.normal("@:")
-end, opts)
+end, add_opts("Write, then repeat last command"))
 -- Send line under cursor to terminal
 km.set({ "n" }, "<Leader>sl", function()
-    U.terminal.term_exec(vim.fn.getline("."))
+    U.terminal.term_exec(vim.api.nvim_get_current_line())
 end, opts)
 -- Interact with terminal buffer
-km.set({ "n" }, "<Leader>te", U.terminal.term_edit, opts)
+km.set(
+    { "n" },
+    "<Leader>te",
+    U.terminal.term_edit,
+    add_opts("Open terminal window")
+)
 
 -- Visual selection to terminal
-km.set({ "v" }, "<Leader>ts", function()
-    U.terminal.term_exec(vim.fn.getreg("*"))
-end, opts)
+-- km.set({ "v" }, "<Leader>ts", function()
+--     U.terminal.term_exec(vim.fn.getreg("*"))
+-- end, opts)
 
 -- Send line to terminal
-km.set({ "n" }, "<Leader>ts", function()
+km.set({ "n", "v" }, "<Leader>ts", function()
     U.terminal.term_exec(U.buffer.yank_visual())
 end, opts)
 
 -- Scroll last window of any type
 km.set({ "n", "v" }, "<S-PageUp>", function()
     utils.win_exec("normal 3k", U.recents["window"])
-end, opts)
+end, add_opts("Scroll last window down"))
+
 km.set({ "n", "v" }, "<S-PageDown>", function()
     utils.win_exec("normal 3j", U.recents["window"])
 end, opts)
@@ -289,7 +319,7 @@ km.set({ "n" }, "<Leader>ty", function()
     vim.fn.win_execute(term_state["last_terminal_win_id"], "normal 0ElvGy")
 end, opts)
 
-km.set({ "n", "v", "i" }, "<Leader>nj", utils.no_jump, opts)
+km.set({ "n", "v" }, "<Leader>nj", utils.no_jump, opts)
 
 km.set({ "i" }, ";n", "<C-o>o<Esc>4jI", opts)
 -- Blank line above/below in insert move
@@ -376,10 +406,11 @@ km.set({ "n" }, "<leader>mm", function()
     vim.fn.setreg("+", vim.cmd.messages())
 end, { silent = true })
 
---Insert mode: delete word or WORD right of cursor
+--Quote-surround in insert
 km.set({ "i" }, "<C-k>", function()
     vim.cmd.normal([[ysiw"]])
 end)
+--Insert mode: delete word or WORD right of cursor
 km.set({ "i" }, "<C-b>", function()
     vim.cmd.stopinsert()
     vim.cmd.normal("dw`^l")

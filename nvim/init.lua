@@ -170,7 +170,7 @@ local plugins = {
     { "nvim-telescope/telescope.nvim", tag = "0.1.0" },
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "mrjones2014/nvim-ts-rainbow",
-    configure("jose-elias-alvarez/null-ls.nvim", {}),
+    configure("nvimtools/none-ls.nvim", {}),
     "LostNeophyte/null-ls-embedded",
     "makerj/vim-pdf",
     "kosayoda/nvim-lightbulb",

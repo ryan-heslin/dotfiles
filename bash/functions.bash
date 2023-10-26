@@ -610,3 +610,8 @@ prec(){
     poetry run task sort
     poetry run flake8
 }
+
+# Remove annoying Neovim Shada files
+dshada(){
+    rm "$HOME/.local/state/nvim/shada/*tmp*"
+}

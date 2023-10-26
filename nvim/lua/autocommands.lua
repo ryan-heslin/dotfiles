@@ -144,13 +144,35 @@ autocmd(
     { pattern = "*", group = "Terminal", command = "startinsert" }
 )
 
--- Toggle cursorline
+-- Configure vim-slime
+autocmd("TermEnter", {
+    pattern = "*",
+    group = "Terminal",
+    callback = function()
+        if term_state == nil
+            or term_state["last_terminal_win_id"] == nil
+            or term_state["last_terminal_chan_id"] == nil
+        then
+            return
+        else
+            if vim.g.slime_default_config == nil then
+                vim.g.slime_default_config =
+                { jobid = term_state["last_terminal_chan_id"] }
+            end
+            vim.g.slime_target = "neovim"
+            vim.g.slime_dont_ask_default = true
+        end
+    end,
+})
+
+-- Toggle cursorline and absolute numbers
 vim.api.nvim_create_augroup("Cursor", { clear = true })
 autocmd("InsertEnter", {
     pattern = "*",
     group = "Cursor",
     callback = function()
         vim.o.cursorline = true
+        vim.o.relativenumber = false
     end,
 })
 autocmd("InsertLeave", {
@@ -158,6 +180,7 @@ autocmd("InsertLeave", {
     group = "Cursor",
     callback = function()
         vim.o.cursorline = false
+        vim.o.relativenumber = true
     end,
 })
 
