@@ -224,16 +224,16 @@ autocmd("VimEnter", {
     desc = "Load latest session on startup if no arguments provided",
 })
 -- Save latest Rmd file for automatic knitting
-autocmd("FileType", {
-    -- From https://github.com/neovim/neovim/issues/20455
-    pattern = "*",
-    callback = function()
-        if vim.bo.filetype == "rmd" then
-            vim.g.last_rmd = vim.fn.expand("%:p")
-        end
-    end,
-    desc = "Record latest Rmarkdown file for automatic knitting",
-})
+-- autocmd("FileType", {
+--     -- From https://github.com/neovim/neovim/issues/20455
+--     pattern = "*",
+--     callback = function()
+--         if vim.bo.filetype == "rmd" then
+--             vim.g.last_rmd = vim.fn.expand("%:p")
+--         end
+--     end,
+--     desc = "Record latest Rmarkdown file for automatic knitting",
+-- })
 autocmd("BufEnter", {
     callback = U.data.record_file_name,
     desc = "On entering file of any type, record its name, overwriting old value if it exists",
@@ -331,13 +331,15 @@ autocmd("WinClosed", {
 --     pattern = "*",
 -- })
 --nvim-dap completion
-autocmd("FileType dap-repl", {
-    callback = function()
-        if use_debug then
-            require("dap.ext.autocompl").attach()
-        end
-    end,
-})
+-- TODO: Find why this breaks everything
+-- autocmd("FileType dap-repl", {
+--     callback = function()
+--         use_debug = true
+--         if use_debug then
+--             require("dap.ext.autocompl").attach()
+--         end
+--     end,
+-- })
 autocmd(
     "CursorHold,CursorHoldI",
     { pattern = "*", callback = code_action_listener }

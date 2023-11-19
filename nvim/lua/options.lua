@@ -137,6 +137,7 @@ o.helpheight = 15
 
 o.splibelow = true
 o.spliright = true
+opt.gdefault = true
 
 -- default g for substitute command; unfortunately deprecated
 --vim.o.gdefault = true

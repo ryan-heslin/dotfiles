@@ -4,10 +4,10 @@ local create_range = function(line1, line2)
     if line1 == nil or line2 == nil then
         out = "%"
     else
-        out = string(line1) .. ","
-        string(line2)
-        return out
+        out = tostring(line1) .. ","
+        tostring(line2)
     end
+    return out
 end
 
 vim.api.nvim_create_user_command("E", function(args)

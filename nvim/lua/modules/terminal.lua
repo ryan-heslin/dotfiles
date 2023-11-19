@@ -127,7 +127,7 @@ M.term_edit = function(history_command, syntax)
     history_command = history_command or "history -w /tmp/history.txt"
     syntax = syntax or "bash"
     M.term_exec(history_command)
-    U.utils.make_scratch(
+    M.make_scratch(
         U.utils.compose_commands(
             "read /tmp/history.txt",
             "setlocal number syntax=" .. syntax,
@@ -197,7 +197,7 @@ M.display_term_history = function(lines, syntax)
     end
 
     vim.api.nvim_win_call(term_state["last_terminal_win_id"], function()
-        U.buffer.make_scratch(function()
+        M.make_scratch(function()
             vim.bo.syntax = syntax
             vim.wo.number = true
             vim.wo.relativenumber = true

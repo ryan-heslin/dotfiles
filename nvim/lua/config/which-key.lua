@@ -1,5 +1,6 @@
--- Mostly deafults
-require("which-key").setup({
+-- Mostly defaults
+local wk = require("which-key")
+wk.setup({
     plugins = {
         marks = true, -- shows a list of your marks on ' and `
         registers = true, -- shows your registers on " in NORMAL or <C-r> in INSERT mode
@@ -96,3 +97,5 @@ require("which-key").setup({
         filetypes = { "help" },
     },
 })
+-- Custom mappings
+wk.register({ ["["] = { wk.show, "Show mappings" } })

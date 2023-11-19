@@ -149,8 +149,6 @@ M.yank_visual = function(buffer)
         text = table.concat(text, "\n")
     end
     return text
-
-    --return vim.fn.getreg(register)
 end
 
 --Buffer
@@ -166,11 +164,9 @@ M.open_in_hidden = function(pattern)
     local cmd = "argadd"
     local current_buffer = vim.api.nvim_buf_get_number(0)
     for i, _ in ipairs(files) do
-        cmd = cmd .. (files[i] ~= current_file) and U.utils.surround_string(
-            files[i],
-            " ",
-            ""
-        ) or ""
+        cmd = cmd .. (files[i] ~= current_file)
+            and U.utils.surround_string(files[i], " ", "")
+            or ""
     end
 
     -- Return if only current file detected

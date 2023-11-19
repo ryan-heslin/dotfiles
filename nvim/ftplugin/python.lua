@@ -1,3 +1,13 @@
+local ipython = function()
+    if term_state == nil then
+        U.utils.sequence_callbacks({
+            U.terminal.term_setup,
+            function()
+                U.terminal.term_exec("ipython")
+            end,
+        }, 5)
+    end
+end
 local opts = { noremap = true, silent = true, buffer = true }
 local km = vim.keymap
 
@@ -90,7 +100,7 @@ km.set({ "n", "v" }, "<leader>ii", function()
     local module = vim.fn.input("Enter module name: ")
     U.terminal.term_exec("import importlib; importlib.reload(" .. module .. ")")
 end)
-
+km.set({ "n", "v" }, "<leader>rl", ipython)
 -- Special Python highlighting
 vim.api.nvim_set_hl(0, "TSDunder", { fg = "#d694b4", italic = true })
 vim.api.nvim_set_hl(0, "TSSelf", { fg = "#d694b4", italic = true, bold = true })

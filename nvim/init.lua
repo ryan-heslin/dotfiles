@@ -32,7 +32,7 @@ local r_filetypes = { "r", "rmd", "qmd" }
 local plugins = {
     "tpope/vim-unimpaired",
     "tpope/vim-repeat",
-    "tpope/vim-fugitive",
+    --"tpope/vim-fugitive",
     "puremourning/vimspector",
     {
         "folke/which-key.nvim",
@@ -185,7 +185,49 @@ local plugins = {
     configure("mfussenegger/nvim-dap-python", {}),
     configure("rcarriga/nvim-dap-ui", {}),
     "theHamsta/nvim-dap-virtual-text",
+    "MunifTanjim/nui.nvim",
+    {
+        "nvim-neo-tree/neo-tree.nvim",
+        branch = "v3.x",
+        requires = {
+            "nvim-lua/plenary.nvim",
+            "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+            "MunifTanjim/nui.nvim",
+            -- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
+            {
+                "s1n7ax/nvim-window-picker",
+                version = "2.*",
+                dependencies = {
+                    "nvim-lua/plenary.nvim",
+                    "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+                    "MunifTanjim/nui.nvim",
+                    "3rd/image.nvim",
+                },
+                config = function()
+                    require("window-picker").setup({
+                        filter_rules = {
+                            include_current_win = false,
+                            autoselect_one = true,
+                            -- filter using buffer options
+                            bo = {
+                                -- if the file type is one of following, the window will be ignored
+                                filetype = {
+                                    "neo-tree",
+                                    "neo-tree-popup",
+                                    "notify",
+                                },
+                                -- if the buffer type is one of following, the window will be ignored
+                                buftype = { "terminal", "quickfix" },
+                            },
+                        },
+                    })
+                    require("config/neotree")
+                end,
+            },
+        },
+    },
 }
+
 local opts = { git = { log = { "-10" } } }
 require("lazy").setup(plugins, opts)
 -- My custom configuration files
@@ -217,7 +259,5 @@ require("abbrev")
 require("vimscript")
 require("mappings")
 require("syntax")
-require("commands")
-
--- Manually reset operatorfunc
+require("commands") -- Manually reset operatorfunc
 U.data.restore_default("operatorfunc")

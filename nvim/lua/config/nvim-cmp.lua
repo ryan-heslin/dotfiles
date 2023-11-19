@@ -284,9 +284,9 @@ cmp_config.setup({
 
 cmp_config.setup.cmdline({ ":" }, {
     sources = {
-        { name = "cmdline", priority = 15 },
-        { name = "path", priority = 10 },
-        { name = "cmdline_history", max_item_count = 7, priority = 8 },
+        { name = "path", priority = 15 },
+        { name = "cmdline_history", max_item_count = 9, priority = 8 },
+        { name = "cmdline", priority = 7 },
         { name = "buffer" },
     },
 })

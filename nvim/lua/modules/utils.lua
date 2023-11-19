@@ -993,4 +993,18 @@ M.map = function(x, f)
     end
     return x
 end
+
+M.sequence_callbacks = function(callbacks, time)
+    if callbacks == {} then
+        return
+    end
+    callbacks[1]()
+    local cmd = "sleep " .. time
+    for i = 2, #callbacks, 1 do
+        os.execute(cmd)
+        print(callbacks[i])
+        callbacks[i]()
+    end
+end
+
 return M
