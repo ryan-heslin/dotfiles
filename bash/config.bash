@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-# CONFIG
+# Bash options
 shopt -s extglob cdable_vars globstar
 eval "$(dircolors -b)"
 
@@ -8,6 +8,7 @@ export PATH="$PATH:/home/$USER/.local/bin:/usr/bin:/opt/zotero:/usr/local/bin:$H
 
 # Unset for some reason
 export XDG_DATA_HOME="$HOME/.local/share"
+export ANKI_WAYLAND=1
 export EDITOR="nvim"
 export INPUTRC="$HOME/.inputrc"
 export R_KEYRING_BACKEND="secret_service"
@@ -16,11 +17,13 @@ export VM_NAME="Workstation"
 
 #R_version
 export R_USER_LIBRARY="$HOME/R/x86_64-pc-linux-gnu-library/4.2/"
-export FZF_DEFAULT_OPTS="-m --cycle --height 70% --reverse --border --tabstop=4 --ansi --preview 'file {} && [ -f {} ] && $(which batcat) {} --color=always --style=numbers --line-range :500' --preview-window=right:50%:wrap --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'"
+fzf_opts="-m --cycle --height 70% --reverse --border --tabstop=4 --ansi --preview 'file {} && [ -f {} ] && $(which batcat) {} --color=always --style=numbers --line-range :500' --preview-window=right:50%:wrap --color 'fg:#bbccdd,fg+:#ddeeff,bg:#334455,preview-bg:#223344,border:#778899'"
+export FZF_DEFAULT_OPTS="${fzf_opts}"
 export VIM_SESSION_DIR="$HOME/.vim/sessions"
 export FZF_DEFAULT_COMMAND="fdfind . $HOME --follow --exclude .git"
 #From bat repo - use bat as man pager
-export MANPAGER="sh -c 'col -bx | $(which batcat) -l man -p'"
+manpager="sh -c 'col -bx | $(which batcat) -l man -p'"
+export MANPAGER="${manpager}"
 export BAT_PAGER="less -RF"
 export VISUAL="/usr/local/bin/nvim"
 export CDPATH=":~/.config/nvim"
@@ -30,13 +33,15 @@ export ZoteroSQLpath="$HOME/Zotero/zotero.sqlite"
 export HISTCONTROL='ignorespace'
 export NVIM_PYTHON_LOG_FILE="/tmp/nvim_log"
 export NVIM_PYTHON_LOG_LEVEL="DEBUG"
-export GIT_CEILING_DIRECTORIES="$(dirname "$HOME")"
+home="$(dirname "$HOME")"
+export GIT_CEILING_DIRECTORIES="${home}"
 export LIBVA_DRIVER_NAME='i965'
 export LIBVA_DRIVERS_PATH='/usr/local/lib/dri'
-export QUARTO_PYTHON="$(which python3.11)"
+python="$(which python3.11)"
+export QUARTO_PYTHON="${python}"
 set -a
 #Concealed for security
-[ -e "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env"
+[ -f "$HOME/AoC_cookie.env" ] && . "$HOME/AoC_cookie.env"
 set +a
 #export FZF_CTRL_T_COMMAND="FZF_DEFAULT_COMMAND"
 #export FZF_ALT_C_COMMAND="fdfind -t d . $HOME"

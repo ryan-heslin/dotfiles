@@ -1,4 +1,4 @@
-.libPaths(new = "~/R/x86_64-pc-linux-gnu-library/4.2")
+.libPaths(new = "~/R/x86_64-pc-linux-gnu-library/4.3")
 
 # Set options
 local({
@@ -12,9 +12,9 @@ local({
     # Add Nvim-R completion and language server requirements if started with Nvim
     if (Sys.getenv("OS") != "Windows_NT" && !is.null(renv::project())) {
         extra_packages <- c(
-            "nvimcom",
             "languageserver", "lintr"
         )
+        if (Sys.getenv("NVIMR_TMPDIR") != "") extra_packages <- c(extra_packages, "nvimcom")
     } else {
         extra_packages <- character()
     }
@@ -39,6 +39,20 @@ local({
 })
 
 .my_funs <- new.env()
+
+# Update all packages, installing any R thinks are missing
+.my_funs$update_packages <- function() {
+    ok <- FALSE
+    handler <- function(e) {
+        install.packages(e[["package"]], ask = FALSE)
+        ok <<- FALSE
+    }
+
+    while (!ok) {
+        ok <- TRUE
+        tryCatch(update.packages(), error = handler)
+    }
+}
 
 .my_funs$q2 <- function() quit(save = "no")
 

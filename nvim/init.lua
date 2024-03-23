@@ -27,7 +27,7 @@ if not vim.loop.fs_stat(lazypath) then
     })
 end
 vim.opt.rtp:prepend(lazypath)
-local r_filetypes = { "r", "rmd", "qmd" }
+local r_filetypes = { "r", "rmd", "qmd", "rnoweb", "rhelp" }
 
 local plugins = {
     "tpope/vim-unimpaired",
@@ -86,6 +86,8 @@ local plugins = {
     "hrsh7th/cmp-nvim-lua",
     "hrsh7th/cmp-nvim-lsp-document-symbol",
     "hrsh7th/cmp-nvim-lsp-signature-help",
+    --{ "jalvesaq/cmp_nvim_r", filetypes = r_filetypes, doc_width = 55 },
+    "jalvesaq/cmp-nvim-r",
     "dmitmel/cmp-cmdline-history",
     "ray-x/cmp-treesitter",
     configure("ray-x/lsp_signature.nvim", {}),
@@ -167,7 +169,7 @@ local plugins = {
     { "jupyter-vim/jupyter-vim" },
     "folke/tokyonight.nvim",
     "nvim-lua/plenary.nvim",
-    { "nvim-telescope/telescope.nvim", tag = "0.1.0" },
+    { "nvim-telescope/telescope.nvim" },
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "mrjones2014/nvim-ts-rainbow",
     configure("nvimtools/none-ls.nvim", {}),
@@ -259,5 +261,6 @@ require("abbrev")
 require("vimscript")
 require("mappings")
 require("syntax")
-require("commands") -- Manually reset operatorfunc
+require("commands")
+-- Manually reset operatorfunc
 U.data.restore_default("operatorfunc")

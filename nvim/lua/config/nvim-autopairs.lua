@@ -19,7 +19,7 @@ end
 
 apairs.add_rules({
     Rule("$$", "$$", "rmd"):replace_endpair(end_middle("$$")),
-    Rule("`", "`", "rmd"):with_pair(cond.not_before_regex("%`+")),
+    Rule("`", "`", { "rmd", "qmd" }):with_pair(cond.not_before_regex("`+")),
     Rule([[\[]], [=[\]]=], "rmd"),
     Rule("'", "'", "r"):with_pair(cond.not_before_regex("^#")),
     Rule("(", ")", ""):with_pair(function()

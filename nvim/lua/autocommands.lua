@@ -185,15 +185,15 @@ autocmd("InsertLeave", {
 })
 
 autocmd(
-    "BufReadPost quickfix",
+    "BufReadPost",
     { pattern = "*", command = [[nnoremap <buffer> <CR> <CR>]] }
 )
-autocmd("User TelescopePreviewerLoaded", {
-    pattern = "*",
-    callback = function()
-        vim.wo.wrap = true
-    end,
-})
+-- autocmd("TelescopePreviewerLoaded", {
+--     pattern = "*",
+--     callback = function()
+--         vim.wo.wrap = true
+--     end,
+-- })
 
 -- Automatically source on save
 autocmd("BufWritePost", {
@@ -341,6 +341,6 @@ autocmd("WinClosed", {
 --     end,
 -- })
 autocmd(
-    "CursorHold,CursorHoldI",
+    { "CursorHold", "CursorHoldI" },
     { pattern = "*", callback = code_action_listener }
 )

@@ -1007,4 +1007,14 @@ M.sequence_callbacks = function(callbacks, time)
     end
 end
 
+-- https://www.reddit.com/r/neovim/comments/1abd2cq/what_are_your_favorite_tricks_using_neovim/
+-- Don't copy yank of blank line
+function M.smart_dd()
+    if vim.api.nvim_get_current_line():match("^%s*$") then
+        return '"_dd'
+    else
+        return "dd"
+    end
+end
+
 return M

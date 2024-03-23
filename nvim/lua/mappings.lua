@@ -574,7 +574,12 @@ km.set(
 )
 km.set({ "n", "v" }, "<C-m>", U.operator.link_wiki, { expr = true })
 
+-- https://www.reddit.com/r/neovim/comments/1abd2cq/what_are_your_favorite_tricks_using_neovim/
+km.set({ "n", "v" }, "dd", U.utils.smart_dd, { expr = true })
+km.set("x", ".", "normal .<CR>", { silent = false })
+km.set("x", "@", "normal @q<CR>", { silent = false })
 -- Toggle DAP interface
+
 km.set({ "v" }, "<C-e>", function()
     require("dapui").eval()
 end, add_opts("Toggle DAP interface"))

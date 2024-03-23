@@ -50,6 +50,7 @@ sources = {
     { name = "luasnip" },
     { name = "calc" },
     { name = "latex_symbols", priority = 3 },
+    { name = "cmp_nvim_r", filetype = { "R", "rmd", "qmd" } },
     --comparators = {
     --function(...) return cmp_buffer:compare_locality(...) end
     --},

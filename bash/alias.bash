@@ -2,6 +2,7 @@
 if [ -f "/usr/bin/batcat" ]; then
 alias bat="/usr/bin/batcat"
 fi
+# Git aliases
 alias gs="git status"
 alias ga="git add -A"
 alias gc="git commit -m"
@@ -12,9 +13,11 @@ alias mv="mv -i"
 alias fd="fdfind"
 alias bp="source $HOME/.bash_profile"
 alias py="python3"
+# ls variant
 alias lf="ls -lAtx --color | egrep -v '^d'"
 alias ls="ls -Atx --color --file-type -w 100"
 alias tree="tree -C"
+# VM management
 alias VB="VBoxManage"
 alias vmon='VBoxManage startvm "$VM_NAME"'
 alias vmoff='VBoxManage controlvm "$VM_NAME" poweroff'
