@@ -193,4 +193,7 @@ tryCatch(
     },
     error = function(e) invisible(NULL)
 )
+# options(languageserver.server_capabilities =
+#            list(completionProvider = FALSE,
+#                 completionItemResolve = FALSE))
 attach(.my_funs)

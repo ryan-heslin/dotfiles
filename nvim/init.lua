@@ -188,6 +188,7 @@ local plugins = {
     configure("rcarriga/nvim-dap-ui", {}),
     "theHamsta/nvim-dap-virtual-text",
     "MunifTanjim/nui.nvim",
+    "nvim-neotest/nvim-nio",
     {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",

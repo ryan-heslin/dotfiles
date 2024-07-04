@@ -615,3 +615,10 @@ prec(){
 dshada(){
     rm "$HOME/.local/state/nvim/shada/*tmp*"
 }
+
+# Print list of all installed R packages
+rlib(){ 
+    R -s -e "installed.packages() |> rownames() |> sort() |> paste(collapse = ',') |> cat('\n')" |
+         head -n -2 | 
+         tail -n -1
+}

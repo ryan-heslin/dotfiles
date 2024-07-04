@@ -154,14 +154,22 @@ autocmd("TermEnter", {
             or term_state["last_terminal_chan_id"] == nil
         then
             return
-        else
-            if vim.g.slime_default_config == nil then
-                vim.g.slime_default_config =
-                { jobid = term_state["last_terminal_chan_id"] }
-            end
-            vim.g.slime_target = "neovim"
-            vim.g.slime_dont_ask_default = true
         end
+        if vim.g.slime_default_config == nil then
+            vim.g.slime_default_config =
+            { jobid = term_state["last_terminal_chan_id"] }
+        end
+        local job_pid = vim.fn.jobpid(term_state["last_terminal_chan_id"])
+        vim.g.slime_target = "neovim"
+        vim.g.slime_dont_ask_default = true
+        -- Workaround for slime failing to set this config
+        vim.g.slime_last_channel = {
+            {
+                jobid = term_state["last_terminal_chan_id"],
+                pid = job_pid,
+                bufnr = term_state["last_terminal_buf_id"],
+            },
+        }
     end,
 })
 

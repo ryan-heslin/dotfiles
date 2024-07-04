@@ -275,7 +275,7 @@ local servers = {
         filetypes = { "r", "rmd", "quarto" },
     },
     racket_langserver = { filetypes = { "racket", "scheme" } },
-    ruby_ls = {},
+    ruby_lsp = {},
     tsserver = {},
 }
 local border = {

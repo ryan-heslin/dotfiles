@@ -13,23 +13,26 @@ local km = vim.keymap
 
 -- Run a Python script using vim-slime
 local run = function()
-    local chan = term_state["last_terminal_chan_id"]
     if term_state == nil
         or term_state["last_terminal_win_id"] == nil
         or term_state["last_terminal_chan_id"] == nil
     then
         print("No terminal active")
-    else
-        if vim.g.slime_default_config == nil then
-            vim.g.slime_default_config =
-            { jobid = term_state["last_terminal_chan_id"] }
-        end
-        vim.g.slime_target = "neovim"
-        vim.g.slime_dont_ask_default = true
-        vim.cmd.write()
-        vim.cmd("IPythonCellRun")
-        --vim.cmd.exec("py3 'ipython_cell.run()")
+        return
     end
+    local chan = term_state["last_terminal_chan_id"]
+    if vim.g.slime_default_config == nil then
+        vim.g.slime_default_config = { jobid = chan }
+    end
+    vim.g.slime_target = "neovim"
+    vim.g.slime_dont_ask_default = true
+    vim.cmd.write()
+    -- Read and run buffer lines
+    local code = vim.api.nvim_buf_get_lines(0, 0, vim.fn.line("$"), {})
+    local text = table.concat(code, "\n") .. "\n"
+    vim.fn["slime#send"]("%cpaste -q\n")
+    vim.fn["slime#send"](text)
+    vim.fn["slime#send"]("\n--\n")
 end
 
 vim.opt.cinwords:append({
@@ -49,10 +52,7 @@ vim.opt.cinwords:append({
 km.set("n", "<leader>sh", [[ggO#!/usr/bin/python3<Esc><C-o>]], opts)
 km.set("n", "\\s", [[:SlimeSend1 ipython<CR>]], opts)
 km.set("n", "\\e", [[:w <bar> IPythonCellExecuteCell<CR>]], opts)
-km.set("n", "\\r", function()
-    vim.cmd.write()
-    vim.cmd("IPythonCellRun")
-end, opts)
+km.set("n", "\\r", run, opts)
 km.set("n", "\\p", [[:IPythonCellPrevCommand<CR>]], opts)
 km.set("n", "\\\\", [[:IPythonCellRestart<CR>]], opts)
 km.set("n", "\\[c", [[:IPythonCellPrevCell<CR>]], opts)

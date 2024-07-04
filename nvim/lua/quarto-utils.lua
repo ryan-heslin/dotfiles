@@ -95,7 +95,7 @@ function parse_code_chunks(buffer, stop_line)
     local buffer_lines =
     vim.api.nvim_buf_get_lines(buffer, 0, vim.fn.line("$"), {})
     if stop_line == nil then
-        stop_line = table.getn(buffer_lines)
+        stop_line = #buffer_lines
     end
     local code = {}
     local chunk_started, chunk_ended
