@@ -9,8 +9,8 @@ local create_formatter = function(excludes)
     local filter = function(client)
         return not (
             client.name == "null-ls"
-                and excludes[vim.api.nvim_buf_get_option(0, "filetype")]
-            )
+            and excludes[vim.api.nvim_buf_get_option(0, "filetype")]
+        )
     end
 
     return function()
@@ -159,9 +159,10 @@ on_attach = function(client, bufnr)
     -- From https://github.com/martinsione/dotfiles/blob/master/src/.config/nvim/lua/modules/config/nvim-lspconfig/on-attach.lua
     -- Don't use null-ls to format for filetypes with formatters already set
     if client then
-        if client.supports_method("textDocument/formatting")
+        if
+            client.supports_method("textDocument/formatting")
             and not (
-            client.name == "null-ls"
+                client.name == "null-ls"
                 and exclusions[vim.api.nvim_buf_get_option(0, "filetype")]
             )
         then
@@ -196,7 +197,7 @@ on_attach = function(client, bufnr)
 
             -- Trigger document highlighting on holding cursor
             local doc_highlight =
-            vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
+                vim.api.nvim_create_augroup("LSPDocumentHighlight", {})
             vim.api.nvim_clear_autocmds({
                 group = doc_highlight,
                 buffer = bufnr,
@@ -227,10 +228,11 @@ on_attach = function(client, bufnr)
 end
 
 -- Ensuring relevant server paths are known
-local lua_dir = vim.fn.expand("$HOME/.local/bin/lua-language-server")
+local mason_dir = U.utils.join_paths({ vim.fn.stdpath("data"), "mason", "bin" })
+local lua_dir = U.utils.join_paths({ mason_dir, "lua-language-server" })
 local path = vim.fn.split(package.path, ";")
 -- Maybe add failsafe here
-local bashls = vim.fn.systemlist("which bash-language-server")[1]
+local bashls = U.utils.join_paths({ mason_dir, "bash-language-server" })
 table.insert(path, "lua/?.lua")
 table.insert(path, "lua/?/init.lua")
 
@@ -260,7 +262,7 @@ local servers = {
                 preloadFileSize = 5000,
                 library = {
                     [vim.fn.expand("$VIMRUNTIME/lua")] = true,
-                    [vim.fn.stdpath("config") .. "/lua"] = true,
+                    [U.utils.join_paths({ vim.fn.stdpath("config"), "lua" })] = true,
                 },
                 checkThirdParty = false,
             },

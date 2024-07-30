@@ -61,7 +61,8 @@ end
 
 M.win_exec = function(keys, direction, ignore_single)
     -- Can abort if no other window in tab to jump to
-    if direction == nil
+    if
+        direction == nil
         or (ignore_single and #(vim.api.nvim_tabpage_list_wins(0)) == 1)
     then
         return
@@ -72,7 +73,7 @@ M.win_exec = function(keys, direction, ignore_single)
 
     local count = vim.v.count1
     local command =
-    string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
+        string.gsub(M.t(keys), "^normal%s", "normal " .. tostring(count), 1)
     -- If window targeted by number instead of relative direction, just execute command
     if type(direction) == "number" then
         vim.fn.win_execute(direction, command)
@@ -156,9 +157,10 @@ M.toggle_opt = function(opt, val1, val2)
 end
 -- Count each value of a given option across all buffers
 M.summarize_option = function(opt)
-    if not pcall(function()
-        vim.api.nvim_buf_get_option(0, opt)
-    end)
+    if
+        not pcall(function()
+            vim.api.nvim_buf_get_option(0, opt)
+        end)
     then
         print("Invalid option " .. opt)
         return
@@ -363,9 +365,9 @@ M.save_session = function()
     end
     local this_session = vim.g.current_session
         or (
-        vim.v.this_session ~= nil
+            vim.v.this_session ~= nil
             and vim.v.this_session ~= ""
-            and vim.fn.systemlist(--Check if session file exists with current session name
+            and vim.fn.systemlist( --Check if session file exists with current session name
                 'basename -s ".vim" ' .. M.surround_string(vim.v.this_session)
             )[1]
         )
@@ -412,7 +414,7 @@ M.load_session = function()
     end
     -- Shell-quote for safety
     local latest_session =
-    vim.fn.systemlist("lastn " .. session_dir .. " 1 echo")[1]
+        vim.fn.systemlist("lastn " .. session_dir .. " 1 echo")[1]
     local session_name = vim.fn.systemlist(
         "basename -s '.vim' " .. M.surround_string(latest_session, "'")
     )[1]
@@ -483,7 +485,8 @@ M.count_pairs = function(str, char, close)
             open = open - 1
         end
         --TODO find correct stopping condition
-        if open < 1
+        if
+            open < 1
             and not string.find(string.sub(str, i + 1, -1), "%" .. close)
         then
             return i
@@ -581,7 +584,8 @@ end
 
 M.do_save_session = function(min_buffers)
     min_buffers = M.default_arg(min_buffers, 2)
-    if U.buffer.count_bufs_by_type(true)["normal"] >= min_buffers
+    if
+        U.buffer.count_bufs_by_type(true)["normal"] >= min_buffers
         and M.summarize_option("ft")["anki_vim"] == nil
     then
         M.save_session()
@@ -624,10 +628,11 @@ M.open_uri_under_cursor = function()
 
     -- consider anything that looks like string/string a github link
     local regex_plugin_url = "[%a%d%-%.%_]*%/[%a%d%-%.%_]*"
-    if open_uri(
-        "https://github.com/"
-        .. string.match(word_under_cursor, regex_plugin_url)
-    )
+    if
+        open_uri(
+            "https://github.com/"
+            .. string.match(word_under_cursor, regex_plugin_url)
+        )
     then
         return
     end
@@ -703,10 +708,10 @@ function M.create_tags_for_yanked_columns(df)
     end
 
     vim.cmd([[%s/\s\+/\r/ge]]) -- break multiple spaces into a new line
-    vim.cmd([[g/^$/d]]) -- remove any blank lines
+    vim.cmd([[g/^$/d]])        -- remove any blank lines
 
     if ft == "python" then
-        vim.cmd([[%s/'//ge]]) -- remove '
+        vim.cmd([[%s/'//ge]])                            -- remove '
         vim.cmd([[g/^\w\+$/normal! A="]] .. df .. [["]]) -- show which dataframe this column belongs to
         -- use " instead of ', for incremental tagging, since ' will be removed.
     else
@@ -744,8 +749,8 @@ function M.create_tags_for_yanked_columns(df)
 
     vim.api.nvim_win_set_buf(0, bufid)
     vim.cmd([[bd!]] .. newtag_bufid) -- delete the buffer created for tagging
-    vim.cmd([[bd!]] .. tag_bufid) -- delete the ctags tag buffer
-    vim.cmd([[noh]]) -- remove matched pattern highlight
+    vim.cmd([[bd!]] .. tag_bufid)    -- delete the ctags tag buffer
+    vim.cmd([[noh]])                 -- remove matched pattern highlight
 end
 
 local command = vim.api.nvim_create_user_command
@@ -758,7 +763,6 @@ end, {
 })
 
 M.grow_list = function()
-
     --TODO grow list of item in document by inserting next line with correct preceding mark (e.g., * if * opens current line,
     --3 if 2 does, c if d does, etc.)
     --To be triggered by insert mapping
@@ -804,10 +808,11 @@ M.clean_definition = function(name)
     line = vim.fn.getline(".")
     -- in function call, so replace name = 5 with name = name
     local trailing_comma = string.match(line, ",%s*$")
-    if trailing_comma
+    if
+        trailing_comma
         or string.match(line, "^[a-zA-Z_.]+%(")
         or (
-        vim.fn.line(".") > 1
+            vim.fn.line(".") > 1
             and string.match(vim.fn.getline(vim.fn.line(".") - 1), ",%s*$")
         )
     then
@@ -1015,6 +1020,22 @@ function M.smart_dd()
     else
         return "dd"
     end
+end
+
+-- Why is this not a standard library function?
+function M.collapse(strings, sep)
+    return table.concat(strings, sep)
+end
+
+function M.join_paths(paths)
+    --Remove trailing slashes from path parts
+    for i, path in ipairs(paths) do
+        local last = string.sub(path, -2, -1)
+        if last == "/" or last == "\\" then
+            paths[i] = string.sub(path, 1, -2)
+        end
+    end
+    return M.collapse(paths, "/")
 end
 
 return M

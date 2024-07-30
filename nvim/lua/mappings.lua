@@ -389,7 +389,7 @@ km.set(
 km.set(
     { "n", "v" },
     "<Leader>bp",
-    vim.cmd.brevious,
+    vim.cmd.bprevious,
     { desc = "Switch to previous buffer" }
 )
 

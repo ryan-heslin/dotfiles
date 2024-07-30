@@ -3,7 +3,6 @@ local o = vim.o
 local opt = vim.opt
 vim.cmd("filetype plugin indent on")
 vim.cmd.syntax("enable")
-vim.cmd.colorscheme("tokyonight-storm")
 text_extensions = { "rmd", "tex", "txt", "pandoc", "" }
 --For now, enabling this (to use lua filetype detection file in addition to .vim
 --version) just slows startup
@@ -19,10 +18,8 @@ let $BASH_ENV="~/dotfiles/bash/.bash_profile"
 ]])
 --vim.g["$BASH_ENV"] = vim.fn.expand("$HOME/dotfiles/bash/.bash_profile")
 
-o.runtimepath = vim.o.runtimepath
-    .. ","
-    .. vim.fn.expand("$HOME/.local/share/nvim/site/pack/packer")
-vim.g.session_dir = vim.fn.expand("$HOME/.vim/sessions")
+vim.g.session_dir =
+    U.utils.join_paths({ vim.fn.expand("$HOME"), ".vim", "sessions" })
 o.termguicolors = true
 opt.wildignore:append({
     "*.db",
@@ -72,7 +69,7 @@ o.shiftwidth = 4
 o.autoindent = true
 o.cursorcolumn = true
 o.cmdheight = 1
-o.si = true --Smart indentation
+o.si = true         --Smart indentation
 o.ruler = true
 o.updatetime = 2000 --Milliseconds, for cursor hold events
 opt.backspace:append({ "indent", "eol", "start" })

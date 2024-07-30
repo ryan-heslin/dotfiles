@@ -15,7 +15,7 @@ end
 
 text_extensions = { ".txt", ".md", ".Rmd", ".qmd", "" }
 -- Copied from https://github.com/folke/lazy.nvim.git
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+local lazypath = vim.fn.stdpath("data") .. "lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({
         "git",
@@ -34,15 +34,15 @@ local plugins = {
     "tpope/vim-repeat",
     --"tpope/vim-fugitive",
     "puremourning/vimspector",
-    {
-        "folke/which-key.nvim",
-        event = "VeryLazy",
-        init = function()
-            vim.o.timeout = true
-            vim.o.timeoutlen = 300
-            require("config/which-key")
-        end,
-    },
+    -- {
+    --     "folke/which-key.nvim",
+    --     event = "VeryLazy",
+    --     init = function()
+    --         vim.o.timeout = true
+    --         vim.o.timeoutlen = 300
+    --         require("config/which-key")
+    --     end,
+    -- },
     {
         "kkoomen/vim-doge",
         -- init = function()
@@ -84,7 +84,7 @@ local plugins = {
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
     "hrsh7th/cmp-nvim-lua",
-    "hrsh7th/cmp-nvim-lsp-document-symbol",
+    --"hrsh7th/cmp-nvim-lsp-document-symbol",
     "hrsh7th/cmp-nvim-lsp-signature-help",
     --{ "jalvesaq/cmp_nvim_r", filetypes = r_filetypes, doc_width = 55 },
     "jalvesaq/cmp-nvim-r",
@@ -111,7 +111,7 @@ local plugins = {
     "onsails/lspkind-nvim",
     "quangnguyen30192/cmp-nvim-tags",
     "ncm2/ncm2",
-    { "chrisbra/csv.vim", lazy = true, ft = "csv" },
+    { "chrisbra/csv.vim",      lazy = true, ft = "csv" },
     { "vim-pandoc/vim-pandoc", lazy = true, ft = { "pandoc", "rmd", "qmd" } },
     {
         "vim-pandoc/vim-pandoc-syntax",
@@ -165,7 +165,8 @@ local plugins = {
         lazy = true,
         ft = "qmd",
     },
-    { "jmbuhr/otter.nvim", lazy = true, ft = "qmd" },
+    configure("williamboman/mason.nvim", {}),
+    { "jmbuhr/otter.nvim",      lazy = true, ft = "qmd" },
     { "jupyter-vim/jupyter-vim" },
     "folke/tokyonight.nvim",
     "nvim-lua/plenary.nvim",
@@ -265,3 +266,4 @@ require("syntax")
 require("commands")
 -- Manually reset operatorfunc
 U.data.restore_default("operatorfunc")
+vim.cmd.colorscheme("tokyonight-storm")
