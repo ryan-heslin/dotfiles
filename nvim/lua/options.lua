@@ -74,7 +74,7 @@ o.ruler = true
 o.updatetime = 2000 --Milliseconds, for cursor hold events
 opt.backspace:append({ "indent", "eol", "start" })
 o.allowrevins = true
-o.shellslash = true
+--o.shellslash = true
 
 -- Search
 o.smartcase = true
@@ -132,8 +132,8 @@ set guicursor=n-v-c:block,i-ci-ve:ver25,r-cr:hor20,o:hor50
 vim.g.vimsyn_embed = "lP"
 o.helpheight = 15
 
-o.splibelow = true
-o.spliright = true
+o.splitbelow = true
+o.splitright = true
 opt.gdefault = true
 
 -- default g for substitute command; unfortunately deprecated

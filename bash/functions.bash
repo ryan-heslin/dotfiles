@@ -391,13 +391,22 @@ get_AoC(){
     local AoC_dir="$HOME/misc/AoC"
     local current_year
     current_year=$(date +"%-Y")
+    now=$(date +'%s')
+    local elapsed=$(( now - last_request ))
+    local throttle=900
+    # Throttle to request every 15 minutes
+    if [ "$elapsed" -lt "$throttle" ]; then
+        echo "Wait $((throttle - elapsed)) more seconds before requesting"
+        exit 1
+    fi
+    # If before December, no puzzles yet this year
     if [ "$(date +"%-m")" -lt 12 ]; then
         local current_year=$(( current_year - 1 ))
     fi
 
     while [ "$#" -gt 0 ]; do
         key="$1"
-        case $key in
+        case "$key" in
             -d|--day)
                 local day="$2"
                 #Confirm day is valid
@@ -411,7 +420,7 @@ get_AoC(){
             -y|--year )
                 # Confirm specified year is this year (if the month is December), or last year (otherwise)
                 local year="$2"
-                #Confirm year is between 2015 and last valid year inclusive
+                #Confirm year is a four-digit integer between 2015 and last valid year inclusive
                 if ! ( [[ "$year" =~ ^[0-9]{4}$ ]] && [ "$year" -ge 2015 ] && [ "$year" -le "$current_year" ] );  then
                     echo "$year is not a valid Advent of Code year. Valid: 2015-$current_year"
                     return 1
@@ -454,16 +463,17 @@ get_AoC(){
 
     current_day=$(date +'%d')
     current_month=$(date +'%m')
-    #TODO find latest valid day given year
+    # Auto-select current day if during Advent (December 1-25)
     if [ "${year+x}" = "" ] || [ "${day+x}" = "" ]; then
-        if [ "$current_day" -gt 25 ] && [ "$current_day" -lt 1 ] || [ "$current_month" -ne 12 ]; then
+        if [ "$current_month" -ne 12 ] || [ "$current_day" -gt 25 ] || [ "$current_day" -lt 1 ] ; then
             echo "Automatic selection only works during Advent"
             return 1
         fi
         # Must be Advent, so assured to work
         if [ "${year+x}" = "" ]; then
             year=current_year
-        else
+        fi
+        if [ "${day+x}" = "" ]; then
             day=current_day
         fi
         if [ "$day" -gt "$current_day" ]; then
@@ -475,10 +485,10 @@ get_AoC(){
 
     local inputs_dir="$AoC_dir/$year/inputs"
     # Make AoC directory if it doesn't already exist
-    if ! [ -d  "$inputs_dir" ]; then
-        mkdir -p "$inputs_dir"
-        echo "Making new directory $inputs_dir"
-    fi
+    # if ! [ -d  "$inputs_dir" ]; then
+    #     mkdir -p "$inputs_dir"
+    #     echo "Making new directory $inputs_dir"
+    # fi
 
     local path="$inputs_dir/day$day.txt"
 
@@ -488,7 +498,9 @@ get_AoC(){
     echo "https://adventofcode.com/$year/day/$day/input"
 
     # Eric Wastl would appreciate it if you identified yourself in the download request
-    curl -A 'Ryan Heslin - rwheslin@gmail.com' -fsS -o "$path" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    echo "$cookie"
+    curl -A 'Ryan Heslin - rwheslin@gmail.com'  -s -S -o "$path" -b "$cookie" "https://adventofcode.com/$year/day/$day/input"
+    last_request=$(date +%s)
     return 0
 }
 
@@ -520,7 +532,7 @@ ts(){
 
 # Get Zotero library IDs corresponding to query
 zotid(){
-    zotcli query "$1" | grep -oP "([A-Z0-9]{8})(?=\])"
+    zotcli query "${1}" | grep -oP "([A-Z0-9]{8})(?=\])"
 }
 
 
@@ -529,7 +541,6 @@ opac(){
     #local level="$(echo "${1:80}" | bc -l)"
     local target=${1:0.8}
     local dec=$((1-target))
-
     transset --click -v "$target"
 }
 
@@ -550,7 +561,7 @@ wbat(){
 
 # Kill last job(s) by search
 kl() {
-pgrep "$1" | tail -n "${2:1}" | xargs kill
+    pgrep "$1" | tail -n "${2:1}" | xargs kill
 }
 
 
@@ -560,32 +571,32 @@ gse(){
 }
 
 show(){
-local name="$1"
-local file="$2"
-local printer
-printer="$()"
-local extension="${file##*.}"
-awk "/^ *$name\(.*?\) *\{ *$/,/^ *} *$/" "$file" | bat -l "$extension"
+    local name="$1"
+    local file="$2"
+    local printer
+    printer="$()"
+    local extension="${file##*.}"
+    awk "/^ *$name\(.*?\) *\{ *$/,/^ *} *$/" "$file" | bat -l "$extension"
 }
 
 prebuild(){
-local cmd="$1"
-poetry build
-poetry install
-poetry run "$cmd"
+    local cmd="$1"
+    poetry build
+    poetry install
+    poetry run "$cmd"
 }
 
 # Get command at specified line of history
 hline(){
-history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selection clipboard
+    history | grep "$1" | head -n 1 | sed -E 's/^\s*[0-9]+\s*//g'  | xclip -selection clipboard
 }
 
 # Create new quarto file
 qdraft(){
     local new_file
     new_file="$(echo "${1}" | grep '\.qmd$' || echo "${1}.qmd")"
-    cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "${new_file}"
-    nvim "${new_file}"
+    cp "${HOME}/dotfiles/nvim/templates/skeleton.qmd" "$new_file"
+    nvim "$new_file"
 }
 
 validate_AoC(){
@@ -621,4 +632,12 @@ rlib(){
     R -s -e "installed.packages() |> rownames() |> sort() |> paste(collapse = ',') |> cat('\n')" |
          head -n -2 | 
          tail -n -1
+}
+
+
+neoupdate(){ 
+    # Download appimage
+    # Unpack squashfs
+    # Delete old squashfs files, replace
+    true
 }

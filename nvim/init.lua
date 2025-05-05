@@ -34,20 +34,34 @@ local plugins = {
     "tpope/vim-repeat",
     --"tpope/vim-fugitive",
     "puremourning/vimspector",
-    -- {
-    --     "folke/which-key.nvim",
-    --     event = "VeryLazy",
-    --     init = function()
-    --         vim.o.timeout = true
-    --         vim.o.timeoutlen = 300
-    --         require("config/which-key")
-    --     end,
-    -- },
+    {
+        "folke/which-key.nvim",
+        event = "VeryLazy",
+        init = function()
+            vim.o.timeout = true
+            vim.o.timeoutlen = 300
+            require("config/which-key")
+        end,
+    },
     {
         "kkoomen/vim-doge",
         -- init = function()
         --     vim.fn["doge#install"]()
         -- end,
+    },
+    {
+        "olimorris/codecompanion.nvim",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "nvim-treesitter/nvim-treesitter",
+            "hrsh7th/nvim-cmp",           -- Optional: For using slash commands and variables in the chat buffer
+            {
+                "stevearc/dressing.nvim", -- Optional: Improves the default Neovim UI
+                opts = {},
+            },
+            "nvim-telescope/telescope.nvim", -- Optional: For using slash commands
+        },
+        config = true,
     },
     {
         "lewis6991/gitsigns.nvim",
@@ -69,6 +83,7 @@ local plugins = {
     --     end,
     -- },
     "junegunn/fzf.vim",
+    "echasnovski/mini.icons",
     configure("uga-rosa/cmp-dictionary", {}),
     configure("kylechui/nvim-surround", {}),
     "neovim/nvim-lspconfig",
@@ -84,7 +99,7 @@ local plugins = {
     "hrsh7th/cmp-path",
     "hrsh7th/cmp-cmdline",
     "hrsh7th/cmp-nvim-lua",
-    --"hrsh7th/cmp-nvim-lsp-document-symbol",
+    "hrsh7th/cmp-nvim-lsp-document-symbol",
     "hrsh7th/cmp-nvim-lsp-signature-help",
     --{ "jalvesaq/cmp_nvim_r", filetypes = r_filetypes, doc_width = 55 },
     "jalvesaq/cmp-nvim-r",
@@ -126,7 +141,7 @@ local plugins = {
         "dense-analysis/ale",
         ft = {
             "c",
-            "cpp",
+            --"cpp",
             "cmake",
             "html",
             --"quarto",

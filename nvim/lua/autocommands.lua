@@ -1,4 +1,4 @@
-vim.o.t_EI = [[\e[2 q]]
+--vim.o.t_EI = [[\e[2 q]]
 
 --From https://github.com/neovim/nvim-lspconfig/wiki/Code-Actions
 local code_action_listener = function()
@@ -149,7 +149,8 @@ autocmd("TermEnter", {
     pattern = "*",
     group = "Terminal",
     callback = function()
-        if term_state == nil
+        if
+            term_state == nil
             or term_state["last_terminal_win_id"] == nil
             or term_state["last_terminal_chan_id"] == nil
         then
@@ -207,7 +208,8 @@ autocmd(
 autocmd("BufWritePost", {
     pattern = "*",
     callback = function()
-        if vim.b.source_on_save ~= 0
+        if
+            vim.b.source_on_save ~= 0
             and (vim.bo.filetype == "r" or vim.b.source_on_save == 1)
         then
             U.utils.refresh()

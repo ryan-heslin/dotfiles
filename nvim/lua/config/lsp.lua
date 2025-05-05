@@ -278,7 +278,7 @@ local servers = {
     },
     racket_langserver = { filetypes = { "racket", "scheme" } },
     ruby_lsp = {},
-    tsserver = {},
+    ts_ls = {},
 }
 local border = {
     { "🭽", "FloatBorder" },
