@@ -12,7 +12,7 @@ configure = function(plugin, opts)
     end
     return opts
 end
-
+a = 2
 text_extensions = { ".txt", ".md", ".Rmd", ".qmd", "" }
 -- Copied from https://github.com/folke/lazy.nvim.git
 local lazypath = vim.fn.stdpath("data") .. "lazy/lazy.nvim"
@@ -188,8 +188,7 @@ local plugins = {
     { "nvim-telescope/telescope.nvim" },
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
     "mrjones2014/nvim-ts-rainbow",
-    configure("nvimtools/none-ls.nvim", {}),
-    "LostNeophyte/null-ls-embedded",
+    configure("stevearc/conform.nvim", {}),
     "makerj/vim-pdf",
     "kosayoda/nvim-lightbulb",
     {
