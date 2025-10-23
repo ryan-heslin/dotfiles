@@ -238,6 +238,7 @@ table.insert(path, "lua/?/init.lua")
 
 local servers = {
     bashls = { filetypes = { "sh", "bash" }, cmd = bashls },
+    clangd = {},
     html = {},
     jsonls = {},
     lua_ls = {
@@ -350,6 +351,11 @@ end
 local lspconfig = require("lspconfig")
 
 for server, settings in pairs(servers) do
+    --vim.lsp.config(server, flags = {debounce_text_changes = 150})
+    --TODO
+    --1. Create lsp directory in lua dir where `language.lua` returns a table of config data
+    --2. Setup each server in `lsp.lua`
+    --3. Set autocommands for filetypes to activate servers
     lspconfig[server].setup({
         capabilities = capabilities,
         handlers = handlers,
