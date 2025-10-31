@@ -1,7 +1,6 @@
 {
   "Comment.nvim": { "branch": "master", "commit": "e30b7f2008e52442154b66f7c519bfd2f1e32acb" },
   "LuaSnip": { "branch": "master", "commit": "7d08b780201a4a7c9c117a3855492fdd6318380f" },
-  "Nvim-R": { "branch": "stable", "commit": "f68f7745fe92429d1fa080a8a7d6d6075be9f752" },
   "ale": { "branch": "master", "commit": "2f4a8665916e8bf44a30bbdc8a820692edd9f652" },
   "anki.nvim": { "branch": "master", "commit": "2a30bb4307000ff1be542906292418c50d3e7261" },
   "cmp-buffer": { "branch": "main", "commit": "b74fab3656eea9de20a9b8116afa3cfc4ec09657" },
@@ -26,6 +25,7 @@
   "dressing.nvim": { "branch": "master", "commit": "2d7c2db2507fa3c4956142ee607431ddb2828639" },
   "fzf.vim": { "branch": "master", "commit": "3cb44a8ba588e1ada409af495bdc6a4d2d37d5da" },
   "gitsigns.nvim": { "branch": "main", "commit": "dc10a490d056f5593b01c17bb172599ba244d65c" },
+  "hererocks": { "branch": "master", "commit": "160228946bed9998f5e3b168bd0b66ba2690f8f3" },
   "jupyter-vim": { "branch": "master", "commit": "91eef96d0f26ce37db241833341d08d11c8e5215" },
   "languageserver": { "branch": "master", "commit": "da009487981fd4322ebf5eaa9116aa9df3bcf495" },
   "leap.nvim": { "branch": "main", "commit": "2b68ddc0802bd295e64c9e2e75f18f755e50dbcc" },

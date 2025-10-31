@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 if [ -f "/usr/bin/batcat" ]; then
-alias bat="/usr/bin/batcat"
+  alias bat="/usr/bin/batcat"
 fi
 # Git aliases
 alias gs="git status"
@@ -25,6 +25,7 @@ alias vmreset='VBoxManage controlvm "$VM_NAME" reset'
 alias redo='sudo $(history -p \!\!)'
 alias luamake="$HOME/lua-language-server/3rd/luamake/luamake"
 alias kitty="env LIBGL_ALWAYS_SOFTWARE=1 $HOME/.local/kitty.app/bin/kitty "
+alias nvim="$HOME/Downloads/nvim-linux-x86_64.appimage"
 
 # From https://stackoverflow.com/questions/66382994/how-to-start-fzf-from-another-directory-the-the-current-working-directory
 # restore fzf default options ('fzf clear')

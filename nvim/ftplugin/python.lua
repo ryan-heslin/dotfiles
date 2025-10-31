@@ -48,6 +48,8 @@ vim.opt.cinwords:append({
     "class",
     "with",
 })
+vim.g.jupyter_highlight_cells = 1
+vim.g.jupyter_cell_separators = {"`"}
 
 km.set("n", "<leader>sh", [[ggO#!/usr/bin/python3<Esc><C-o>]], opts)
 km.set("n", "\\s", [[:SlimeSend1 ipython<CR>]], opts)
