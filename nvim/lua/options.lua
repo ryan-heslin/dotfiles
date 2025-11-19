@@ -52,7 +52,6 @@ o.wrapscan = true
 opt.shortmess:append({ a = true })
 o.showbreak = ">>"
 o.laststatus = 2
-o.number = true
 o.numberwidth = 3
 opt.sessionoptions:append({
     "winpos",
@@ -62,6 +61,7 @@ opt.sessionoptions:append({
     "tabpages",
 })
 o.relativenumber = true
+o.number = true
 o.expandtab = true
 o.tabstop = 4
 o.softtabstop = 4

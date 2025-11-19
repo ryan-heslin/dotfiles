@@ -12,7 +12,7 @@ configure = function(plugin, opts)
     end
     return opts
 end
-a = 2
+
 text_extensions = { ".txt", ".md", ".Rmd", ".qmd", "" }
 -- Copied from https://github.com/folke/lazy.nvim.git
 local lazypath = vim.fn.stdpath("data") .. "lazy/lazy.nvim"
@@ -44,22 +44,28 @@ local plugins = {
         end,
     },
     {
+        {
+            "quarto-dev/quarto-nvim",
+            dependencies = {
+                "jmbuhr/otter.nvim",
+                "nvim-treesitter/nvim-treesitter",
+            },
+        },
+    },
+    {
         "kkoomen/vim-doge",
-        -- init = function()
-        --     vim.fn["doge#install"]()
-        -- end,
     },
     {
         "olimorris/codecompanion.nvim",
         dependencies = {
             "nvim-lua/plenary.nvim",
             "nvim-treesitter/nvim-treesitter",
-            "hrsh7th/nvim-cmp",           -- Optional: For using slash commands and variables in the chat buffer
+            "hrsh7th/nvim-cmp",
             {
-                "stevearc/dressing.nvim", -- Optional: Improves the default Neovim UI
+                "stevearc/dressing.nvim",
                 opts = {},
             },
-            "nvim-telescope/telescope.nvim", -- Optional: For using slash commands
+            "nvim-telescope/telescope.nvim",
         },
         config = true,
     },
@@ -71,10 +77,7 @@ local plugins = {
     },
     configure("jpalardy/vim-slime", {}),
     "hanschen/vim-ipython-cell",
-    configure(
-        "jalvesaq/Nvim-R",
-        { branch = "stable", lazy = true, ft = r_filetypes }
-    ),
+    configure("jalvesaq/Nvim-R", { ft = r_filetypes }),
     --"jalvesaq/zotcite",
     -- {
     --     "junegunn/fzf",
@@ -137,25 +140,25 @@ local plugins = {
     "kyazdani42/nvim-web-devicons",
     configure("rareitems/anki.nvim", { lazy = true, ft = "anki" }),
     -- Filetypes that lack language servers
-    {
-        "dense-analysis/ale",
-        ft = {
-            "c",
-            --"cpp",
-            "cmake",
-            "html",
-            --"quarto",
-            "racket",
-            "sml",
-            "tex",
-            "vim",
-        },
-        cmd = "ALEEnable",
-        config = function()
-            vim.cmd("ALEEnable")
-        end,
-        lazy = true,
-    },
+    -- {
+    --     "dense-analysis/ale",
+    --     ft = {
+    --         "c",
+    --         --"cpp",
+    --         "cmake",
+    --         "html",
+    --         --"quarto",
+    --         "racket",
+    --         "sml",
+    --         "tex",
+    --         "vim",
+    --     },
+    --     cmd = "ALEEnable",
+    --     config = function()
+    --         vim.cmd("ALEEnable")
+    --     end,
+    --     lazy = true,
+    -- },
     {
         "quarto-dev/quarto-nvim",
         dependencies = {
@@ -187,7 +190,7 @@ local plugins = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope.nvim" },
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
-    "mrjones2014/nvim-ts-rainbow",
+    --"mrjones2014/nvim-ts-rainbow",
     configure("stevearc/conform.nvim", {}),
     "makerj/vim-pdf",
     "kosayoda/nvim-lightbulb",

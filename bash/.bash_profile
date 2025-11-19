@@ -6,3 +6,4 @@ export R_ENVIRON_USER="$DOTFILES_DIR/R/.Renviron"
 for file in $( find $DOTFILES_DIR/bash -type f | grep -vE 'bashrc|profile|~|input|functions' ); do
 	. "$file"
 done
+. "$HOME/.cargo/env"

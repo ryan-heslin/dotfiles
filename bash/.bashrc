@@ -3,3 +3,4 @@ if [ -f $HOME/.bash_profile ]; then
 else
 	echo "Problem reading .bash_profile"
 fi
+. "$HOME/.cargo/env"
