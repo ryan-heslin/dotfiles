@@ -29,6 +29,10 @@ end
 vim.opt.rtp:prepend(lazypath)
 local r_filetypes = { "r", "rmd", "qmd", "rnoweb", "rhelp" }
 
+--Do as follows for each plugin
+--No special arguments required -> plain string
+--Some special arguments required -> call configure with plugin name and table of arguments
+--Many special arguments -> manually configure opts table
 local plugins = {
     "tpope/vim-unimpaired",
     "tpope/vim-repeat",
@@ -52,9 +56,9 @@ local plugins = {
             },
         },
     },
-    {
-        "kkoomen/vim-doge",
-    },
+    -- {
+    --     "kkoomen/vim-doge",
+    -- },
     {
         "olimorris/codecompanion.nvim",
         dependencies = {
@@ -77,7 +81,7 @@ local plugins = {
     },
     configure("jpalardy/vim-slime", {}),
     "hanschen/vim-ipython-cell",
-    configure("jalvesaq/Nvim-R", { ft = r_filetypes }),
+    --configure("jalvesaq/Nvim-R", { ft = r_filetypes }),
     --"jalvesaq/zotcite",
     -- {
     --     "junegunn/fzf",
@@ -90,9 +94,23 @@ local plugins = {
     configure("uga-rosa/cmp-dictionary", {}),
     configure("kylechui/nvim-surround", {}),
     "neovim/nvim-lspconfig",
-    configure("nvim-treesitter/nvim-treesitter", {}),
+    configure(
+        "nvim-treesitter/nvim-treesitter",
+        { commit = "958fcfa0d8ce46d215e19cc3992c542f576c4123" }
+    ),
+    -- configure("mason-org/mason-lspconfig.nvim", {
+    --     ensure_installed = {
+    --         "bashls",
+    --         "clangd",
+    --         "marksman",
+    --         "lua_ls",
+    --         "pyright",
+    --     },
+    -- }),
     configure("nvim-treesitter/nvim-treesitter-textobjects", {}),
-    configure("nvim-treesitter/playground", {}),
+    -- configure(
+    --     "nvim-treesitter/playground"
+    -- ),
     { "REditorSupport/languageserver", lazy = true, ft = r_filetypes },
     configure("hrsh7th/nvim-cmp", { config = "InsertEnter" }),
     "hrsh7th/cmp-nvim-lsp",
@@ -184,8 +202,8 @@ local plugins = {
         ft = "qmd",
     },
     configure("williamboman/mason.nvim", {}),
-    { "jmbuhr/otter.nvim",      lazy = true, ft = "qmd" },
-    { "jupyter-vim/jupyter-vim" },
+    { "jmbuhr/otter.nvim",                        lazy = true,   ft = "qmd" },
+    --{ "jupyter-vim/jupyter-vim" },
     "folke/tokyonight.nvim",
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope.nvim" },

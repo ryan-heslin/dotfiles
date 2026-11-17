@@ -278,9 +278,31 @@ local servers = {
         filetypes = { "r", "rmd", "quarto" },
     },
     racket_langserver = { filetypes = { "racket", "scheme" } },
-    ruby_lsp = {},
+    --ruby_lsp = {},
     ts_ls = {},
 }
+vim.lsp.config("ruby_lsp", {
+    cmd = function(dispatchers, config)
+        return vim.lsp.rpc.start(
+            { "ruby-lsp" },
+            dispatchers,
+            config
+            and config.root_dir
+            and { cwd = config.cmd_cwd or config.root_dir }
+        )
+    end,
+    filetypes = { "ruby", "eruby" },
+    root_markers = { "Gemfile", ".git" },
+    init_options = {
+        formatter = "auto",
+    },
+    reuse_client = function(client, config)
+        config.cmd_cwd = config.root_dir
+        return client.name == config.name
+            and client.config.root_dir == config.root_dir
+    end,
+})
+vim.lsp.enable("ruby_lsp")
 local border = {
     { "🭽", "FloatBorder" },
     { "▔", "FloatBorder" },
